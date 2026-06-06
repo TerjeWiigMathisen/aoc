@@ -1,0 +1,308 @@
+u64 func1(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 1;
+  x += 13;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 3;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func2(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 1;
+  x += 11;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 12;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func3(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 1;
+  x += 15;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 9;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func4(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 26;
+  x += -6;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 12;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func5(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 1;
+  x += 15;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 2;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func6(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 26;
+  x += -8;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 1;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func7(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 26;
+  x += -4;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 1;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func8(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 1;
+  x += 15;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 13;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func9(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 1;
+  x += 10;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 1;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func10(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 1;
+  x += 11;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 6;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func11(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 26;
+  x += -11;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 2;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func12(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 26;
+  x += 0;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 11;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func13(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 26;
+  x += -8;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 10;
+  y *= x;
+  z += y;
+  return z;
+}
+
+u64 func14(u64 w, u64 x, u64 y, u64 z) {
+  assert(w >= 1 && w <= 9);
+  x *= 0;
+  x += z;
+  x %= 26;
+  z /= 26;
+  x += -7;
+  x = x == w;
+  x = x == 0;
+  y *= 0;
+  y += 25;
+  y *= x;
+  y += 1;
+  z *= y;
+  y *= 0;
+  y += w;
+  y += 3;
+  y *= x;
+  z += y;
+  return z;
+}
+

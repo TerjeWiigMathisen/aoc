@@ -1,0 +1,9 @@
+[package]
+name = "day03"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aoc-parse = "0.2.18"
+devtimer = "4.0.1"
+substring = "1.4.5"

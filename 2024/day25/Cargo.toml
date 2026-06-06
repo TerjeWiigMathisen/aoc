@@ -1,0 +1,11 @@
+[package]
+name = "day25"
+version = "0.1.0"
+edition = "2024"
+rustflags = ["-C", "target-cpu=native"] 
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+devtimer = "4.0.1"
+#devtimer = "4.0.1"

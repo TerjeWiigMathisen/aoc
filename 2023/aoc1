@@ -1,0 +1,60 @@
+#!perl -w
+use strict;
+
+my @digit = ("one","two","three","four","five","six","seven","eight","nine");
+
+sub first_last_digit
+{
+	my ($n) = @_;
+	$n =~ s/\D//g;
+	return substr($n,0,1).substr($n,-1,1);
+}
+
+sub first_digit
+{
+	my ($n) = @_;
+#	printf("%s\n",$n);
+	for (my $i = 0; $i < length($n); $i++) {
+		my $dig = substr($n,$i,1);
+		if ($dig ge '0' and $dig le '9') {
+			return $dig;
+		}
+		for (my $j = 1; $j <= 9;$j++) {
+			my $d = $digit[$j-1];
+			if (substr($n,$i, length($d)) eq $d) {
+				return $j;
+			}
+		}
+	}
+	return 'X'
+}
+
+sub last_digit
+{
+	my ($n) = @_;
+#	printf("%s\n",$n);
+	for (my $i = length($n)-1; $i >= 0; $i--) {
+		my $dig = substr($n,$i,1);
+		if ($dig ge '0' and $dig le '9') {
+			return $dig;
+		}
+		for (my $j = 1; $j <= 9;$j++) {
+			my $d = $digit[$j-1];
+			if (substr($n,$i, length($d)) eq $d) {
+				return $j;
+			}
+		}
+	}
+	return 'X'
+}
+
+my $part1 = 0;
+my $part2 = 0;
+
+while (<>) {
+	chomp;
+	$part1 += first_last_digit($_);
+	$part2 += first_digit($_).last_digit($_);
+}
+
+printf("%s\n%s\n", $part1, $part2);

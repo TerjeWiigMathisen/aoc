@@ -1,0 +1,45 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'rint'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=rint",
+                    "--package=rint"
+                ],
+                "filter": {
+                    "name": "rint",
+                    "kind": "bin"
+                }
+            },
+            "args": ["123.456","1234.567","1234.5","12345.5"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'rint'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=rint",
+                    "--package=rint"
+                ],
+                "filter": {
+                    "name": "rint",
+                    "kind": "bin"
+                }
+            },
+            "args": ["123.456","1234.567","1234.5","12345.5"],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
