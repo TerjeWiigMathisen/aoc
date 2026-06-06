@@ -1,4 +1,4 @@
-// Fastest run (Acer): 4.5 us with u8 vars
+// Fastest run (Acer): 86.1 us vs 33
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;

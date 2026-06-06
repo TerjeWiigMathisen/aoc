@@ -1,0 +1,18 @@
+Solutions for (nearly) all the 2015 to 2025 Advent of Code puzzles.
+Most years I first used Perl for a quick & dirty answer, then as I was learning Rust 
+I have re-implemented most of them, trying for the most efficient code I could think of.
+During the 2020-2024 years I worked for Cognite where we had an internal leaderboard, 
+I had solved a few previous puzzles before this but after 2021 I went back and filled 
+in all the missing years.
+
+Besides Perl and RUst there are a couple of C(++) and Python solutions.
+
+Usage: Every year/day has a separate sub-directory, the code expects to find input.txt
+in each daily directory.
+
+Perl: aoc(dd).pl input.txt
+Rust: cargo run -r
+
+Timing: All the solutions are self-timing, Perl does a single run while Rust typically 
+picks the best from 25-1000 runs, with a few extremely fast (sub-10 us) codes measuring 
+1000 iterations each time.

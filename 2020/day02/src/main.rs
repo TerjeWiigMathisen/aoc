@@ -1,4 +1,4 @@
-// Fastest run (Acer): 4.5 us with u8 vars
+// Fastest run (Acer): 6.9 us vs reference 35
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -80,6 +80,18 @@ fn process8(inp:&str) -> (usize, usize)
     }
     (part1, part2)
 }
+
+fn process_1000(inp:&str) ->(usize,usize)
+{
+    let (mut part1, mut part2) = (0,0);
+    for _ in 0..1000 {
+        let (p1, p2) = process8(&inp);
+        (part1,part2) = (p1,p2);
+    }
+    (part1,part2)
+}
+
+
 fn main() {
 //    let bench_result = run_benchmark(10, |_| {bench_permute();}); bench_result.print_stats();
 
@@ -91,11 +103,11 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process8(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process_1000(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
-    let (part1, part2) = process(&input);
+    let (part1, part2) = process8(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");

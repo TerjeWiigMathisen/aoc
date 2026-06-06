@@ -1,5 +1,7 @@
 #!perl -w 
 
+# Fastest run on Acer 2.9 ms
+
 use strict;
 use Time::HiRes qw(time);
 
@@ -640,8 +642,8 @@ foreach (@rules) {
 		die("Unknown rule:\n$_\n");
 	}
 }
-printf(STDERR "Seen %d colors, %d can directly contain a shiny gold bag\n", scalar(keys %colors), 
-	scalar(keys %contains_directly));
+#printf(STDERR "Seen %d colors, %d can directly contain a shiny gold bag\n", scalar(keys %colors), 
+#	scalar(keys %contains_directly));
 	
 my %seen = ();
 my %new = ();
@@ -651,7 +653,7 @@ foreach (keys %{$within{"shiny gold"}}) {
 	push(@new, $_) unless (defined($seen{$_}));
 	$seen{$_}++;
 }
-printf(STDERR "seen = %d\n", scalar(keys %seen));
+#printf(STDERR "seen = %d\n", scalar(keys %seen));
 
 while (scalar(@new)) {
 	my @n = @new;
@@ -663,8 +665,10 @@ while (scalar(@new)) {
 			$seen{$_}++;
 		}
 	}
-	printf(STDERR "seen = %d\n", scalar(keys %seen));
+#	printf(STDERR "seen = %d\n", scalar(keys %seen));
 }
+
+my $part1 = scalar(keys %seen);
 # Check the bag colors that can be contained within a shiny gold bag:
 foreach (@{$contains{"shiny gold"}}) {
 	my ($col, $cnt) = split(/,/);
@@ -676,11 +680,13 @@ foreach (@{$contains{"shiny gold"}}) {
 # Required count inside our bag:
 my %cached_count = ();
 
-my $total = count_within("shiny gold");
-printf("Need %1.0f internal bags\n", $total);
+my $part2 = count_within("shiny gold");
+#printf("Need %1.0f internal bags\n", $part2);
 	
 $t = time()-$t;
-printf("Total time = %1.6s\n", $t);
+
+printf("part1 = $part1\npart2 = $part2\n");
+printf("Total time = %1.6f ms\n", $t * 1000);
 exit();
 
 sub count_within

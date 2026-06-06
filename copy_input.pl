@@ -8,8 +8,8 @@ opendir(D, $year);
 my @files = readdir(D);
 close(D);
 
-my $tdir = "c:\\github\\advent-of-code-rust\\input\\year$year";
-mkdir($tdir) unless (-d $tdir);
+#my $tdir = "c:\\github\\aoc\\input\\year$year";
+#mkdir($tdir) unless (-d $tdir);
 
 sub datecmp{
 	my ($a, $b) = @_;
@@ -24,7 +24,7 @@ sub datecmp{
 
 my %seen = ();
 my $cnt = 0;
-foreach (@files) {
+foreach (sort @files) {
     next if (/^\.+$/);
 	my $buffer = "";
 	my $day;
@@ -44,7 +44,18 @@ foreach (@files) {
 		}
 	}
 	next unless($buffer && $day > 0);
-	my $target = sprintf("c:\\github\\advent-of-code-rust\\input\\year%d\\day%02d.txt", $year, $day);
+	my $dir = sprintf("c:\\github\\aoc\\%d\\day%02d", $year, $day);
+	if (!(-d $dir)) {
+		my $sdir = sprintf("c:\\github\\aoc\\%d\\day%d", $year, $day);
+		if (-d $sdir) {
+			rename($sdir,$dir);
+		}
+		else {
+			mkdir($dir);
+		}
+	}
+
+	my $target = $dir."\\input.txt";
 	next if ($seen{$target}++ > 0);
 	open(T, '>', $target);
 	syswrite(T, $buffer);

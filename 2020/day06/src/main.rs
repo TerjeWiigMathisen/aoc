@@ -1,4 +1,5 @@
 // Fastest run (Surface): 15.5 us
+//              Acer: 4.4 us        vs 38 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -35,6 +36,16 @@ fn process(inp:&str) -> (usize, usize)
     (part1, part2)
 }
 
+fn process_1000(inp:&str) ->(usize,usize)
+{
+    let (mut part1, mut part2) = (0,0);
+    for _ in 0..1000 {
+        let (p1, p2) = process(&inp);
+        part1 += p1; part2 += p2;
+    }
+    (part1,part2)
+}
+
 fn main() {
 //    let bench_result = run_benchmark(10, |_| {bench_permute();}); bench_result.print_stats();
 
@@ -55,5 +66,5 @@ fn main() {
 
     println!("Part1 = {part1}");
     println!("Part2 = {part2}");
-    println!("Total time {} us",devtime.time_in_micros().unwrap());
+    println!("Total time {} us for 1000 runs",devtime.time_in_micros().unwrap());
 }

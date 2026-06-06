@@ -1,5 +1,4 @@
 cargo new %1
 cd %1
-cargo add devtimer substring aoc-parse
+cargo add devtimer
 copy /-y ..\day1\src\main.rs src\
-copy /-y ..\aoc-template.pl aoc.pl

@@ -1,5 +1,5 @@
 // Fastest run  Surface:    1.535 us
-//              Acer:       0.883 us
+//              Acer:       0.883 us    vs 11 us
 //use std::io;
 //use std::env;
 use std::fs;

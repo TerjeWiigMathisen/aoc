@@ -89,8 +89,9 @@ my $t1 = time();
 #printf("%s\n",$t1);
 
 $t = $t1-$t;
-printf("Total time = %s ms\n", $t*1000);
+
+printf("part1 = $part1\npart2 = $part2\n");
+printf("Total time = %1.3f us\n", $t*1000000);
 printf("Total $iter iterations\n");
 
-exit();
 
