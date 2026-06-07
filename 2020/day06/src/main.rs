@@ -1,5 +1,5 @@
 // Fastest run (Surface): 15.5 us
-//              Acer: 4.4 us        vs 38 us
+//              Acer: 4.4 us        vs 38 us (7.9 us next day!?!)
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -20,7 +20,7 @@ fn process(inp:&str) -> (usize, usize)
             all &= curr;
             any |= curr;
             curr = 0;
-            if (i >= len) || (bytes[i] == b'\n') {
+            if bytes[i] == b'\n' {
                 i += 1;
                 part1 += any.count_ones() as usize;
                 part2 += all.count_ones() as usize;
@@ -54,6 +54,7 @@ fn main() {
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
     if input.as_bytes()[input.len()-1] != b'\n' {input.push('\n');}
+    input.push('\n');
 
     let mut devtime = DevTime::new_simple();
 
