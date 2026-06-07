@@ -12,7 +12,7 @@ fn process(inp:&str) -> (usize, usize)
     let mut part2 = 0;
     let mut all:u32 = u32::MAX;
     let mut any:u32 = 0;
-    let mut curr = 0;
+    let mut curr:u32 = 0;
     let len = bytes.len();
     while i < len {
         let b = bytes[i]; i += 1;
@@ -20,7 +20,8 @@ fn process(inp:&str) -> (usize, usize)
             all &= curr;
             any |= curr;
             curr = 0;
-            if (i >= len) || (bytes[i] == b'\n') {
+//            if (i >= len) || (bytes[i] == b'\n') {
+            if  bytes[i] == b'\n' {
                 i += 1;
                 part1 += any.count_ones() as usize;
                 part2 += all.count_ones() as usize;
@@ -54,6 +55,7 @@ fn main() {
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
     if input.as_bytes()[input.len()-1] != b'\n' {input.push('\n');}
+    input.push('\n'); // add extra blank line to simplify code
 
     let mut devtime = DevTime::new_simple();
 
