@@ -7,7 +7,11 @@ fn process(input: &str) -> (u32, u32)
 {
     let nums = input.split(",").map(|x| x.parse::<u32>().unwrap()).collect::<Vec<u32>>();
     let mut spoken = vec![0 as u32; 30000000];
-    let mut seen:Vec<u64> = vec![0;(30000000+63)/64];
+
+    const BLOOM_SIZE:usize = 1 << 17;
+    const BLOOM_MASK:usize = BLOOM_SIZE-1;
+
+    let mut bloom:Vec<u64> = vec![0;BLOOM_SIZE];
     
     let mut turn = 0;
     let mut last = nums[nums.len()-1];
@@ -36,17 +40,25 @@ fn process(input: &str) -> (u32, u32)
         else {
             let bit = 1 << (last & 63);
             let word = (last >> 6) as usize;
-            if seen[word] & bit == 0 {
-                seen[word] |= bit;
+            // 561 ms for triple bloom check
+//            let bloomsum = bloom[word & BLOOM_MASK] & bloom[(word >> 1) & BLOOM_MASK] & bloom[(word>>2) & BLOOM_MASK];
+            // 466 ms double bloom check
+            // 453 skipping final mask
+            // 438 skipping mask both places
+            let bloomsum = bloom[word & BLOOM_MASK] & bloom[word>>2]; // & BLOOM_MASK];
+            if bloomsum & bit == 0 {
+                bloom[word & BLOOM_MASK] |= bit;
+//                bloom[(word >> 1) & BLOOM_MASK] |= bit;
+                bloom[word>>2] |= bit;
                 spoken[last as usize] = turn as u32;
                 last = 0;
                 // scnt += 1;
             }
-            else {
+            else { // Could have been false positive
                 let previous = spoken[last as usize];
                 spoken[last as usize] = turn as u32;
-                last = turn-previous;
-                //last = if previous == 0 {0} else {turn-previous};
+                //last = turn-previous;
+                last = if previous == 0 {0} else {turn-previous};
                 // hits += 1;
             }
         }
