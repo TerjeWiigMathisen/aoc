@@ -1,4 +1,4 @@
-// Fastest run (Surface): 60.7 us
+// Fastest run (Surface): 49.3 us
 //              Acer:
 use std::fs;
 use devtimer::DevTime;
@@ -52,8 +52,10 @@ fn process(inp:&str) -> (i16, i16)
     let mut visited = Vec::new();
     let (part1, _inf) = run(&program, &mut visited);
     //println!("Part1 = {part1}, visited = {}", visited.iter().filter(|&&v| v).count());
-    for i in 0..program.len() {
+    //let mut candidates = Vec::new();
+    for i in (0..program.len()).rev() {
         if !visited[i] || program[i].name >= 2 { continue; }
+//        println!("Trying to swap line {} {}",i+1, if program[i].name == 0 { "nop" } else { "jmp" });
         let original = program[i].name;
         program[i].name = original ^ 1; // swap n<->j
         let (part2, inf) = run(&program, &mut visited);
