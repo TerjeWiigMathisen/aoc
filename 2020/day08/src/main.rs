@@ -33,7 +33,8 @@ fn parse_opcodes(inp:&str) -> Vec<Opcode>
             i += 1;
         }
         delta *= sign;
-        //if delta == 1 && name == 1 { delta = 0; name = 2;} // NOP acc
+        let mut name = name;
+        if delta == 1 && name < 2 { delta = 0; name = 2;} // NOP +1 or JMP +1 -> ACC +0
         // println!("Parsing line {line}: {} {delta}", match name {
         //     0 => "nop",
         //     1 => "jmp",
