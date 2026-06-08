@@ -1,4 +1,4 @@
-// Fastest run (Surface): 105.6 us
+// Fastest run (Surface): 60.7 us
 //              Acer:
 use std::fs;
 use devtimer::DevTime;
@@ -27,11 +27,11 @@ fn parse_opcodes(inp:&str) -> Vec<Opcode>
     result
 }
 
-fn run(program:&[Opcode]) -> (i16, bool)
+fn run(program:&[Opcode], visited:&mut Vec<bool>) -> (i16, bool)
 {
     let mut acc = 0;
     let mut ip:i16 = 0;
-    let mut visited = vec![false; program.len()];
+    *visited = vec![false; program.len()];
     while (ip as usize) < program.len() {
         if visited[ip as usize] { return (acc, true); }
         visited[ip as usize] = true;
@@ -49,19 +49,19 @@ fn run(program:&[Opcode]) -> (i16, bool)
 fn process(inp:&str) -> (i16, i16)
 {
     let mut program = parse_opcodes(inp);
-    let (part1, _inf) = run(&program);
+    let mut visited = Vec::new();
+    let (part1, _inf) = run(&program, &mut visited);
+    //println!("Part1 = {part1}, visited = {}", visited.iter().filter(|&&v| v).count());
     for i in 0..program.len() {
+        if !visited[i] || program[i].name >= 2 { continue; }
         let original = program[i].name;
-        if original < 2 {
-            program[i].name = original ^ 1; // swap n<->j
-            let (part2, inf) = run(&program);
-            if !inf { return (part1, part2); }
-            program[i].name = original; // restore
-        }
+        program[i].name = original ^ 1; // swap n<->j
+        let (part2, inf) = run(&program, &mut visited);
+        if !inf { return (part1, part2); }
+        program[i].name = original; // restore
     }
     (0,0)
 }
-
 
 fn main() {
     let fname = "input.txt"; // instead of args[1]
