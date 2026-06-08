@@ -1,5 +1,5 @@
 // Fastest run (Surface): 8.8 us
-//              Acer:
+//              Acer:       5.2 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -33,6 +33,7 @@ fn parse_opcodes(inp:&str) -> Vec<Opcode>
             i += 1;
         }
         delta *= sign;
+        //if delta == 1 && name == 1 { delta = 0; name = 2;} // NOP acc
         // println!("Parsing line {line}: {} {delta}", match name {
         //     0 => "nop",
         //     1 => "jmp",
@@ -74,6 +75,7 @@ fn process(inp:&str) -> (i16, i16)
     //let mut candidates = Vec::new();
     for i in (0..program.len()).rev() {
         if !visited[i] || program[i].name >= 2 { continue; }
+//        if program[i].name == 1 && program[i].delta == 1 { continue}
 //        println!("Trying to swap line {} {}",i+1, if program[i].name == 0 { "nop" } else { "jmp" });
         let original = program[i].name;
         program[i].name = original ^ 1; // swap n<->j
