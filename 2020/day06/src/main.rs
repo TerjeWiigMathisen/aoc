@@ -16,22 +16,22 @@ fn process(inp:&str) -> (usize, usize)
     let len = bytes.len();
     loop {
         let b = bytes[i]; i += 1;
-        if b == b'\n' {
-            all &= curr;
-            any |= curr;
-            curr = 0;
-            if bytes[i] == b'\n' { // Is this a double newline ending a section? Safe look-ahead due to input padding!
-                part1 += any.count_ones() as usize;
-                part2 += all.count_ones() as usize;
-                all = u32::MAX;
-                any = 0;
-                i += 1;
-                if i >= len {break} // The input can only end here, so the main loop does not have to test
-            }
-
-        } else { //if b >= b'a' {
+        loop {
             let bit = 1 << (b & 31);
             curr |= bit;
+            let b = bytes[i]; i += 1;
+            if b == b'\n' { break; }
+        }
+        all &= curr;
+        any |= curr;
+        curr = 0;
+        if bytes[i] == b'\n' { // Is this a double newline ending a section? Safe look-ahead due to input padding!
+            part1 += any.count_ones() as usize;
+            part2 += all.count_ones() as usize;
+            all = u32::MAX;
+            any = 0;
+            i += 1;
+            if i >= len {break} // The input can only end here, so the main loop does not have to test
         }
     }
     (part1, part2)
