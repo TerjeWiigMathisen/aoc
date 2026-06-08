@@ -1,4 +1,4 @@
-// Fastest run (Surface): 49.3 us
+// Fastest run (Surface): 8.8 us
 //              Acer:
 use std::fs;
 use devtimer::DevTime;
@@ -12,17 +12,36 @@ struct Opcode {
 fn parse_opcodes(inp:&str) -> Vec<Opcode>
 {
     let mut result = Vec::new();
-    for line in inp.lines() {
-        let bytes = line.as_bytes();
-        if bytes.len() < 5 { continue; }
-        let n = bytes[0];
+    let bytes = inp.as_bytes();
+    let mut i = 0;
+    //let mut line = 1;
+    while i < bytes.len() {
+        let n = bytes[i];
         let name = match n {
             b'n' => 0,
             b'j' => 1,
             b'a' => 2,
-            _ => continue,
+            _ => panic!("Unknown opcode"),
         };
-        result.push(Opcode { name: name, delta: (line[4..line.len()].to_string().parse::<i16>().unwrap_or(0)) });
+        i += 4;
+        let mut sign = 1;
+        if bytes[i] == b'-' { sign =-1; i += 1 }
+        else if bytes[i] == b'+' { i += 1 }
+        let mut delta:i16 = (bytes[i] - b'0') as i16; i += 1;
+        while bytes[i] != b'\n' {
+            delta = delta * 10 + (bytes[i] - b'0') as i16;
+            i += 1;
+        }
+        delta *= sign;
+        // println!("Parsing line {line}: {} {delta}", match name {
+        //     0 => "nop",
+        //     1 => "jmp",
+        //     2 => "acc",
+        //     _ => panic!("Unknown opcode"),
+        // });
+        //line += 1;
+        result.push(Opcode { name: name, delta: delta });
+        i += 1;
     }
     result
 }
@@ -67,8 +86,8 @@ fn process(inp:&str) -> (i16, i16)
 
 fn main() {
     let fname = "input.txt"; // instead of args[1]
-    let input = fs::read_to_string(fname).expect("Error readin input file");
-//    if input.as_bytes()[input.len()-1] != b'\n' {input.push('\n');}
+    let mut input = fs::read_to_string(fname).expect("Error readin input file");
+    if input.as_bytes()[input.len()-1] != b'\n' {input.push('\n');}
 
     let mut devtime = DevTime::new_simple();
 
