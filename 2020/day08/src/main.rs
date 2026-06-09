@@ -48,14 +48,14 @@ fn parse_opcodes(inp:&str) -> Vec<Opcode>
     result
 }
 
-fn run(program:&[Opcode], visited:&mut Vec<bool>) -> (i16, bool)
+fn run(program:&[Opcode], visited:&mut Vec<u8>) -> (i16, bool)
 {
     let mut acc = 0;
     let mut ip:i16 = 0;
-    *visited = vec![false; program.len()];
+    *visited = vec![0; program.len()];
     while (ip as usize) < program.len() {
-        if visited[ip as usize] { return (acc, true); }
-        visited[ip as usize] = true;
+        if visited[ip as usize] != 0 { return (acc, true); }
+        visited[ip as usize] = 1;
         let opcode = &program[ip as usize];
         match opcode.name {
             0 => ip += 1,
@@ -67,6 +67,39 @@ fn run(program:&[Opcode], visited:&mut Vec<bool>) -> (i16, bool)
     (acc, false)
 }
 
+fn color(program:&[Opcode], visited:&mut Vec<u8>) -> usize
+{
+    let mut i = program.len();
+    let mut col = 0;
+    while i > 0 {
+        i -= 1;
+        if program[i].name == 1 { 
+            let target = program[i].delta + i as i16;
+            if (target as u16) < (program.len() as u16) && visited[target as usize] & 2 == 0 {break}
+        }
+        visited[i] |= 2;
+        println!("E {} color 2", i+1);
+        col += 1;
+    }
+    let mut color = 0;
+    while i > 0 {
+        i -= 1;
+        if program[i].name == 1 { 
+            let target = program[i].delta + i as i16;
+            if (target as u16) < (program.len() as u16) && visited[target as usize] & 2 == 0 {
+                color = 0;
+                continue;
+            }
+            //if target >= program.len() as i16 || visited[target as usize] & 2 != 0 {
+            color = 2;
+        }
+        visited[i] |= color;
+        if color == 2 {println!("S {}", i+1)}
+        col += (color>>1) as usize;
+    }           
+    col
+}
+
 fn process(inp:&str) -> (i16, i16)
 {
     let mut program = parse_opcodes(inp);
@@ -74,8 +107,15 @@ fn process(inp:&str) -> (i16, i16)
     let (part1, _inf) = run(&program, &mut visited);
     //println!("Part1 = {part1}, visited = {}", visited.iter().filter(|&&v| v).count());
     //let mut candidates = Vec::new();
+
+    let colored = color(&program, &mut visited);
+    println!("Colored {colored} instructions");
     for i in (0..program.len()).rev() {
-        if !visited[i] || program[i].name >= 2 { continue; }
+        if visited[i] & 1 == 0 || program[i].name >= 2 { continue; }
+        let target = i as i16 + program[i].delta;
+        if (target as u16 >= (program.len() as u16)) { continue }
+        if visited[target as usize] & 2 == 0 {continue}
+
 //        if program[i].name == 1 && program[i].delta == 1 { continue}
 //        println!("Trying to swap line {} {}",i+1, if program[i].name == 0 { "nop" } else { "jmp" });
         let original = program[i].name;
@@ -94,7 +134,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1, |_| { process(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
