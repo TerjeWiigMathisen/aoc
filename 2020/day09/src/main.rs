@@ -1,5 +1,5 @@
 // Fastest run (Surface): 
-//              Acer:      16.046 us
+//              Acer:      7.2 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -10,8 +10,7 @@ fn findsum(numbers:&[u64], sum:u64) -> bool
     for k in 0..24 {
         let first = numbers[k];
         for l in (k+1)..25 {
-            let second = numbers[l];
-            if first+second == sum /* && first != second */ {return true}
+            if first + numbers[l] == sum /* && first != second */ {return true}
         }
     }
     false
@@ -40,9 +39,26 @@ fn findsum(numbers:&[u64], sum:u64) -> bool
 //     0
 // }
 
+fn parse(inp:&str) -> Vec<u64>
+{
+    let mut num:Vec<u64> = Vec::with_capacity(1000);
+    let mut i = 0;
+    let bytes = inp.as_bytes();
+    while i < bytes.len() {
+        let mut n = (bytes[i]-b'0') as u64; i += 1;
+        while bytes[i] >= b'0' {
+            n = n*10 + (bytes[i]-b'0') as u64;
+            i += 1;
+        }
+        num.push(n);
+        i += 1;
+    }
+    num
+}
+
 fn process(inp:&str) -> (u64, u64)
 {
-    let numbers:Vec<u64> = inp.lines().map(|x| x.parse::<u64>().unwrap()).collect();
+    let numbers:Vec<u64> = parse(&inp); //inp.lines().map(|x| x.parse::<u64>().unwrap()).collect();
     //println!("numbers: {:?}", numbers);
     //let part1 = p1(&numbers);
     let mut part1 = 0;
