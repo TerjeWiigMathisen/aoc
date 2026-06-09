@@ -2,3 +2,9 @@
 *.txt
 Cargo.lock
 /robert
+2020/day08/target/
+2020/day08/target/release/day08.exe
+2020/day08/target/release/day08.pdb
+2020/day08/target/release/deps/day08.exe
+2020/day08/target/release/deps/day08.pdb
+
