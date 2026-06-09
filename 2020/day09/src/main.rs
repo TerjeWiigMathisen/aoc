@@ -1,93 +1,54 @@
-// Fastest run (Surface): 8.8 us
-//              Acer:       4329 ns (1000 iterations)
+// Fastest run (Surface): 
+//              Acer:      18.8 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
-struct Opcode {
-    name: u16,
-    delta:i16,
-}
-
-fn parse_opcodes(inp:&str) -> Vec<Opcode>
+fn findsum(numbers:&[u64], sum:u64) -> bool
 {
-    let mut result = Vec::new();
-    let bytes = inp.as_bytes();
-    let mut i = 0;
-    //let mut line = 1;
-    while i < bytes.len() {
-        let n = bytes[i];
-        let name = match n {
-            b'n' => 0,
-            b'j' => 1,
-            b'a' => 2,
-            _ => panic!("Unknown opcode"),
-        };
-        i += 4;
-        let mut sign = 1;
-        if bytes[i] == b'-' { sign =-1; i += 1 }
-        else if bytes[i] == b'+' { i += 1 }
-        let mut delta:i16 = (bytes[i] - b'0') as i16; i += 1;
-        while bytes[i] != b'\n' {
-            delta = delta * 10 + (bytes[i] - b'0') as i16;
-            i += 1;
-        }
-        delta *= sign;
-        let mut name = name;
-        if delta == 1 && name < 2 { delta = 0; name = 2;} // NOP +1 or JMP +1 -> ACC +0
-        // println!("Parsing line {line}: {} {delta}", match name {
-        //     0 => "nop",
-        //     1 => "jmp",
-        //     2 => "acc",
-        //     _ => panic!("Unknown opcode"),
-        // });
-        //line += 1;
-        result.push(Opcode { name: name, delta: delta });
-        i += 1;
-    }
-    result
-}
-
-fn run(program:&[Opcode], visited:&mut Vec<bool>) -> (i16, bool)
-{
-    let mut acc = 0;
-    let mut ip:i16 = 0;
-    *visited = vec![false; program.len()];
-    while (ip as usize) < program.len() {
-        if visited[ip as usize] { return (acc, true); }
-        visited[ip as usize] = true;
-        let opcode = &program[ip as usize];
-        match opcode.name {
-            0 => ip += 1,
-            1 => ip += opcode.delta,
-            2 => { acc += opcode.delta; ip += 1; },
-            _ => panic!("Unknown opcode"),
+    for k in 0..24 {
+        let first = numbers[k];
+        for l in (k+1)..25 {
+            let second = numbers[l];
+            if first+second == sum && first != second {return true}
         }
     }
-    (acc, false)
+    false
 }
 
-fn process(inp:&str) -> (i16, i16)
+fn process(inp:&str) -> (u64, u64)
 {
-    let mut program = parse_opcodes(inp);
-    let mut visited = Vec::new();
-    let (part1, _inf) = run(&program, &mut visited);
-    //println!("Part1 = {part1}, visited = {}", visited.iter().filter(|&&v| v).count());
-    //let mut candidates = Vec::new();
-    for i in (0..program.len()).rev() {
-        if !visited[i] || program[i].name >= 2 { continue; }
-//        if program[i].name == 1 && program[i].delta == 1 { continue}
-//        println!("Trying to swap line {} {}",i+1, if program[i].name == 0 { "nop" } else { "jmp" });
-        let original = program[i].name;
-        program[i].name = original ^ 1; // swap n<->j
-        let (part2, inf) = run(&program, &mut visited);
-        if !inf { return (part1, part2); }
-        program[i].name = original; // restore
+    let numbers:Vec<u64> = inp.lines().map(|x| x.parse::<u64>().unwrap()).collect();
+    //println!("numbers: {:?}", numbers);
+    let mut part1 = 0;
+    for i in 25..numbers.len() {
+        let sum = numbers[i];
+        if !findsum(&numbers[i-25..i], sum) { 
+            part1 = sum; 
+            //println!("First non-sum value = {sum} (at index {}", i+1);
+            break;
+        }
     }
-    (0,0)
+    let mut left = 0;
+    let mut right = 1;
+    let mut sum = numbers[left];
+    while sum != part1 {
+        while sum < part1 {sum += numbers[right]; right += 1}
+        while sum > part1 {sum -= numbers[left]; left += 1}
+    }
+    let mut smallest = u64::MAX;
+    let mut largest = 0;
+    for i in left..right {
+        let n = numbers[i];
+        if n < smallest {smallest = n}
+        if n > largest {largest = n}
+    }
+    //println!("found range: [{smallest}-{largest}, numbers[{left}..{right}]");
+    let part2 = smallest + largest;
+    (part1,part2)
 }
 
-fn process_1000(inp:&str) -> (i16,i16)
+fn _process_1000(inp:&str) -> (u64,u64)
 {
     for _ in 0..1000 {
         process(&inp);
@@ -102,7 +63,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process_1000(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { _process_1000(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
