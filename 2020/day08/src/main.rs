@@ -1,5 +1,5 @@
 // Fastest run (Surface): 8.8 us
-//              Acer:       5.2 us
+//              Acer:       4350 ns (1000 iterations)
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -87,6 +87,14 @@ fn process(inp:&str) -> (i16, i16)
     (0,0)
 }
 
+fn process_1000(inp:&str) -> (i16,i16)
+{
+    for _ in 0..1000 {
+        process(&inp);
+    }
+    (0,0)
+}
+
 fn main() {
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
@@ -94,7 +102,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process_1000(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
