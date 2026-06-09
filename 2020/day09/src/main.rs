@@ -1,8 +1,9 @@
 // Fastest run (Surface): 
-//              Acer:      18.8 us
+//              Acer:      16.046 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
+//use ahash::AHashSet;
 
 fn findsum(numbers:&[u64], sum:u64) -> bool
 {
@@ -10,16 +11,40 @@ fn findsum(numbers:&[u64], sum:u64) -> bool
         let first = numbers[k];
         for l in (k+1)..25 {
             let second = numbers[l];
-            if first+second == sum && first != second {return true}
+            if first+second == sum /* && first != second */ {return true}
         }
     }
     false
 }
 
+// fn p1(numbers:&Vec<u64>) -> u64
+// {
+//     let mut set:AHashSet<u64> = AHashSet::new();
+//     for i in 0..25 {
+//         set.insert(numbers[i]);
+//     }
+//     for i in 25..numbers.len() {
+//         let sum = numbers[i];
+//         let start = numbers[i-25];
+//         let mut found = false;
+//         for j in i-25..i {
+//             let first = numbers[j];
+//             if first >= sum {continue}
+//             let diff = sum-first;
+//             if set.contains(&diff) {found = true; break}
+//         }
+//         if !found {return sum}
+//         set.remove(&start);
+//         set.insert(sum);
+//     }
+//     0
+// }
+
 fn process(inp:&str) -> (u64, u64)
 {
     let numbers:Vec<u64> = inp.lines().map(|x| x.parse::<u64>().unwrap()).collect();
     //println!("numbers: {:?}", numbers);
+    //let part1 = p1(&numbers);
     let mut part1 = 0;
     for i in 25..numbers.len() {
         let sum = numbers[i];
@@ -63,7 +88,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { _process_1000(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(100, |_| { _process_1000(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
