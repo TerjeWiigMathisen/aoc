@@ -1,4 +1,4 @@
-// Fastest run (Surface): 
+// Fastest run (Surface): 14.7 us
 //              Acer:      7.2 us
 use std::fs;
 use devtimer::DevTime;
