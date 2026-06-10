@@ -7,16 +7,16 @@ use devtimer::run_benchmark;
 
 #[derive(Clone, Debug)]
 struct Grid {
-    height:usize,
+    stride:usize,
     width:usize,
-    neighbors:[i64;8],
+    start:usize,
     bytes:Vec<u8>,
 }
 
 const BORDER:u8 = 0;
 const EMPTY:u8 = 1;
 const CHAIR:u8 = 2;
-const TAKEN:u8 = 3;
+const TAKEN:u8 = 4;
 
 fn parse(inp:&str) -> Grid
 {
@@ -29,14 +29,20 @@ fn parse(inp:&str) -> Grid
         }
     }
     let stride = width+1;
-    let height = bytes.len() / stride;
     let s64 = stride as i64;
-    let mut g = Grid{height:height,width:width,
-        neighbors:[-1-s64, -s64, 1-s64, -1, 1, -1+s64, s64, 1+s64],
-        bytes:vec![]};
-    let border = b'\n';
+    let mut g = Grid{stride:stride,width:width,start:stride+1,bytes:vec![]};
+    let border = BORDER;
     for _ in 0..=stride {g.bytes.push(border)}
-    for i in 0..bytes.len() {g.bytes.push(bytes[i])}
+    for i in 0..bytes.len() {
+        let cell = match bytes[i] {
+            b'\n' => BORDER,
+            b'.' => EMPTY,
+            b'L' => CHAIR,
+            b'#' => TAKEN,
+            _ => BORDER,
+        };
+        g.bytes.push(cell);
+    }
     for _ in 0..=stride {g.bytes.push(border)}
     g
 }
@@ -45,22 +51,23 @@ fn gen1(grid:&Grid) -> (usize, Grid)
 {
     let mut cnt = 0;
     let mut newgrid = grid.clone();
-    for p in grid.width..(grid.bytes.len()-grid.width) {
+    for p in grid.start..(grid.bytes.len()-grid.stride) {
         let seat = grid.bytes[p];
-        if seat == b'.' || seat <= b' ' {continue}
-        let mut occupied = 0;
-        for d in grid.neighbors {
-            if grid.bytes[(p as i64 + d) as usize] == b'#' { occupied += 1}
-        }
-        if seat == b'#' {
-            if occupied >= 4 {
-                newgrid.bytes[p] = b'L';
+        if seat <= EMPTY {continue}
+        let above = p - grid.stride;
+        let below = p + grid.stride;
+        let mut occupied = grid.bytes[above-1] & TAKEN + grid.bytes[above] & TAKEN + grid.bytes[above+1] & TAKEN;
+        occupied += grid.bytes[p-1] & TAKEN + grid.bytes[p+1] & TAKEN;
+        occupied += grid.bytes[below-1] & TAKEN + grid.bytes[below] & TAKEN + grid.bytes[below+1] & TAKEN;
+        if seat == TAKEN {
+            if occupied >= 4*TAKEN {
+                newgrid.bytes[p] = EMPTY;
                 cnt += 1;
             }
         }
         else { // seat = b'L'
             if occupied == 0 {
-                newgrid.bytes[p] = b'#';
+                newgrid.bytes[p] = TAKEN;
                 cnt += 1;
             }
         }
@@ -72,32 +79,23 @@ fn gen2(grid:&Grid) -> (usize, Grid)
 {
     let mut cnt = 0;
     let mut newgrid = grid.clone();
-    for p in grid.width..(grid.bytes.len()-grid.width) {
+    for p in grid.start..(grid.bytes.len()-grid.stride) {
         let seat = grid.bytes[p];
-        if seat == b'.' || seat == b'\n' {continue}
-        let mut occupied = 0;
-        for d in grid.neighbors {
-            let mut pd = p;
-            loop {
-                pd = (pd as i64 + d) as usize;
-                match grid.bytes[pd as usize] {
-                    b'\n' => {break},
-                    b'.' => {},
-                    b'#' => {occupied += 1; break},
-                    b'L' => {break},
-                    _ => {panic!("Bad letter in grid!")}
-                }
-            }
-        }
-        if seat == b'#' {
-            if occupied >= 5 {
-                newgrid.bytes[p] = b'L';
+        if seat <= EMPTY {continue}
+        let above = p - grid.stride;
+        let below = p + grid.stride;
+        let mut occupied = grid.bytes[above-1] & TAKEN + grid.bytes[above] & TAKEN + grid.bytes[above+1] & TAKEN;
+        occupied += grid.bytes[p-1] & TAKEN + grid.bytes[p+1] & TAKEN;
+        occupied += grid.bytes[below-1] & TAKEN + grid.bytes[below] & TAKEN + grid.bytes[below+1] & TAKEN;
+        if seat == TAKEN {
+            if occupied >= 5*TAKEN {
+                newgrid.bytes[p] = EMPTY;
                 cnt += 1;
             }
         }
         else { // seat = b'L'
             if occupied == 0 {
-                newgrid.bytes[p] = b'#';
+                newgrid.bytes[p] = TAKEN;
                 cnt += 1;
             }
         }
