@@ -1,5 +1,5 @@
-// Fastest run (Surface): 14.7 us
-//              Acer:      7.2 us
+// Fastest run (Surface): 1198 ns
+//              Acer:     
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -23,20 +23,32 @@ fn parse(inp:&str) -> Vec<u8>
 
 fn process(inp:&str) -> (usize, usize)
 {
-    let mut numbers:Vec<u8> = parse(&inp); //inp.lines().map(|x| x.parse::<u8>().unwrap()).collect();
+    let mut numbers:Vec<u8> = parse(&inp);
     numbers.push(0);
     numbers.sort_unstable();
-    //println!("Numbers: {numbers:?}");
-    let mut diffs = [0; 3];
+
+    let mut diffs: usize = 0;
+    let mut prev = 0;
     for i in 1..numbers.len() {
-        let diff = numbers[i]-numbers[i-1];
-        //if diff <= 3 && diff >= 1 {
-            diffs[diff as usize - 1] += 1;
-        //}
+        let curr = numbers[i];
+        let diff = curr - prev - 1;
+        diffs += (1 as usize) << (diff*8);
+        prev = curr;
     }
-    //println!("Diffs: {diffs:?}");
-    let part1 = diffs[0] as usize * (diffs[2]+1) as usize;
-    let mut part2 = 0;
+    let part1 = (diffs & 255) as usize * ((diffs >> 16) + 1) as usize;
+
+    let mut perm:Vec<usize> = vec![0; numbers.len()];
+    perm[0] = 1;
+    let mut left = 0;
+    for i in 1..numbers.len() {
+        while numbers[i] - numbers[left] > 3 { left += 1; }
+        let mut sum = perm[left];
+        for j in (left+1)..i {
+            sum += perm[j];
+        }
+        perm[i] = sum;
+    }
+    let part2 = perm[numbers.len()-1];
     (part1,part2)
 }
 
@@ -64,5 +76,5 @@ fn main() {
 
     println!("Part1 = {part1}");
     println!("Part2 = {part2}");
-    println!("Total time {} us for 1000 runs",devtime.time_in_micros().unwrap());
+    println!("Total time {} us",devtime.time_in_micros().unwrap());
 }
