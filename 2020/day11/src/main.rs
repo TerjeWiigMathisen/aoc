@@ -1,5 +1,5 @@
 // Fastest run (Surface):
-//              Acer:    12.3 ms
+//              Acer:    11.495 ms
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -44,6 +44,7 @@ fn parse(inp:&str) -> Grid
         g.bytes.push(cell);
     }
     for _ in 0..=stride {g.bytes.push(border)}
+    //println!("{:?}", g);
     g
 }
 
@@ -56,12 +57,13 @@ fn gen1(grid:&Grid) -> (usize, Grid)
         if seat <= EMPTY {continue}
         let above = p - grid.stride;
         let below = p + grid.stride;
-        let mut occupied = grid.bytes[above-1] & TAKEN + grid.bytes[above] & TAKEN + grid.bytes[above+1] & TAKEN;
-        occupied += grid.bytes[p-1] & TAKEN + grid.bytes[p+1] & TAKEN;
-        occupied += grid.bytes[below-1] & TAKEN + grid.bytes[below] & TAKEN + grid.bytes[below+1] & TAKEN;
+        let mut occupied = (grid.bytes[above-1] & TAKEN) + (grid.bytes[above] & TAKEN) + (grid.bytes[above+1] & TAKEN);
+        occupied += (grid.bytes[p-1] & TAKEN) + (grid.bytes[p+1] & TAKEN);
+        occupied += (grid.bytes[below-1] & TAKEN) + (grid.bytes[below] & TAKEN) + (grid.bytes[below+1] & TAKEN);
+        //println!("seat {p} = {seat}, {occupied} neighbors");
         if seat == TAKEN {
             if occupied >= 4*TAKEN {
-                newgrid.bytes[p] = EMPTY;
+                newgrid.bytes[p] = CHAIR;
                 cnt += 1;
             }
         }
@@ -72,6 +74,7 @@ fn gen1(grid:&Grid) -> (usize, Grid)
             }
         }
     }
+    println!("part1 {cnt} modified chairs");
     (cnt, newgrid)
 }
 
@@ -82,14 +85,27 @@ fn gen2(grid:&Grid) -> (usize, Grid)
     for p in grid.start..(grid.bytes.len()-grid.stride) {
         let seat = grid.bytes[p];
         if seat <= EMPTY {continue}
+
         let above = p - grid.stride;
         let below = p + grid.stride;
-        let mut occupied = grid.bytes[above-1] & TAKEN + grid.bytes[above] & TAKEN + grid.bytes[above+1] & TAKEN;
-        occupied += grid.bytes[p-1] & TAKEN + grid.bytes[p+1] & TAKEN;
-        occupied += grid.bytes[below-1] & TAKEN + grid.bytes[below] & TAKEN + grid.bytes[below+1] & TAKEN;
+        let mut occupied = 0;
+        let stride = grid.stride as i64;
+        for delta in [-stride-1,-stride,-stride+1,-1,1,stride-1,stride,stride+1] {
+            let mut dp = p;
+            loop {
+                dp = (dp as i64 + delta) as usize;
+                match grid.bytes[dp] {
+                    BORDER => {break},
+                    EMPTY => {},
+                    CHAIR => {break},
+                    TAKEN => {occupied += 1; break}
+                    _ => {},
+                }
+            }
+        }
         if seat == TAKEN {
-            if occupied >= 5*TAKEN {
-                newgrid.bytes[p] = EMPTY;
+            if occupied >= 5 {
+                newgrid.bytes[p] = CHAIR;
                 cnt += 1;
             }
         }
@@ -100,6 +116,7 @@ fn gen2(grid:&Grid) -> (usize, Grid)
             }
         }
     }
+    println!("part2 {cnt} modified chairs");
     (cnt, newgrid)
 }
 
@@ -116,7 +133,7 @@ fn process(inp:&str) -> (usize, usize)
     let mut part1 = 0;
     for p in grid.width..(grid.bytes.len()-grid.width) {
         let seat = grid.bytes[p];
-        part1 += (seat == b'#') as usize;
+        part1 += (seat == TAKEN) as usize;
     }
 
     grid = grid2.clone();
@@ -127,7 +144,7 @@ fn process(inp:&str) -> (usize, usize)
     let mut part2 = 0;
     for p in grid.width..(grid.bytes.len()-grid.width) {
         let seat = grid.bytes[p];
-        part2 += (seat == b'#') as usize;
+        part2 += (seat == TAKEN) as usize;
     }
     (part1,part2)
 }
@@ -142,12 +159,12 @@ fn _process_1000(inp:&str) -> (usize, usize)
 
 fn main() {
     let fname = "input.txt"; // instead of args[1]
-    let mut input = fs::read_to_string(fname).expect("Error readin input file");
+    let mut input = fs::read_to_string(fname).expect("Error reading input file");
     if input.as_bytes()[input.len()-1] != b'\n' {input.push('\n');}
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1, |_| { process(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
