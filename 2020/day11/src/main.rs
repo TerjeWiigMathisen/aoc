@@ -74,7 +74,7 @@ fn gen1(grid:&Grid) -> (usize, Grid)
             }
         }
     }
-    println!("part1 {cnt} modified chairs");
+    //println!("part1 {cnt} modified chairs");
     (cnt, newgrid)
 }
 
@@ -116,7 +116,7 @@ fn gen2(grid:&Grid) -> (usize, Grid)
             }
         }
     }
-    println!("part2 {cnt} modified chairs");
+    //println!("part2 {cnt} modified chairs");
     (cnt, newgrid)
 }
 
