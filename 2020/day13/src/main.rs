@@ -1,38 +1,38 @@
 // Fastest run (Surface):
-//              Acer:     1.218 us
+//              Acer:     1.097 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use std::iter;
 
 struct Bus {
-    id:u32,
+    id:usize,
 }
 
-fn process(inp:&str) -> (u32, u32)
+fn process(inp:&str) -> (usize, usize)
 {
     let bytes = inp.as_bytes();
     let mut i = 0;
     let mut buses:Vec<Bus> = Vec::new();
 
-    let mut start:u32 = 0;
+    let mut start:usize = 0;
     while bytes[i] != b'\n' {
-        start = start*10 + (bytes[i] - b'0') as u32;
+        start = start*10 + (bytes[i] - b'0') as usize;
         i += 1;
     }
     //print!("start={start}");
     i += 1;
-    let mut earliest = u32::MAX;
+    let mut earliest = usize::MAX;
     let mut part1 = 0;
     while i < bytes.len() {
         let b = bytes[i]; i += 1;
         if b == b'x' {
-            buses.push(Bus{id:u32::MAX});
+            buses.push(Bus{id:usize::MAX});
         }
         else {
-            let mut n = (b - b'0') as u32;
+            let mut n = (b - b'0') as usize;
             while bytes[i] != b',' {
-                n = n*10 + (bytes[i] - b'0') as u32; i += 1;
+                n = n*10 + (bytes[i] - b'0') as usize; i += 1;
             }
             buses.push(Bus{id:n});
             //print!(",{n}");
@@ -53,9 +53,9 @@ fn process(inp:&str) -> (u32, u32)
     //println!("Bus {prod} leaves at {part2}+0");
     for idx in 1..buses.len() {
         let id = buses[idx].id;
-        if id == u32::MAX {continue}
+        if id == usize::MAX {continue}
         //println!("product = {prod}");
-        while ((part2 + idx as u32) % id) != 0 { 
+        while ((part2 + idx) % id) != 0 { 
             part2 += prod;
             //println!("part2 = {part2}");
         }
