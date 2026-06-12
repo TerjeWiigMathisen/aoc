@@ -1,5 +1,5 @@
 // Fastest run (Surface):
-//              Acer:    6.341 ms
+//              Acer:    6.32 ms
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -52,7 +52,8 @@ fn parse2(inp:&str, multi:bool) -> Grid2
     }
     for _ in 0..=stride {g.cells.push(Cell2{seat:border,dirty:false,nbors:0,neighbors:[0; 8]})}
 
-    // Initialize neighbor addreses and counts
+    // Initialize neighbor addresses and counts
+    let s64 = stride as i64;
     for p in stride+1..(g.cells.len()-stride) {
         if g.cells[p].seat <= EMPTY {continue}
         let mut nb = 0;
@@ -76,40 +77,43 @@ fn parse2(inp:&str, multi:bool) -> Grid2
     g
 }
 
-fn gen2nb(grid:&Grid2, birth:i16) -> (usize, Grid2)
+fn gen2nb(grid:&mut Grid2, crowded:i16) -> usize
 {
     let mut cnt = 0;
-    let mut newgrid = grid.clone();
+    //let mut newgrid = grid.clone();
+    let mut changes:Vec<u16> = Vec::with_capacity(7000);
     for p in grid.start..(grid.cells.len()-grid.stride) {
-        let cell = &grid.cells[p];
+        let cell = &mut grid.cells[p];
         if cell.seat <= EMPTY || cell.dirty == false {continue}
 
-        let mut delta = 0;
-        newgrid.cells[p].dirty = false;
+        cell.dirty = false;
         if cell.seat == TAKEN {
-            if cell.nbors >= birth {
-                newgrid.cells[p].seat = CHAIR;
-                newgrid.cells[p].dirty = true;
-                delta = -1;
+            if cell.nbors >= crowded {
+                cell.seat = CHAIR;
+                cell.dirty = true;
                 cnt += 1;
             }
         }
         else { // seat = b'L'
             if cell.nbors == 0 {
-                newgrid.cells[p].seat = TAKEN;
-                newgrid.cells[p].dirty = true;
-                delta = 1;
+                cell.seat = TAKEN;
+                cell.dirty = true;
                 cnt += 1;
             }
         }
-        if delta == 0 {continue}
+        if cell.dirty == false {continue}
+        changes.push(p as u16);
+    }
+    for p in changes {
+        let delta = if grid.cells[p as usize].seat == TAKEN {1} else {-1};
         for nboridx in 0..8 {
-            let nborp = cell.neighbors[nboridx] as usize;
-            newgrid.cells[nborp].nbors += delta;
+            let nborp = grid.cells[p as usize].neighbors[nboridx] as usize;
+            grid.cells[nborp].nbors += delta;
+            grid.cells[nborp].dirty = true;
         }
     }
     //println!("part2 {cnt} modified chairs");
-    (cnt, newgrid)
+    cnt
 }
 
 fn taken_seat_count(grid:&Grid2) -> usize
@@ -128,7 +132,7 @@ fn process(inp:&str) -> (usize, usize)
     //println!("{:?}", grid);
     let mut cnt;
     for _gen in 0.. {
-        (cnt, grid) = gen2nb(&grid, 4);
+        cnt = gen2nb(&mut grid, 4);
         if cnt == 0 {break}
         //break;
     }
@@ -140,7 +144,7 @@ fn process(inp:&str) -> (usize, usize)
 
     grid = parse2(&inp, true);
     for _gen in 0.. {
-        (cnt, grid) = gen2nb(&grid, 5);
+        cnt = gen2nb(&mut grid, 5);
         if cnt == 0 {break}
     }
     let mut part2 = 0;
