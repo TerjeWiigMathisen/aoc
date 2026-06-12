@@ -1,24 +1,32 @@
-// Fastest run (Surface):
-//              Acer:    11.495 ms
+// Fastest run (Surface): 6.32 ms
+//              Acer:   
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use std::iter;
-
-#[derive(Clone, Debug)]
-struct Grid {
-    stride:usize,
-    width:usize,
-    start:usize,
-    bytes:Vec<u8>,
-}
 
 const BORDER:u8 = 0;
 const EMPTY:u8 = 1;
 const CHAIR:u8 = 2;
 const TAKEN:u8 = 4;
 
-fn parse(inp:&str) -> Grid
+#[derive(Clone, Debug)]
+struct Cell2 {
+    seat:u8,
+    dirty:bool,
+    nbors:i16,
+    neighbors:[u16; 8],
+}
+
+#[derive(Clone, Debug)]
+struct Grid2 {
+    stride:usize,
+    width:usize,
+    start:usize,
+    cells:Vec<Cell2>,
+}
+
+fn parse2(inp:&str, multi:bool) -> Grid2
 {
     let bytes = inp.as_bytes();
     let mut width = 0;
@@ -29,121 +37,119 @@ fn parse(inp:&str) -> Grid
         }
     }
     let stride = width+1;
-    let s64 = stride as i64;
-    let mut g = Grid{stride:stride,width:width,start:stride+1,bytes:vec![]};
+    let mut g = Grid2{stride:stride,width:width,start:stride+1,cells:vec![]};
     let border = BORDER;
-    for _ in 0..=stride {g.bytes.push(border)}
+    for _ in 0..=stride {g.cells.push(Cell2{seat:border,dirty:false,nbors:0,neighbors:[0; 8]})}
     for i in 0..bytes.len() {
-        let cell = match bytes[i] {
+        let seat = match bytes[i] {
             b'\n' => BORDER,
             b'.' => EMPTY,
             b'L' => CHAIR,
             b'#' => TAKEN,
             _ => BORDER,
         };
-        g.bytes.push(cell);
+        g.cells.push(Cell2{seat:seat,dirty:true,nbors:0,neighbors:[0; 8]});
     }
-    for _ in 0..=stride {g.bytes.push(border)}
+    for _ in 0..=stride {g.cells.push(Cell2{seat:border,dirty:false,nbors:0,neighbors:[0; 8]})}
+
+    // Initialize neighbor addresses and counts
+    let s64 = stride as i64;
+    for p in stride+1..(g.cells.len()-stride) {
+        if g.cells[p].seat <= EMPTY {continue}
+        let mut nb = 0;
+        for (idx, delta) in [-s64-1,-s64,-s64+1,-1,1,s64-1,s64,s64+1].iter().enumerate() {
+            let mut dp = p as i64;
+            loop {
+                dp += delta;
+                match g.cells[dp as usize].seat {
+                    BORDER => {break},
+                    EMPTY => {if !multi {break}},
+                    CHAIR => {break},
+                    TAKEN => {nb += 1; break}
+                    _ => {},
+                }
+            }
+            g.cells[p].neighbors[idx] = dp as u16;
+        }
+        g.cells[p].nbors = nb as i16;
+    }
     //println!("{:?}", g);
     g
 }
 
-fn gen1(grid:&Grid) -> (usize, Grid)
+fn gen2nb(grid:&mut Grid2, crowded:i16) -> usize
 {
     let mut cnt = 0;
-    let mut newgrid = grid.clone();
-    for p in grid.start..(grid.bytes.len()-grid.stride) {
-        let seat = grid.bytes[p];
-        if seat <= EMPTY {continue}
-        let above = p - grid.stride;
-        let below = p + grid.stride;
-        let mut occupied = (grid.bytes[above-1] & TAKEN) + (grid.bytes[above] & TAKEN) + (grid.bytes[above+1] & TAKEN);
-        occupied += (grid.bytes[p-1] & TAKEN) + (grid.bytes[p+1] & TAKEN);
-        occupied += (grid.bytes[below-1] & TAKEN) + (grid.bytes[below] & TAKEN) + (grid.bytes[below+1] & TAKEN);
-        //println!("seat {p} = {seat}, {occupied} neighbors");
-        if seat == TAKEN {
-            if occupied >= 4*TAKEN {
-                newgrid.bytes[p] = CHAIR;
+    //let mut newgrid = grid.clone();
+    let mut changes:Vec<u16> = Vec::with_capacity(7000);
+    for p in grid.start..(grid.cells.len()-grid.stride) {
+        let cell = &mut grid.cells[p];
+        if cell.seat <= EMPTY || cell.dirty == false {continue}
+
+        cell.dirty = false;
+        if cell.seat == TAKEN {
+            if cell.nbors >= crowded {
+                cell.seat = CHAIR;
+                cell.dirty = true;
                 cnt += 1;
             }
         }
         else { // seat = b'L'
-            if occupied == 0 {
-                newgrid.bytes[p] = TAKEN;
+            if cell.nbors == 0 {
+                cell.seat = TAKEN;
+                cell.dirty = true;
                 cnt += 1;
             }
         }
+        if cell.dirty == false {continue}
+        changes.push(p as u16);
     }
-    //println!("part1 {cnt} modified chairs");
-    (cnt, newgrid)
-}
-
-fn gen2(grid:&Grid) -> (usize, Grid)
-{
-    let mut cnt = 0;
-    let mut newgrid = grid.clone();
-    for p in grid.start..(grid.bytes.len()-grid.stride) {
-        let seat = grid.bytes[p];
-        if seat <= EMPTY {continue}
-
-        let above = p - grid.stride;
-        let below = p + grid.stride;
-        let mut occupied = 0;
-        let stride = grid.stride as i64;
-        for delta in [-stride-1,-stride,-stride+1,-1,1,stride-1,stride,stride+1] {
-            let mut dp = p;
-            loop {
-                dp = (dp as i64 + delta) as usize;
-                match grid.bytes[dp] {
-                    BORDER => {break},
-                    EMPTY => {},
-                    CHAIR => {break},
-                    TAKEN => {occupied += 1; break}
-                    _ => {},
-                }
-            }
-        }
-        if seat == TAKEN {
-            if occupied >= 5 {
-                newgrid.bytes[p] = CHAIR;
-                cnt += 1;
-            }
-        }
-        else { // seat = b'L'
-            if occupied == 0 {
-                newgrid.bytes[p] = TAKEN;
-                cnt += 1;
-            }
+    for p in changes {
+        let delta = if grid.cells[p as usize].seat == TAKEN {1} else {-1};
+        for nboridx in 0..8 {
+            let nborp = grid.cells[p as usize].neighbors[nboridx] as usize;
+            grid.cells[nborp].nbors += delta;
+            grid.cells[nborp].dirty = true;
         }
     }
     //println!("part2 {cnt} modified chairs");
-    (cnt, newgrid)
+    cnt
+}
+
+fn taken_seat_count(grid:&Grid2) -> usize
+{
+    let mut cnt = 0;
+    for p in grid.start..(grid.cells.len()-grid.stride) {
+        let seat = grid.cells[p].seat;
+        cnt += (seat == TAKEN) as usize;
+    }
+    cnt
 }
 
 fn process(inp:&str) -> (usize, usize)
 {
-    let mut grid = parse(&inp);
-    let grid2 = grid.clone();
+    let mut grid = parse2(&inp, false);
     //println!("{:?}", grid);
     let mut cnt;
     for _gen in 0.. {
-        (cnt, grid) = gen1(&grid);
+        cnt = gen2nb(&mut grid, 4);
         if cnt == 0 {break}
+        //break;
     }
     let mut part1 = 0;
-    for p in grid.width..(grid.bytes.len()-grid.width) {
-        let seat = grid.bytes[p];
+    for p in grid.start..(grid.cells.len()-grid.stride) {
+        let seat = grid.cells[p].seat;
         part1 += (seat == TAKEN) as usize;
     }
 
-    grid = grid2.clone();
+    grid = parse2(&inp, true);
     for _gen in 0.. {
-        (cnt, grid) = gen2(&grid);
+        cnt = gen2nb(&mut grid, 5);
         if cnt == 0 {break}
     }
     let mut part2 = 0;
-    for p in grid.width..(grid.bytes.len()-grid.width) {
-        let seat = grid.bytes[p];
+    for p in grid.start..(grid.cells.len()-grid.stride) {
+        let seat = grid.cells[p].seat;
         part2 += (seat == TAKEN) as usize;
     }
     (part1,part2)
@@ -164,7 +170,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(100, |_| { process(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
