@@ -1,5 +1,5 @@
-// Fastest run (Surface):
-//              Acer:    6.32 ms
+// Fastest run (Surface): 6.32 ms
+//              Acer:   
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
