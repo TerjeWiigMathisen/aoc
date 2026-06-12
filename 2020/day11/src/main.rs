@@ -1,5 +1,5 @@
 // Fastest run (Surface): 6.32 ms
-//              Acer:   
+//              Acer:     4.61 ms
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -54,16 +54,18 @@ fn parse2(inp:&str, multi:bool) -> Grid2
 
     // Initialize neighbor addresses and counts
     let s64 = stride as i64;
+    let mut non_local = 0;
     for p in stride+1..(g.cells.len()-stride) {
         if g.cells[p].seat <= EMPTY {continue}
         let mut nb = 0;
+        //let mut nl = 0;
         for (idx, delta) in [-s64-1,-s64,-s64+1,-1,1,s64-1,s64,s64+1].iter().enumerate() {
             let mut dp = p as i64;
             loop {
                 dp += delta;
                 match g.cells[dp as usize].seat {
                     BORDER => {break},
-                    EMPTY => {if !multi {break}},
+                    EMPTY => {if !multi {break};} // nl = 1;},
                     CHAIR => {break},
                     TAKEN => {nb += 1; break}
                     _ => {},
@@ -71,9 +73,10 @@ fn parse2(inp:&str, multi:bool) -> Grid2
             }
             g.cells[p].neighbors[idx] = dp as u16;
         }
+        //non_local += nl;
         g.cells[p].nbors = nb as i16;
     }
-    //println!("{:?}", g);
+    //println!("{non_local} chairs with non_local neighbors");
     g
 }
 
