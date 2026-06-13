@@ -1,4 +1,4 @@
-// Fastest run (Surface):
+// Fastest run Surface:  3.447 ms
 //              Acer:    8.658 us for part1 
 //                       4.727 ms both parts, sw pdep 
 //                       1.967 ms, _pdep_u64 for floating bits distribution
