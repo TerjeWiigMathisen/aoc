@@ -1,5 +1,5 @@
 // Fastest run Surface: 1.457 us
-//                Acer: 0.820 us
+//                Acer: 0.818 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -30,10 +30,9 @@ fn process(inp:&str) -> (usize, usize)
                 n = n*10 + (bytes[i] - b'0') as usize; i += 1;
             }
             buses.push(Bus{id:n, idx:idx});
-            //print!(",{n}");
             let loops = start/n;
-            let next = (loops+1)*n;
-            let wait = next-start;
+            let next_bus = (loops+1)*n;
+            let wait = next_bus-start;
             if wait < earliest {
                 earliest = wait;
                 part1 = wait * n;
@@ -42,21 +41,16 @@ fn process(inp:&str) -> (usize, usize)
         i += 1;
         idx += 1;
     }
-    //println!();
 
-    let mut prod = buses[0].id;
-    let mut part2 = prod;
-    //println!("Bus {prod} leaves at {part2}+0");
+    let mut product = buses[0].id;
+    let mut part2 = product;
     for i in 1..buses.len() {
         let id = buses[i].id;
         let idx = buses[i].idx;
-        //println!("product = {prod}");
         while ((part2 + idx) % id) != 0 { 
-            part2 += prod;
-            //println!("part2 = {part2}");
+            part2 += product;
         }
-        prod *= id;
-        //println!("Bus {id} leaves at {part2}+{idx}");
+        product *= id;
     }
 
     (part1,part2)
