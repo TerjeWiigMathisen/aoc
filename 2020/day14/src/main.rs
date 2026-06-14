@@ -49,9 +49,8 @@ struct Mask {
 fn parsemask(inp:&[u8]) -> (usize, Mask)
 {
     let mut mask = Mask{zero:0,one:0,x:0};
-    let mut retpos = 0;
     for i in 7.. {
-        if inp[i] == b'\n' {retpos = i+1; break}
+        if inp[i] == b'\n' {return (i+1, mask);}
         mask.zero <<= 1;
         mask.one <<= 1;
         mask.x <<= 1;
@@ -62,7 +61,7 @@ fn parsemask(inp:&[u8]) -> (usize, Mask)
             _ => panic!("Bad input mask"),
         }
     }
-    (retpos, mask)
+    (0, mask)
 }
 
 fn parsemem(inp:&[u8]) -> (usize, u64, u64)
@@ -94,6 +93,8 @@ fn process(inp:&str) -> (u64, u64)
     let mut map: FxHashMap<u64, u64> = FxHashMap::default();
     let mut map2: FxHashMap<u64, u64> = FxHashMap::default();
     let mut perm = 0;
+    let mut cnt = 0;
+    let mut dup = 0;
     while i < bytes.len() {
         if bytes[i+1] == b'a' {
             // mask = 0X11XX1X010X01101000X01X011101100000
@@ -115,18 +116,29 @@ fn process(inp:&str) -> (u64, u64)
             adr &= mask.zero;
             adr |= mask.one;
 //            println!("adr = {adr:b}, perm: {perm}");
+            let mut duphere = 0;
             for i in 0..perm {
+                cnt += 1;
 //                let floating = pdep(i, mask.x);
-                let floating = unsafe { _pdep_u64(i as u64, mask.x as u64) } as u64;
+                let floating = unsafe { _pdep_u64(i as u64, mask.x) };
                 let a = adr | floating;
 //                println!("floating addr: {a:b}");
-                //if map2.contains_key(&a) { panic!("Duplicate address {a}")}
+                if map2.contains_key(&a) { 
+                    duphere += 1; 
+                    //println!("Duplicate address {a}") 
+                }
                 map2.insert(a, val);
+            }
+            if duphere > 0 {
+                dup += duphere;
+                println!("Duplicate addresses for adr {adr:b}: {duphere}");
             }
         }
         else {panic!("Bad input at offset {i}");}
     }
 //    println!("part2 permutations: {perm}");
+    println!("part2 total addresses: {cnt}");
+    println!("part2 duplicate addresses: {dup}");
     let mut sum = 0;
     for (_key, val) in &map {
         sum += val;
@@ -156,7 +168,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1, |_| { process(&input); }); bench_result.print_stats();
 
     //process(&input);
     devtime.start();
