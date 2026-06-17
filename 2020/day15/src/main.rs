@@ -1,4 +1,5 @@
 // Fastest: Acer 202 ms
+//       Surface 311 ms
 use std::vec;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
