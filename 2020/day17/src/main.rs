@@ -1,4 +1,4 @@
-// Fastest run Surface:
+// Fastest run Surface:  782 us
 //                Acer:  792 us
 use std::fs;
 use devtimer::DevTime;
@@ -106,11 +106,11 @@ fn parse4(inp:&str) -> Grid4
     g4
 }
 
-fn alive(g3:&[u8]) -> usize
+fn alive(grid:&[u8]) -> usize
 {
     let mut cnt = 0;
-    for i in 0..g3.len() {
-        cnt += (g3[i] & 128) as usize;
+    for i in 0..grid.len() {
+        cnt += (grid[i] & 128) as usize;
     }
     cnt >> 7
 }
@@ -191,45 +191,7 @@ fn gen2(g4:&Grid4) -> Grid4
     new4
 }
 
-fn initnb3(g3:&mut Grid3)
-{
-    for i in 0..g3.grid.len() {
-        let curr = g3.grid[i];
-        if curr >= 128 {
-            for dz in -1..=1 {
-                for dy in -1..=1 {
-                    for dx in -1..=1 {
-                        let adr = (i as i64 + dz * g3.zstride + dy * g3.ystride + dx) as usize;
-                        g3.grid[adr] += 1;
-                    }
-                }
-            }
-            g3.grid[i] -= 1;
-        }
-    }
-}
-
-fn initnb4(g4:&mut Grid4)
-{
-    for i in 0..g4.grid.len() {
-        let curr = g4.grid[i];
-        if curr >= 128 {
-            for dw in -1..=1 {
-                for dz in -1..=1 {
-                    for dy in -1..=1 {
-                        for dx in -1..=1 {
-                            let adr = (i as i64 + dw * g4.wstride + dz * g4.zstride + dy * g4.ystride + dx) as usize;
-                            g4.grid[adr] += 1;
-                        }
-                    }
-                }
-            }
-            g4.grid[i] -= 1;
-        }
-    }
-}
-
-fn checknb(g3:&Grid3)
+fn _checknb(g3:&Grid3)
 {
     for i in 0..g3.grid.len() {
         let curr = g3.grid[i];
@@ -255,7 +217,7 @@ fn checknb(g3:&Grid3)
     println!();
 }
 
-fn dumpgrid(g3:&Grid3)
+fn _dumpgrid(g3:&Grid3)
 {
     let mut nl = g3.ystride - 1;
     let mut np = g3.zstride - 1;
@@ -272,32 +234,14 @@ fn dumpgrid(g3:&Grid3)
 fn process(inp:&str) -> (usize, usize)
 {
     let mut g3 = parse3(inp);
-    //initnb3(&mut g3);
-    //println!("{:?}", g3);
-    //dumpgrid(&g3);
-    //println!("Alive before we start: {}", alive(&g3));
-    //checknb(&g3);
     for _i in 1..=6 {
         g3 = gen1(&g3);
-        //println!("{:?}", g3);
-        //dumpgrid(&g3);
-        //println!("Alive after gen {_i}: {}", alive(&g3));
-        //checknb(&g3);
     }
     let part1 = alive(&g3.grid);
 
     let mut g4 = parse4(inp);
-    //initnb4(&mut g4);
-    //println!("{:?}", g3);
-    //dumpgrid(&g3);
-    //println!("Alive before we start: {}", alive(&g3));
-    //checknb(&g3);
     for _i in 1..=6 {
         g4 = gen2(&g4);
-        //println!("{:?}", g3);
-        //dumpgrid(&g3);
-        //println!("Alive after gen {_i}: {}", alive(&g3));
-        //checknb(&g3);
     }
     let part2 = alive(&g4.grid);
 
