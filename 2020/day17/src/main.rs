@@ -7,9 +7,6 @@ use devtimer::run_benchmark;
 
 #[derive(Debug,Clone)]
 struct Grid3 {
-    xlen:usize,
-    ylen:usize,
-    zlen:usize,
     ystride:i64,
     zstride:i64,
     topleft:i64,
@@ -30,7 +27,7 @@ fn parse3(inp:&str) -> Grid3
     let zlen = STEP*2+1;
     let ystride = xlen as i64;
     let zstride = ystride * ylen as i64;
-    let mut g3 = Grid3{xlen:xlen,ylen:ylen,zlen:zlen, ystride:ystride, zstride:zstride, 
+    let mut g3 = Grid3{ystride:ystride, zstride:zstride, 
         topleft:zstride*ISTEP + ystride*ISTEP + ISTEP, grid:vec![0;zstride as usize * zlen]};
     let mut lstart = g3.topleft as usize;
     for l in lines {
@@ -56,10 +53,6 @@ fn parse3(inp:&str) -> Grid3
 
 #[derive(Debug,Clone)]
 struct Grid4 {
-    xlen:usize,
-    ylen:usize,
-    zlen:usize,
-    wlen:usize,
     ystride:i64,
     zstride:i64,
     wstride:i64,
@@ -79,7 +72,7 @@ fn parse4(inp:&str) -> Grid4
     let ystride = xlen as i64;
     let zstride = ystride * ylen as i64;
     let wstride = zstride * zlen as i64;
-    let mut g4 = Grid4{xlen:xlen,ylen:ylen,zlen:zlen,wlen:wlen, ystride:ystride, zstride:zstride, wstride:wstride,
+    let mut g4 = Grid4{ystride:ystride, zstride:zstride, wstride:wstride,
         topleft:wstride*ISTEP + zstride*ISTEP + ystride*ISTEP + ISTEP, grid:vec![0;wstride as usize * wlen]};
     let mut lstart = g4.topleft as usize;
     for l in lines {
