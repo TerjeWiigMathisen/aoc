@@ -527,9 +527,9 @@ my $prod = 1;
 foreach (@solution) {
 	printf("%s\n", $fullrules[$_]);
 	if (/^departure/) {
-		#$prod *= $myfields[$f];
+		$prod *= $myfields[$f];
 	}
-	#$f++;
+	$f++;
 }
 
 printf(STDERR "Product = %1.0f\n", $prod);
