@@ -1,4 +1,4 @@
-// Fastest run Surface:  782 us
+// Fastest run Surface:  563 us
 //                Acer:  587 us
 use devtimer::DevTime;
 use devtimer::run_benchmark;
