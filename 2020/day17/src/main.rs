@@ -1,5 +1,5 @@
 // Fastest run Surface:  782 us
-//                Acer:  792 us
+//                Acer:  587 us
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 use std::fs;
@@ -115,10 +115,11 @@ fn alive(grid: &[u8]) -> usize {
     cnt >> 7
 }
 
-fn gen1(g3: &Grid3) -> Grid3 {
+fn gen1(g3: &Grid3, first:usize, last:usize) -> Grid3 {
     let mut new3 = g3.clone();
-    for i in 0..g3.grid.len() {
+    for i in first..last {
         let cell = g3.grid[i];
+//        if cell == 0 {continue}
         if cell >= 128 {
             if (cell | 1) != 131 {
                 // This cell dies, decrement neighbor counts
@@ -148,10 +149,11 @@ fn gen1(g3: &Grid3) -> Grid3 {
     new3
 }
 
-fn gen2(g4: &Grid4) -> Grid4 {
+fn gen2(g4: &Grid4, first: usize, last: usize) -> Grid4 {
     let mut new4 = g4.clone();
-    for i in 0..g4.grid.len() {
+    for i in first..last {
         let cell = g4.grid[i];
+        if cell == 0 {continue}
         if cell >= 128 {
             if (cell | 1) != 131 {
                 // This cell dies, decrement neighbor counts
@@ -244,14 +246,24 @@ fn _dumpgrid(g3: &Grid3) {
 
 fn process(inp: &str) -> (usize, usize) {
     let mut g3 = parse3(inp);
+    let mut first = g3.zstride as usize * (STEP-1);
+    let mut last = g3.zstride as usize * (STEP+2);
     for _i in 1..=GENERATIONS {
-        g3 = gen1(&g3);
+        g3 = gen1(&g3, first, last);
+        first = if first >= g3.zstride as usize {first - g3.zstride as usize} else {0};
+        last += g3.zstride as usize;
+        last = last.min(g3.grid.len());
     }
     let part1 = alive(&g3.grid);
 
     let mut g4 = parse4(inp);
+    first = g4.wstride as usize * (STEP-1);
+    last =  g4.wstride as usize * (STEP+2);
     for _i in 1..=GENERATIONS {
-        g4 = gen2(&g4);
+        g4 = gen2(&g4, first, last);
+        first = if first >= g4.wstride as usize {first - g4.wstride as usize} else {0};
+        last += g4.wstride as usize;
+        last = last.min(g4.grid.len());
     }
     let part2 = alive(&g4.grid);
 

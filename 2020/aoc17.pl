@@ -124,7 +124,7 @@ sub generation
 	}
 }
 
-for (my $g = 1; $g <= 20; $g++) {
+for (my $g = 1; $g <= 6; $g++) {
 	generation();
 	my $active = total_active();
 	printf("%3d %5d\n",$g, $active);
