@@ -254,9 +254,8 @@ fn process(inp: &str) -> (usize, usize) {
     let mut last = g3.zstride as usize * (STEP+2);
     for _i in 1..=GENERATIONS {
         g3 = gen1(&g3, first, last, _i != GENERATIONS);
-        first = if first >= g3.zstride as usize {first - g3.zstride as usize} else {0};
+        first -= g3.zstride as usize;
         last += g3.zstride as usize;
-        last = last.min(g3.grid.len());
     }
     let part1 = alive(&g3.grid);
 
@@ -265,9 +264,8 @@ fn process(inp: &str) -> (usize, usize) {
     last =  g4.wstride as usize * (STEP+2);
     for _i in 1..=GENERATIONS {
         g4 = gen2(&g4, first, last, _i != GENERATIONS);
-        first = if first >= g4.wstride as usize {first - g4.wstride as usize} else {0};
+        first -= g4.wstride as usize;
         last += g4.wstride as usize;
-        last = last.min(g4.grid.len());
     }
     let part2 = alive(&g4.grid);
 
