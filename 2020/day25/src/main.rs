@@ -1,5 +1,5 @@
 // Fastest run (Surface):
-//              Acer:     32.7 us
+//              Acer:     30.0 us
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -9,28 +9,37 @@ use rustc_hash::FxHashMap;
 
 // Trial and error found this value for the size of the overrun target window 
 // as well as the step size to use when searching for the number of loops needed.
-const TARGETSIZE:usize = 1700;
+const TARGETSIZE:usize = 1700; //4495;
+
+fn pow_mod_exp(k:usize, power:usize)->usize
+{
+    let mut cl = power;
+    let mut powmod = 1;
+    let mut key = k;
+    while cl != 0 {
+        if cl & 1 != 0 { powmod = powmod * key % 20201227;}
+        cl >>= 1;
+        key = (key * key) % 20201227;
+    }
+    powmod
+}
 
 fn getcount(subject_number:usize, target_key:usize) -> usize
 {
     let mut map: FxHashMap<usize, usize> = FxHashMap::default();
     let mut k = target_key;
-    let mut sn = 1;
     for i in 0..TARGETSIZE {
         map.insert(k, i);
-        //println!("{i}:{k}");
-        k = (k * subject_number) % 20201227;
-        sn = (sn * subject_number) % 20201227;
+        k = k * subject_number % 20201227;
     }
-    //let sn = k;
-    //println!("sn = {sn}");
+    let sn = pow_mod_exp(subject_number, TARGETSIZE);
     k = 1;
     let mut iterations = 0;
     loop {
         iterations += TARGETSIZE;
         k = (k * sn) % 20201227;
         if map.contains_key(&k) { 
-//            println!("Found {k} in index {} after {iterations} iterations", map[&k]);
+//            println!("Found {k} in index {} after {} steps of {iterations}", map[&k], iterations/TARGETSIZE);
             return iterations - map[&k];
         }
     }
@@ -42,27 +51,7 @@ fn process(inp:&str) -> usize
     let cardkey = lines[0].parse::<usize>().unwrap();
     let doorkey = lines[1].parse::<usize>().unwrap();
     let cardloops = getcount(7,cardkey);
-    //let doorloops = getcount8(7,doorkey);
-    //let total = getcount(7,14897079);
-    //println!("Card loops = {cardloops}, door loops = {doorloops}");
-    // let mut k = 1;
-    // for _ in 0..doorloops {
-    //     k = (k * cardkey) % 20201227;
-    // }
-    // let mut d = 1;
-    // for _ in 0..cardloops {
-    //     d = (d * doorkey) % 20201227;
-    // }
-    let mut cl = cardloops;
-    let mut powmod = 1;
-    let mut key = doorkey;
-    while cl != 0 {
-        if cl & 1 != 0 { powmod = (powmod * key) % 20201227;}
-        cl >>= 1;
-        key = (key * key) % 20201227;
-    }
-    //println!("powmod = {powmod}");
-    // assert!(d == k);
+    let powmod = pow_mod_exp(doorkey, cardloops);
     powmod
 }
 
