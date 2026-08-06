@@ -1,4 +1,5 @@
 // Fastest run: Surface Pro 8, 5.2 us
+//              Acer 3.7 us
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
