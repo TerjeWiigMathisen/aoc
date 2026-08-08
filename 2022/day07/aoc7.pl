@@ -10,7 +10,7 @@ use Algorithm::Permute qw (permute);
 
 #use bigint;
 
-#use JSON::Parse;
+#use JSON::Parse;q
 #no warnings 'recursion';
 
 my $DEBUG = 0;
