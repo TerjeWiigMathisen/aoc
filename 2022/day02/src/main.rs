@@ -1,5 +1,5 @@
 // Fastest run: Surface Pro 8, 10.3 us
-//              Acer
+//              Acer 3.0 us
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -16,31 +16,24 @@ fn process(inp:&String)->(usize, usize)
         let mut part1 = _mm256_setzero_si256();
         let mut part2 = _mm256_setzero_si256();
         let abc_mask = _mm256_set1_epi32(0x00000003);
-//        println!("abc_mask={:x?}", abc_mask);
         let xyz_mask = _mm256_set1_epi32(0x00030000);
-//        println!("xyz_mask={:x?}", xyz_mask);
+        let part1shuffle = _mm256_loadu_si256(part1tab.as_ptr() as *const __m256i);
+        let part2shuffle = _mm256_loadu_si256(part2tab.as_ptr() as *const __m256i);
         for b in 0..blocks {
-            let b = input.as_ptr().add(b*64) as *const __m256i;
-            let b1 = _mm256_loadu_si256(b);
-            let b2 = _mm256_loadu_si256(b.add(1));
-//            println!("b1 ={:x?}", b1);
-//            println!("b2={:x?}", b2);
+            let bl = input.as_ptr().add(b*64) as *const __m256i;
+            let b1 = _mm256_loadu_si256(bl);
+            let b2 = _mm256_loadu_si256(bl.add(1));
             let b1h = _mm256_and_si256(b1, xyz_mask);
-//            println!("b1h={:x?}", b1h);
             let b2h = _mm256_and_si256(b2, xyz_mask);
             let b1l = _mm256_and_si256(b1, abc_mask);
-//            println!("b1l={:x?}", b1l);
             let b2l = _mm256_and_si256(b2, abc_mask);
             let b1h = _mm256_srli_epi32(b1h, 14);
-//            println!("b1h={:x?}", b1h);
             let b2h = _mm256_srli_epi32(b2h, 14);
             let b1hash = _mm256_or_si256(b1l, b1h);
-//            println!("b1hash={:x?}", b1hash);
             let b2hash = _mm256_or_si256(b2l, b2h);
-//            println!("b2hash={:x?}", b2hash);
             let b16 =_mm256_packus_epi32(b1hash, b2hash);
-            let inc1 = _mm256_shuffle_epi8(_mm256_loadu_si256(part1tab.as_ptr() as *const __m256i), b16);
-            let inc2 = _mm256_shuffle_epi8(_mm256_loadu_si256(part2tab.as_ptr() as *const __m256i), b16);
+            let inc1 = _mm256_shuffle_epi8(part1shuffle, b16);
+            let inc2 = _mm256_shuffle_epi8(part2shuffle, b16);
             part1 = _mm256_add_epi16(part1, inc1);
             part2 = _mm256_add_epi16(part2, inc2);
         }
