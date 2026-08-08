@@ -8,7 +8,7 @@ use std::arch::x86_64::*;
 fn process(inp:&String)->(usize, usize)
 {
     //                       AX BX CX   AY BY CY   AZ BZ CZ
-    let part1tab:[u8;32] = [0,4,1,7,0,8,5,2,0,3,9,6,0,0,0,0,0,4,1,7,0,8,5,2,0,3,9,6,0,0,0,0];
+    let part1tab:[u8;32] = [0,4, 1, 7,0, 8, 5, 2,0, 3, 9, 6,0,0,0,0,0,4,1,7,0,8,5,2,0,3,9,6,0,0,0,0];
     let part2tab:[u8;32] = [0,3,1,2,0,4,5,6,0,8,9,7,0,0,0,0,0,3,1,2,0,4,5,6,0,8,9,7,0,0,0,0];
     let input = inp.as_bytes();
     let blocks = input.len()/64;
@@ -47,8 +47,6 @@ fn process(inp:&String)->(usize, usize)
             p1 += part1mem[i] as usize;
             p2 += part2mem[i] as usize;
         }
-//        println!("part1mem={:?}", part1mem);
-//        println!("part2mem={:?}", part2mem);
         return (p1, p2);
     }
 }
