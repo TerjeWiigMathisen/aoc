@@ -1,5 +1,5 @@
 // Fastest run: Surface Pro 8
-//              Acer 900 ns
+//              Acer 400 ns
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -48,7 +48,7 @@ impl Display {
 }
 
 #[inline(never)]
-fn process(inp:&str) -> (i64, String)
+fn process(inp:&str) -> Display
 {
     let input = inp.as_bytes();
     let mut display = Display::new();
@@ -62,14 +62,14 @@ fn process(inp:&str) -> (i64, String)
             b'a' => {
                 display.tick();
                 display.tick();
-                let mut val = 0;
                 let mut neg = false;
                 i += 5;
                 if input[i] == b'-' {
                     neg = true;
                     i += 1;
                 }
-                while input[i] >= b'0' && input[i] <= b'9' {
+                let mut val = (input[i] - b'0') as i64; i += 1;
+                while input[i] >= b'0' {
                     val = val * 10 + (input[i] - b'0') as i64;
                     i += 1;
                 }
@@ -85,7 +85,7 @@ fn process(inp:&str) -> (i64, String)
             }
         }
     }
-    (display.part1, String::from_utf8(display.screen.to_vec()).unwrap())
+    display
 }
 
 
@@ -100,7 +100,7 @@ fn main() {
     });
     bench_result.print_stats();
 
-    let (part1, part2) = process(&input);
-    println!("part1={part1}");
-    println!("part2=\n{part2}");
+    let display = process(&input);
+    println!("part1={}", display.part1);
+    println!("part2=\n{}", String::from_utf8(display.screen.to_vec()).unwrap());
 }
