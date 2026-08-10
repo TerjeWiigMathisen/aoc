@@ -5,6 +5,7 @@
 use devtimer::run_benchmark;
 use std::arch::x86_64::*;
 
+#[inline(never)]
 fn process(inp:&String)->(usize, usize)
 {
     //                       AX BX CX   AY BY CY   AZ BZ CZ
@@ -51,11 +52,28 @@ fn process(inp:&String)->(usize, usize)
     }
 }
 
+#[inline(never)]
+fn process1k(inp:&String)->(usize, usize)
+{
+    let mut part1 = 0;
+    let mut part2 = 0;
+    for _ in 0..1000 {
+        let (p1,p2) = process(inp);
+        part1 += p1;
+        part2 += p2;
+    }
+    return (part1,part2);
+}
+
 fn main() {
     let mut input = std::fs::read_to_string("input.txt").unwrap();
 //    let mut input = std::fs::read_to_string("test.txt").unwrap();
     while input.as_bytes().len() % 64 != 0 {
         input.push(' ');
+    }
+    let i = input.clone();
+    for _ in 1..10 {
+        input.push_str(&i);
     }
 
     let bench_result = run_benchmark(1000, |_| {

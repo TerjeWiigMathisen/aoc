@@ -139,11 +139,11 @@ for (my $l = 1; $l < $LINES-1; $l++) {
 		my $p = $lt * $rt * $up * $dn;
 		if ($p > $part2) {
 			$part2 = $p;
-			printf(STDERR "New max (%d = %d*%d*%d*%d) found at (%d,%d)\n", $p, $lt, $rt, $up, $dn, $l+1, $r+1);
+#			printf(STDERR "New max (%d = %d*%d*%d*%d) found at (%d,%d)\n", $p, $lt, $rt, $up, $dn, $l+1, $r+1);
 		}
-		elsif ($p > $part2 / 2) {
-			printf(STDERR "New --- (%d = %d*%d*%d*%d) found at (%d,%d)\n", $p, $lt, $rt, $up, $dn, $l+1, $r+1);
-		}
+#		elsif ($p > $part2 / 2) {
+#			printf(STDERR "New --- (%d = %d*%d*%d*%d) found at (%d,%d)\n", $p, $lt, $rt, $up, $dn, $l+1, $r+1);
+#		}
 	}
 }
 
