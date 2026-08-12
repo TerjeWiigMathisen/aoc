@@ -100,8 +100,8 @@ sub try_up
 	return 1e8;
 }
 
-$part1 = try_up(@S);
-printf(STDERR "Total time = %f\n", time - $start);
+#$part1 = try_up(@S);
+#printf(STDERR "Total time = %f\n", time - $start);
 #plot();
 
 %visited = ();
@@ -111,6 +111,7 @@ sub try_reverse
 {
 	my ($x0, $y0) = @_;
 	@queue = ($x0, $y0, 0);
+	my $part2 = 0;
 	while (scalar(@queue)) {
 		my ($x, $y, $steps) = splice(@queue,0,3);
 		next if (defined($visited{"$x,$y"}));
@@ -118,7 +119,10 @@ sub try_reverse
 	
 		my $h = height($x,$y);
 		if ($h <= ord('a')) { # Any 'a' is at starting elevation, so OK!
-			return $steps;
+			if ($part2 == 0) { $part2 = $steps; }
+			if ($x == $S[0] && $y == $S[1]) {
+				return ($steps, $part2);
+			}
 		}
 		$steps++;
 		$h--;
@@ -127,13 +131,15 @@ sub try_reverse
 		push(@queue, $x, $y-1, $steps) if (height($x,$y-1) >= $h);
 		push(@queue, $x, $y+1, $steps) if (height($x,$y+1) >= $h);
 	}
-	return 1e8;
+	return (1e8,1e8);
 }
 
-$part2 = try_reverse(@E);
+($part1, $part2) = try_reverse(@E);
 #plot();
 
-printf("Part1: %s queue len=%d\n", $part1, scalar(@queue));
-printf("Part2: %s queue len=%d\n", $part2, scalar(@queue));
+my $tid = time - $start;
 
-printf(STDERR "Total time = %f\n", time - $start);
+printf("Part1: %s\n", $part1);
+printf("Part2: %s\n", $part2);
+
+printf(STDERR "Total time = %1.3f ms\n", $tid*1000);

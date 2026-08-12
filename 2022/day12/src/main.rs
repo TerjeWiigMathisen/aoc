@@ -1,0 +1,109 @@
+//aoc 2022 day12
+// Fastest run: Surface Pro 8
+//              Acer 
+
+//use devtimer::DevTime;
+use devtimer::run_benchmark;
+//use std::arch::x86_64::*;
+
+struct Grid {
+    _width:usize,
+    _height:usize,
+    stride:usize,
+    start:usize,
+    end:usize,
+    cells:Vec<u32>,
+}
+
+impl Grid {
+    fn new(input:&[u8]) -> Grid {
+        let mut width = 0;
+        while width < input.len() && input[width] != b'\n' {
+            width += 1;
+        }
+        let stride = width + 1;
+        let height = input.len() / stride;
+        let mut g = Grid {
+            _width: width,
+            _height: height,
+            stride: stride,
+            start: 0,
+            end: 0,
+            cells: vec![1<<24;stride*(height+2)],
+        };
+        let mut i = 0;
+        for y in 1..=height {
+            for x in 0..width {
+                let mut c = input[i];
+                if c == b'S' {
+                    g.start = y * g.stride + x;
+                    c = b'a';
+                } else if c == b'E' {
+                    g.end = y * g.stride + x;
+                    c = b'z';
+                }
+                g.cells[y*g.stride + x] = ((c as u32) << 24) | 0x00FFFFFF;
+                i += 1;
+            }
+            i += 1; // skip newline
+        }
+        g
+    }
+}
+
+#[inline(never)]
+fn process(inp:&[u8]) -> (usize, usize)
+{
+    let mut grid = Grid::new(inp);
+    let mut part2 = 0;
+    let mut deq = std::collections::VecDeque::<[usize;2]>::new();
+    deq.push_back([grid.end, 0]);
+    while let Some([idx, d]) = deq.pop_front() {
+        let cell = grid.cells[idx];
+        let height = cell & 0xFF000000;
+        let steps = cell & 0x00FFFFFF;
+        println!("idx={} d={} height={} steps={}", idx, d, char::from_u32((height >> 24) & 0xFF).unwrap_or('?'), steps);
+        if steps < (d as u32) {
+            continue;
+        }
+        if idx == grid.start {
+            return (d, part2);
+        }
+        if height == (b'a' as u32) << 24 {
+            part2 = d;
+        }
+        grid.cells[idx] = height | (d as u32);
+
+        let d = d + 1;
+        let step_limit = height - (1<<24);
+        if grid.cells[idx+1] >= step_limit {
+            deq.push_back([idx+1, d]);
+        }
+        if grid.cells[idx-1] >= step_limit {
+            deq.push_back([idx-1, d]);
+        }
+        if grid.cells[idx-grid.stride] >= step_limit {
+            deq.push_back([idx-grid.stride, d]);
+        }
+        if grid.cells[idx+grid.stride] >= step_limit {
+            deq.push_back([idx+grid.stride, d]);
+        }
+    }
+    (0,0)
+}
+
+fn main() {
+    let mut input = std::fs::read_to_string("input.txt").unwrap();
+    if input.as_bytes()[input.len() - 1] != b'\n' {
+        input.push('\n');
+    }
+
+    // let bench_result = run_benchmark(1000, |_| {
+    //     process(&input.as_bytes());
+    // });
+//    bench_result.print_stats();
+
+    let display = process(&input.as_bytes());
+    println!("part1={}", display.0);
+    println!("part2={}", display.1);
+}

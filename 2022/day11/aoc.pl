@@ -41,7 +41,7 @@ my @inspect = ();
 my %divisors = ();
 
 my @savemonkeys = @monkeys;
-for (my $round = 1; $round <= 10000; $round++) {
+for (my $round = 1; $round <= 20; $round++) {
 	my $mon = 0;
 	foreach (@monkeys) {
 		my ($mnr, $strt, $oper, $test, $ift, $iff) = split(/\n/);
