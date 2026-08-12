@@ -1,6 +1,6 @@
 //aoc 2022 day12
 // Fastest run: Surface Pro 8
-//              Acer 
+//                       Acer 15.7 us
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -52,41 +52,42 @@ impl Grid {
 }
 
 #[inline(never)]
-fn process(inp:&[u8]) -> (usize, usize)
+fn process(inp:&[u8]) -> (u32, u32)
 {
     let mut grid = Grid::new(inp);
     let mut part2 = 0;
-    let mut deq = std::collections::VecDeque::<[usize;2]>::new();
-    deq.push_back([grid.end, 0]);
-    while let Some([idx, d]) = deq.pop_front() {
+    let mut deq = std::collections::VecDeque::<[u32;2]>::new();
+    deq.push_back([grid.end as u32, 0]);
+    while let Some([id, stp]) = deq.pop_front() {
+        let idx = id as usize;
         let cell = grid.cells[idx];
-        let height = cell & 0xFF000000;
+        let height = cell >> 24;
         let steps = cell & 0x00FFFFFF;
-        println!("idx={} d={} height={} steps={}", idx, d, char::from_u32((height >> 24) & 0xFF).unwrap_or('?'), steps);
-        if steps < (d as u32) {
+        if steps <= stp {
             continue;
         }
+        //println!("idx={} stp={} height={} steps={}", idx, stp, height, steps);
         if idx == grid.start {
-            return (d, part2);
+            return (stp, part2);
         }
-        if height == (b'a' as u32) << 24 {
-            part2 = d;
+        if height == b'a' as u32 && (part2 == 0 || stp < part2) {
+            part2 = stp;
         }
-        grid.cells[idx] = height | (d as u32);
+        grid.cells[idx] = (height << 24) | stp;
 
-        let d = d + 1;
-        let step_limit = height - (1<<24);
+        let d = stp + 1;
+        let step_limit = (height - 1) << 24;
         if grid.cells[idx+1] >= step_limit {
-            deq.push_back([idx+1, d]);
+            deq.push_back([(idx+1) as u32, d]);
         }
         if grid.cells[idx-1] >= step_limit {
-            deq.push_back([idx-1, d]);
+            deq.push_back([(idx-1) as u32, d]);
         }
         if grid.cells[idx-grid.stride] >= step_limit {
-            deq.push_back([idx-grid.stride, d]);
+            deq.push_back([(idx-grid.stride) as u32, d]);
         }
         if grid.cells[idx+grid.stride] >= step_limit {
-            deq.push_back([idx+grid.stride, d]);
+            deq.push_back([(idx+grid.stride) as u32, d]);
         }
     }
     (0,0)
@@ -98,10 +99,10 @@ fn main() {
         input.push('\n');
     }
 
-    // let bench_result = run_benchmark(1000, |_| {
-    //     process(&input.as_bytes());
-    // });
-//    bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| {
+        process(&input.as_bytes());
+    });
+    bench_result.print_stats();
 
     let display = process(&input.as_bytes());
     println!("part1={}", display.0);
