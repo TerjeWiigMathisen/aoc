@@ -1,4 +1,4 @@
-// Fastest run: Surface Pro 8
+// Fastest run: Surface Pro 2.1 us
 //              Acer 400 ns
 
 //use devtimer::DevTime;
