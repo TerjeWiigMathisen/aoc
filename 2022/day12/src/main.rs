@@ -1,11 +1,11 @@
 //aoc 2022 day12
-// Fastest run: Surface Pro 8 29.8 (u8), 35.3 (u32) us
+// Fastest run: Surface Pro 8 29.2 (u8), 35.3 (u32) us
 //                       Acer 15.7 us
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use std::arch::x86_64::*;
-
+#[derive(Debug,Clone)]
 struct Grid {
     _width:usize,
     _height:usize,
@@ -49,46 +49,59 @@ impl Grid {
         }
         g
     }
+    fn show(&self) {
+        let dirs = ['.', '<', '>', 'v', '^', 'S', 'E', 'Z'];
+        let mut sf = self.cells.clone();
+        sf[self.start] = 5;
+        sf[self.end] = 6;
+        for y in 1..=self._height {
+            for x in 0..self._width {
+                let c = sf[y*self.stride + x];
+                print!("{}", dirs[(c & 7) as usize]);
+            }
+            println!();
+        }
+    }
 }
 
 #[inline(never)]
-fn process(inp:&[u8]) -> (u32, u32)
+fn process(inp:&[u8]) -> (u16, u16, Grid)
 {
     let mut grid = Grid::new(inp);
     let mut part2 = 0;
-    let mut deq = std::collections::VecDeque::<[u32;2]>::new();
-    deq.push_back([grid.end as u32, 0]);
-    while let Some([id, stp]) = deq.pop_front() {
+    let mut deq = std::collections::VecDeque::<[u16;2]>::new();
+    deq.push_back([grid.end as u16, 0]);
+    while let Some([id, steps_and_dir]) = deq.pop_front() {
         let idx = id as usize;
         let cell = grid.cells[idx];
         if cell & 7 != 0 {
             continue;
         }
-        //println!("idx={} stp={} height={} steps={}", idx, stp, height, steps);
+        //println!("idx={} steps_and_dir={} height={} steps={}", idx, steps_and_dir, height, steps);
         if idx == grid.start {
-            return (stp >> 3, part2);
+            return (steps_and_dir >> 3, part2, grid);
         }
         if cell == 16 && part2 == 0 {
-            part2 = stp >> 3;
+            part2 = steps_and_dir >> 3;
         }
-        grid.cells[idx] = cell | (stp & 7) as u8;
+        grid.cells[idx] = cell | (steps_and_dir & 7) as u8;
 
-        let d = (stp & !7) + 8;
+        let d = (steps_and_dir & !7) + 8;
         let step_limit = cell - 8;
         if grid.cells[idx+1] >= step_limit {
-            deq.push_back([(idx+1) as u32, d+1]);
+            deq.push_back([(idx+1) as u16, d+1]);
         }
         if grid.cells[idx-1] >= step_limit {
-            deq.push_back([(idx-1) as u32, d+2]);
+            deq.push_back([(idx-1) as u16, d+2]);
         }
         if grid.cells[idx-grid.stride] >= step_limit {
-            deq.push_back([(idx-grid.stride) as u32, d+3]);
+            deq.push_back([(idx-grid.stride) as u16, d+3]);
         }
         if grid.cells[idx+grid.stride] >= step_limit {
-            deq.push_back([(idx+grid.stride) as u32, d+4]);
+            deq.push_back([(idx+grid.stride) as u16, d+4]);
         }
     }
-    (0,0)
+    (0,0,grid)
 }
 
 fn main() {
@@ -105,4 +118,5 @@ fn main() {
     let display = process(&input.as_bytes());
     println!("part1={}", display.0);
     println!("part2={}", display.1);
+    display.2.show();
 }
