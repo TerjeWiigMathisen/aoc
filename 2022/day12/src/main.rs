@@ -1,6 +1,6 @@
 //aoc 2022 day12
 // Fastest run: Surface Pro 8 29.2 (u8), 35.3 (u32) us
-//                       Acer 15.7 us
+//                       Acer 14.8 us
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -49,7 +49,7 @@ impl Grid {
         }
         g
     }
-    fn show(&self) {
+    fn _show(&self) {
         let dirs = ['.', '<', '>', 'v', '^', 'S', 'E', 'Z'];
         let mut sf = self.cells.clone();
         sf[self.start] = 5;
@@ -118,5 +118,5 @@ fn main() {
     let display = process(&input.as_bytes());
     println!("part1={}", display.0);
     println!("part2={}", display.1);
-    display.2.show();
+//    display.2.show();
 }
