@@ -1,5 +1,5 @@
 //aoc 2022 day12
-// Fastest run: Surface Pro 8
+// Fastest run: Surface Pro 8 35.3 us
 //                       Acer 15.7 us
 
 //use devtimer::DevTime;
@@ -22,7 +22,7 @@ impl Grid {
             width += 1;
         }
         let stride = width + 1;
-        let height = input.len() / stride;
+        let height = (input.len()+1) / stride;
         let mut g = Grid {
             _width: width,
             _height: height,
@@ -94,10 +94,10 @@ fn process(inp:&[u8]) -> (u32, u32)
 }
 
 fn main() {
-    let mut input = std::fs::read_to_string("input.txt").unwrap();
-    if input.as_bytes()[input.len() - 1] != b'\n' {
-        input.push('\n');
-    }
+    let input = std::fs::read_to_string("input.txt").unwrap();
+    // if input.as_bytes()[input.len() - 1] != b'\n' {
+    //     input.push('\n');
+    // }
 
     let bench_result = run_benchmark(1000, |_| {
         process(&input.as_bytes());
