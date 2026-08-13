@@ -1,5 +1,5 @@
 //aoc 2022 day12
-// Fastest run: Surface Pro 8 35.3 us
+// Fastest run: Surface Pro 8 29.8 (u8), 35.3 (u32) us
 //                       Acer 15.7 us
 
 //use devtimer::DevTime;
@@ -12,7 +12,7 @@ struct Grid {
     stride:usize,
     start:usize,
     end:usize,
-    cells:Vec<u32>,
+    cells:Vec<u8>,
 }
 
 impl Grid {
@@ -29,7 +29,7 @@ impl Grid {
             stride: stride,
             start: 0,
             end: 0,
-            cells: vec![1<<24;stride*(height+2)],
+            cells: vec![0;stride*(height+2)],
         };
         let mut i = 0;
         for y in 1..=height {
@@ -42,7 +42,7 @@ impl Grid {
                     g.end = y * stride + x;
                     c = b'z';
                 }
-                g.cells[y*stride + x] = ((c as u32) << 24) | 0x00FFFFFF;
+                g.cells[y*stride + x] = (c - b'a' + 2) << 3;
                 i += 1;
             }
             i += 1; // skip newline
@@ -55,39 +55,37 @@ impl Grid {
 fn process(inp:&[u8]) -> (u32, u32)
 {
     let mut grid = Grid::new(inp);
-    let mut part2 = u32::max_value();
+    let mut part2 = 0;
     let mut deq = std::collections::VecDeque::<[u32;2]>::new();
     deq.push_back([grid.end as u32, 0]);
     while let Some([id, stp]) = deq.pop_front() {
         let idx = id as usize;
         let cell = grid.cells[idx];
-        let height = cell >> 24;
-        let steps = cell & 0x00FFFFFF;
-        if steps <= stp {
+        if cell & 7 != 0 {
             continue;
         }
         //println!("idx={} stp={} height={} steps={}", idx, stp, height, steps);
         if idx == grid.start {
-            return (stp, part2);
+            return (stp >> 3, part2);
         }
-        if height == b'a' as u32 && stp < part2 {
-            part2 = stp;
+        if cell == 16 && part2 == 0 {
+            part2 = stp >> 3;
         }
-        grid.cells[idx] = (height << 24) | stp;
+        grid.cells[idx] = cell | (stp & 7) as u8;
 
-        let d = stp + 1;
-        let step_limit = (height - 1) << 24;
+        let d = (stp & !7) + 8;
+        let step_limit = cell - 8;
         if grid.cells[idx+1] >= step_limit {
-            deq.push_back([(idx+1) as u32, d]);
+            deq.push_back([(idx+1) as u32, d+1]);
         }
         if grid.cells[idx-1] >= step_limit {
-            deq.push_back([(idx-1) as u32, d]);
+            deq.push_back([(idx-1) as u32, d+2]);
         }
         if grid.cells[idx-grid.stride] >= step_limit {
-            deq.push_back([(idx-grid.stride) as u32, d]);
+            deq.push_back([(idx-grid.stride) as u32, d+3]);
         }
         if grid.cells[idx+grid.stride] >= step_limit {
-            deq.push_back([(idx+grid.stride) as u32, d]);
+            deq.push_back([(idx+grid.stride) as u32, d+4]);
         }
     }
     (0,0)
