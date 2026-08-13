@@ -36,13 +36,13 @@ impl Grid {
             for x in 0..width {
                 let mut c = input[i];
                 if c == b'S' {
-                    g.start = y * g.stride + x;
+                    g.start = y * stride + x;
                     c = b'a';
                 } else if c == b'E' {
-                    g.end = y * g.stride + x;
+                    g.end = y * stride + x;
                     c = b'z';
                 }
-                g.cells[y*g.stride + x] = ((c as u32) << 24) | 0x00FFFFFF;
+                g.cells[y*stride + x] = ((c as u32) << 24) | 0x00FFFFFF;
                 i += 1;
             }
             i += 1; // skip newline
@@ -55,7 +55,7 @@ impl Grid {
 fn process(inp:&[u8]) -> (u32, u32)
 {
     let mut grid = Grid::new(inp);
-    let mut part2 = 0;
+    let mut part2 = u32::max_value();
     let mut deq = std::collections::VecDeque::<[u32;2]>::new();
     deq.push_back([grid.end as u32, 0]);
     while let Some([id, stp]) = deq.pop_front() {
@@ -70,7 +70,7 @@ fn process(inp:&[u8]) -> (u32, u32)
         if idx == grid.start {
             return (stp, part2);
         }
-        if height == b'a' as u32 && (part2 == 0 || stp < part2) {
+        if height == b'a' as u32 && stp < part2 {
             part2 = stp;
         }
         grid.cells[idx] = (height << 24) | stp;
