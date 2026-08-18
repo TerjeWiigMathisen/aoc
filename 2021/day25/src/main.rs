@@ -1,15 +1,56 @@
-// Fastest run (Acer): 4.5 us with u8 vars
+// Fastest run (Acer): 
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
 #[derive(Copy, Clone, Debug)]
-struct Winlose {
-    win:usize,
-    lose:usize,
+struct Bitline {
+    l:[u64;3],
+    h:[u64;3],
 }
 
-const STEPS:[usize;10] = [0,0,0,1,3,6,7,6,3,1];
+// h:l == 00 -> open spot
+// h:l == 01 -> '>'
+// h:l == 10 -> 'v'
+
+struct Map {
+    length:usize,
+    width:usize,
+    page:usize,
+    grid:Vec<Bitline>,
+}
+
+impl Map {
+    fn east(self:&mut Map) -> usize {
+        for line in 1..=self.length {
+            let bl = &self.grid[line];
+            for e in 0..3 {
+                let nlo = bl.l;
+                let nhi = bl.h;
+                let clo = nlo << 1;
+                let next = clo & !nlo & !nhi;
+                self.grid[line+self.page] = next;
+            }
+        }
+        0
+    }
+    fn down(self:&mut Map) -> usize {
+        for line in 1..=self.length {
+            for e in 0..3 {
+                let chi = self.grid[line-1+self.page].h[e];
+                let nlo = self.grid[line+self.page].l[e];
+                let nhi = self.grid[line+self.page].h[e];
+                let next = chi & !nlo & !nhi;
+                self.grid[line] = next;
+            }
+        }
+        0
+    }
+}
+
+let flip = !a & !b & (b ^ d);
+b ^= flip; d ^= flip;
+
 
 fn step(pos1:u32, rest1:u32, pos2:u32, rest2:u32, cache:&mut [Winlose;10*10*21*21]) -> Winlose
 {
