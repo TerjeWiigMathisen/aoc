@@ -1,6 +1,6 @@
-//aoc 2022 day12
-// Fastest run: Surface Pro 8 29.2 (u8), 35.3 (u32) us
-//                       Acer 14.8 us
+//aoc 2022 day14
+// Fastest run: Surface Pro 8
+//                       Acer
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -11,14 +11,14 @@ struct Span {
     e:usize,
 }
 
-struct Spans {
-    spans:Vec<Span>,
-}
-
 impl Span {
     fn new(start, slutt) -> Span {
         Span { b: start, e: slutt }
     }
+}
+
+struct Spans {
+    spans:Vec<Span>,
 }
 
 impl Spans {
@@ -33,59 +33,73 @@ impl Spans {
         let mut i = 0;
         let mut j = 1;
         while j < self.spans.len() {
-            if self.spans[i].e < self.spans[j].b {
+            if self.spans[i].e < self.spans[j].b { // no overlap, finished with this
                 i += 1;
                 self.spans[i] = self.spans[j];
                 j += 1;
             }
-            else {
+            else {  // Partly or completely overlapping
                 if self.spans[i].e < self.spans[j].e {
                     self.spans[i].e = self.spans[j].e;
                 }
                 j += 1;
             }
         }
+        spans.truncate(j);
+    }
+    
+    fn parse(inp:&str) -> Spans {
+        let mut spans = Spans::new();
+        for line in inp.lines() {
+            let parts: Vec<&str> = line.split(' -> ').collect();
+            let points: Vec<(usize, usize)> = parts.iter().filter_map(|p| {
+                let coords: Vec<&str> = p.split(',').collect();
+                if coords.len() == 2 {
+                    if let (Ok(x), Ok(y)) = (coords[0].parse::<usize>(), coords[1].parse::<usize>()) {
+                        return Some((x, y));
+                    }
+                }
+                None
+            }).collect();
+            let mut prev_point = points[0];
+            for &point in points.iter().skip(1) {
+                let (x0, y0) = prev_point;
+                let (x1, y1) = point;
+                if x0 == x1 {
+                    let (start_y, end_y) = if y0 < y1 { (y0, y1) } else { (y1, y0) };
+                    for y in start_y..=end_y {
+                        while y >= spans.spans.len() {
+                            spans.spans.push(Vec::new());
+                        }
+                        spans.spans[y].add(Span::new(x0, x0+1));
+                    }
+                } else if y0 == y1 {
+                    let (start_x, end_x) = if x0 < x1 { (x0, x1) } else { (x1, x0) };
+                    while y0 >= spans.spans.len() {
+                        spans.spans.push(Vec::new());
+                    }
+                    spans.spans[y0].add(Span::new(start_x, end_x+1));
+                }
+                prev_point = point;
+            }
+        }
+        spans
     }
 }
 
 #[inline(never)]
-fn process(inp:&[u8]) -> (u16, u16, Grid)
+fn process(inp:&str) -> usize
 {
-    let mut grid = Grid::new(inp);
+    let mut spans = Spans::new(inp);
     let mut part2 = 0;
-    let mut deq = std::collections::VecDeque::<[u16;2]>::new();
-    deq.push_back([grid.end as u16, 0]);
-    while let Some([id, steps_and_dir]) = deq.pop_front() {
-        let idx = id as usize;
-        let cell = grid.cells[idx];
-        if cell & 7 != 0 {
-            continue;
-        }
-        //println!("idx={} steps_and_dir={} height={} steps={}", idx, steps_and_dir, height, steps);
-        if idx == grid.start {
-            return (steps_and_dir >> 3, part2, grid);
-        }
-        if cell == 16 && part2 == 0 {
-            part2 = steps_and_dir >> 3;
-        }
-        grid.cells[idx] = cell | (steps_and_dir & 7) as u8;
-
-        let d = (steps_and_dir & !7) + 8;
-        let step_limit = cell - 8;
-        if grid.cells[idx+1] >= step_limit {
-            deq.push_back([(idx+1) as u16, d+1]);
-        }
-        if grid.cells[idx-1] >= step_limit {
-            deq.push_back([(idx-1) as u16, d+2]);
-        }
-        if grid.cells[idx-grid.stride] >= step_limit {
-            deq.push_back([(idx-grid.stride) as u16, d+3]);
-        }
-        if grid.cells[idx+grid.stride] >= step_limit {
-            deq.push_back([(idx+grid.stride) as u16, d+4]);
-        }
+    let mut left = 500;
+    let mut right = 501;
+    let prev = Spans{spans:vec![Span{left,right};1]}
+    part2 += 1;
+    for y in 1..spans.len() {
+        let mut curr = spans[y].clone();
     }
-    (0,0,grid)
+    part2
 }
 
 fn main() {

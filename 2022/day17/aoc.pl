@@ -147,16 +147,15 @@ sub simulate
 		if ($rocks == $rounds) {
 	#	if ($rocks >= 22) {
 			$ret2022 = $top + $collapsed;
-		}
-		if ($rocks >= $rounds) {
 			return $ret2022;
 		}
 	}
 }
 
 $part1 = simulate(2022);
+my $time1 = time;
 $part2 = simulate(50151+1464);
-simulate(100000);
+#simulate(100000);
 printf("Board remaining: %d\n", scalar(@board));
 
 my %drops = ();
@@ -219,9 +218,7 @@ sub show
 
 #show();
 
-printf(STDERR "Part1 time = %f\n", time - $start);
-printf("Part1: %s\n", $part1);
-
+printf(STDERR "Part1 time = %f\n", $time1 - $start);
 
 printf(STDERR "Total time = %f\n", time - $start);
 
