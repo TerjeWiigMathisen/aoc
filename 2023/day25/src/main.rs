@@ -262,16 +262,6 @@ fn process2(inp:String)
 }
 
 fn main() {
-/*
-    process("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99".to_owned());
-    process("1102,34915192,34915192,7,4,7,99,0".to_owned());
-    process("104,1125899906842624,99".to_owned());
-//    assert!(process("3,3,1107,-1,8,3,4,3,99".to_owned(),vec![7]) == 1);
-
-//    let bench_result = run_benchmark(10, |_| {bench_permute();}); bench_result.print_stats();
-
-    panic!("Stop now");
-*/
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
     if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
