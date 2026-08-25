@@ -1,5 +1,5 @@
 //aoc 2022 day25
-// Fastest run: Surface Pro 8 1456 ns
+// Fastest run: Surface Pro 8 1088 ns
 //                       Acer  651 ns
 
 //use devtimer::DevTime;
