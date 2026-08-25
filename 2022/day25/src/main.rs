@@ -1,5 +1,5 @@
 //aoc 2022 day25
-// Fastest run: Surface Pro 8 1.8 us
+// Fastest run: Surface Pro 8 754 ns
 //                       Acer
 
 //use devtimer::DevTime;
@@ -38,24 +38,36 @@ fn tobase(n:i64) -> String
 
 
 #[inline(never)]
-pub fn process(inp:&[u8]) -> (i64,i64)
+pub fn process(inp:&[u8]) -> (i64,String)
 {
     let mut part1 = 0;
-    let mut start = 0;
+    let mut value:[i8;256] = [0;256];
+    value[b'-' as usize] = -1;
+    value[b'1' as usize] = 1;
+    value[b'2' as usize] = 2;
+    value[b'=' as usize] = -2;
+    let mut n = 0;
+    for j in 0..1000 {
     for i in 0..inp.len() {
         if inp[i] == b'\n' {
-            part1 += frombase(&inp[start..i]);
-            start = i+1;
+            part1 += n;
+            n = 0;
+            continue;
         }
+//		n = n*BASE + (VALUE[inp[i] as usize - 45]);
+		n = n*BASE + (value[inp[i] as usize] as i64);
     }
-    (part1,0)
+    part1 += n;
+    }
+    part1 /= 1000;
+    (part1,tobase(part1))
 }
 
 fn main() {
-    let mut input = std::fs::read_to_string("input.txt").unwrap();
-    if input.as_bytes()[input.len() - 1] != b'\n' {
-        input.push('\n');
-    }
+    let input = std::fs::read_to_string("input.txt").unwrap();
+    // if input.as_bytes()[input.len() - 1] != b'\n' {
+    //     input.push('\n');
+    // }
 
     let bench_result = run_benchmark(1000, |_| {
         process(&input.as_bytes());
