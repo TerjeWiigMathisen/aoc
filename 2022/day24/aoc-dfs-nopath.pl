@@ -117,10 +117,10 @@ sub search
 	my ($t,$SX,$SY,$TX,$TY) = @_;
 	my %seen = ();
 	my $pq = new List::PriorityQueue;
-	my ($best, $bestmoves) = (1e10,'');
-	$pq->insert(join(',',$t,$SX,$SY,''), 0);
+	my $best = 1e10;
+	$pq->insert(join(',',$t,$SX,$SY), 0);
 	while (my $item = $pq->pop()) {
-		my ($t,$x,$y,$moves) = split(/,/, $item);
+		my ($t,$x,$y) = split(/,/, $item);
 		next if ($y < 0);
 		next if ($y >= $SIZEY);
 		
@@ -128,7 +128,7 @@ sub search
 		next if ($t+$manh >= $best);
 
 		if ($x == $TX && $y == $TY) {
-			($best, $bestmoves) = ($t, $moves);
+			($best) = ($t);
 			printf(STDERR "Found better path: %d moves\n", $best);
 			next;
 		}
@@ -139,32 +139,31 @@ sub search
 		next unless (substr($map[$y],$x,1) eq '.');
 
 		# Try down:
-		$pq->insert(join(',',$t+1,$x,$y+1,$moves.'v'),$t*0 + abs($TX-$x) + abs($TY-$y-1));
+		$pq->insert(join(',',$t+1,$x,$y+1),$t*0 + abs($TX-$x) + abs($TY-$y-1));
 		# Try left:
-		$pq->insert(join(',',$t+1,$x-1,$y,$moves.'<'),$t*0 + abs($TX-$x+1) + abs($TY-$y));
+		$pq->insert(join(',',$t+1,$x-1,$y),$t*0 + abs($TX-$x+1) + abs($TY-$y));
 		# Try right:
-		$pq->insert(join(',',$t+1,$x+1,$y,$moves.'>'),$t*0 + abs($TX-$x-1) + abs($TY-$y));
+		$pq->insert(join(',',$t+1,$x+1,$y),$t*0 + abs($TX-$x-1) + abs($TY-$y));
 		# Try up:
-		$pq->insert(join(',',$t+1,$x,$y-1,$moves.'^'),$t*0 + abs($TX-$x) + abs($TY-$y+1));
+		$pq->insert(join(',',$t+1,$x,$y-1),$t*0 + abs($TX-$x) + abs($TY-$y+1));
 		# Stand still:
-		$pq->insert(join(',',$t+1,$x,$y,$moves.'0'),$t*0 + $manh);
+		$pq->insert(join(',',$t+1,$x,$y),$t*0 + $manh);
 	}
-	return ($best, $bestmoves);
+	return $best;
 }
 
 my $moves;
-($part1, $moves) = search(0,$SX,$SY,$TX,$TY);
-printf("%d path: %s\n", $part1, $moves);
+$part1 = search(0,$SX,$SY,$TX,$TY);
+printf("%d path\n", $part1);
 
 printf("Part1: %s\n", $part1);
 printf(STDERR "Part1 time = %f\n", time - $start);
 
-($part2,$moves) = search($part1,$TX,$TY,$SX,$SY);
-printf("%d return path: %s\n", $part2, $moves);
+$part2 = search($part1,$TX,$TY,$SX,$SY);
+printf("Return path: %s\n", $part2);
 printf(STDERR "Return time = %f\n", time - $start);
 
-($part2, $moves) = search($part2,$SX,$SY,$TX,$TY);
-printf("%d final path: %s\n", $part2, $moves);
+$part2 = search($part2,$SX,$SY,$TX,$TY);
 
 printf("Part2: %s\n", $part2);
 

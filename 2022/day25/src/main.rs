@@ -1,6 +1,6 @@
 //aoc 2022 day25
 // Fastest run: Surface Pro 8 754 ns
-//                       Acer
+//                       Acer 610 ns
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
@@ -47,20 +47,26 @@ pub fn process(inp:&[u8]) -> (i64,String)
     value[b'2' as usize] = 2;
     value[b'=' as usize] = -2;
     let mut n = 0;
-    for j in 0..1000 {
     for i in 0..inp.len() {
         if inp[i] == b'\n' {
             part1 += n;
             n = 0;
             continue;
         }
-//		n = n*BASE + (VALUE[inp[i] as usize - 45]);
 		n = n*BASE + (value[inp[i] as usize] as i64);
     }
     part1 += n;
-    }
-    part1 /= 1000;
     (part1,tobase(part1))
+}
+
+fn p1k(inp:&[u8]) -> (i64,String)
+{
+    let mut p1 = 0;
+    let mut p2 = "".to_string();
+    for i in 0..1000 {
+        (p1,p2) = process(inp);
+    }
+    (p1,p2)
 }
 
 fn main() {
@@ -70,7 +76,7 @@ fn main() {
     // }
 
     let bench_result = run_benchmark(1000, |_| {
-        process(&input.as_bytes());
+        p1k(&input.as_bytes());
     });
     bench_result.print_stats();
 
