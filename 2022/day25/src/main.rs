@@ -1,20 +1,29 @@
 //aoc 2022 day25
 // Fastest run: Surface Pro 8 754 ns
-//                       Acer 610 ns
+//                       Acer
 
 //use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use std::arch::x86_64::*;
 
 const BASE:i64 = 5;
-const VALUE:[i64;17] = [-1,0,0,0,1,2,3,4,5,6,7,8,9,0,0,0,-2];
+const VALUE:[i8;256] = [
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,-2,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
 const DIGITS:[u8;5] = [b'0',b'1',b'2',b'=',b'-'];
 
 fn frombase(digits:&[u8]) -> i64
 {
 	let mut n:i64 = 0;
 	for i in 0..digits.len() {
-		n = n*BASE + (VALUE[digits[i] as usize - 45]);
+		n = n*BASE + (VALUE[digits[i] as usize] as i64);
 //        println!("n={n} <- {} <- {}", VALUE[digits[i] as usize - 45], digits[i]);
 	}
 	n
@@ -47,26 +56,20 @@ pub fn process(inp:&[u8]) -> (i64,String)
     value[b'2' as usize] = 2;
     value[b'=' as usize] = -2;
     let mut n = 0;
+    for j in 0..1000 {
     for i in 0..inp.len() {
         if inp[i] == b'\n' {
             part1 += n;
             n = 0;
             continue;
         }
+//		n = n*BASE + (VALUE[inp[i] as usize - 45]);
 		n = n*BASE + (value[inp[i] as usize] as i64);
     }
     part1 += n;
-    (part1,tobase(part1))
-}
-
-fn p1k(inp:&[u8]) -> (i64,String)
-{
-    let mut p1 = 0;
-    let mut p2 = "".to_string();
-    for i in 0..1000 {
-        (p1,p2) = process(inp);
     }
-    (p1,p2)
+    part1 /= 1000;
+    (part1,tobase(part1))
 }
 
 fn main() {
