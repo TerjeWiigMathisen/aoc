@@ -1,5 +1,5 @@
 // day1
-// Surface:  75.9 us
+// Surface:  111 us
 // Acer:
 
 use std::fs;
@@ -16,6 +16,7 @@ pub fn process(inp:&String, ilen:usize)->(u32, u32)
         third[digits[j].as_bytes()[2] as usize] |= 1 << j;
         third[digits[j].as_bytes()[0] as usize] |= 1 << 15;
     }
+    let skip = [1,1,3,3,2,2,3,3,2];
 
     let mut part1 = 0;
     let mut part2= 0;
@@ -33,7 +34,7 @@ pub fn process(inp:&String, ilen:usize)->(u32, u32)
             first2 = 0;
             continue;
         }
-        if b >= b'0' && b <= b'9' {
+        if /* b >= b'0' && */ b <= b'9' {
             let digit = (b - b'0') as u32; 
             if first == 0 {
                 first = digit * 10;
@@ -57,7 +58,7 @@ pub fn process(inp:&String, ilen:usize)->(u32, u32)
                     first2 = digit * 10;
                 }
                 pair2 = first2 + digit;
-                i += digits[j].len() - 1;
+                i += skip[j];
                 break;
             }
             t ^= 1 << j;
