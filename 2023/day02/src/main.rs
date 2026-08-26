@@ -1,4 +1,4 @@
-// day1
+// day2
 // Surface:  3.8 us
 // Acer:     1.7 us
 
