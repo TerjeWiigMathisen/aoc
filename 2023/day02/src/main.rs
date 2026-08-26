@@ -1,6 +1,6 @@
 // day1
 // Surface:  3.8 us
-// Acer:
+// Acer:     1.7 us
 
 use std::fs;
 use devtimer::run_benchmark;
@@ -28,20 +28,20 @@ pub fn process(inp:&String)->(u32, u32)
             i += 1; //skip space
             if input[i] == b'r' {
                 if n > rm {rm = n;}
-                i += 3;
+                i += 3;  // "red"
             }
             else if input[i] == b'g' {
                 if n > gm {gm = n;}
-                i += 5;
+                i += 5; // "green"
             }
             else if input[i] == b'b' {
                 if n > bm {bm = n;}
-                i += 4;
+                i += 4; // "blue"
             }
-            if input[i] == b'\n' { //end of line input, test part1 
+            if input[i] == b'\n' { //end of line, aggregate results
                 break;
             }
-            i += 2;
+            i += 2; // Skip ,; and space
         }
 //        println!("{game}: RGB=({rm},{gm},{bm})");
         if rm <= 12 && gm <= 13 && bm <= 14 {
