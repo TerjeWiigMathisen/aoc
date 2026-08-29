@@ -1,5 +1,5 @@
 // day2
-// Surface:  3.8 us
+// Surface:  3.1 us
 // Acer:     1.7 us
 
 use std::fs;
