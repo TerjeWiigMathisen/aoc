@@ -49,7 +49,9 @@ fn symbols_around_number(grid:&mut Vec<u16>, stride:usize, num:&Number) -> (u64,
     print!("left: ");
     for offs in [pos-stride, pos, pos+stride] {
         print!("{offs},");
-        (part1,part2) = check_grid_pos(&grid[offs], val);
+        let (p1,p2) = check_grid_pos(&mut grid[offs], val);
+        if p1 > part1 {part1 = p1;}
+        if p2 > part2 {part2 = p2;}
     }
     println!();
     pos += 1;
@@ -57,7 +59,9 @@ fn symbols_around_number(grid:&mut Vec<u16>, stride:usize, num:&Number) -> (u64,
     for _ in 0..numlen {
         for offs in [pos-stride, pos+stride] {
             print!("{offs},");
-            (part1,part2) = check_grid_pos(&grid[offs], val);
+            let (p1,p2) = check_grid_pos(&mut grid[offs], val);
+            if p1 > part1 {part1 = p1;}
+            if p2 > part2 {part2 = p2;}
         }
         pos += 1;
     }
@@ -65,7 +69,9 @@ fn symbols_around_number(grid:&mut Vec<u16>, stride:usize, num:&Number) -> (u64,
     print!("right: ");
     for offs in [pos-stride, pos, pos+stride] {
         print!("{offs},");
-        (part1,part2) = check_grid_pos(&grid[offs], val);
+        let (p1,p2) = check_grid_pos(&mut grid[offs], val);
+        if p1 > part1 {part1 = p1;}
+        if p2 > part2 {part2 = p2;}
     }
     println!();
     (part1, part2)
@@ -105,7 +111,7 @@ pub fn process(inp:&String)->(u64, u64)
     }
     for n in 0..nums.len() {
         let (p1,p2) = symbols_around_number(&mut grid, stride, &nums[n]);
-        println!("Testing {:?} -> ({p1},{p2}", nums[n]);
+        println!("Testing {:?} -> ({p1},{p2})", nums[n]);
         part1 += p1;
         part2 += p2;
     }
