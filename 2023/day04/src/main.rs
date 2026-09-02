@@ -17,6 +17,7 @@ pub fn process(inp:&String)->(usize, usize)
         i += 10;
 //        while copies.len() <= c {copies.push(0);}
         copies[c] += 1;
+        c += 1;
         let mut winners:[u8;100] = [0;100];
         loop {
             let widx = (input[i] & 15)*10 + (input[i+1] & 15);
@@ -41,7 +42,6 @@ pub fn process(inp:&String)->(usize, usize)
                 copies[c+j] += curr;
             }
         }
-        c += 1;
 //        println!("At offset {i}, {c} cards");
         if i >= ilen {break}
     }
