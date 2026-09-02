@@ -8,9 +8,9 @@
             "name": "Launch",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceRoot}/2023/day03/target/debug/day03.exe",
+            "program": "${workspaceRoot}/2023/day04/target/debug/day04.exe",
             "args": [],
-            "cwd": "${workspaceRoot}/2023/day03"
+            "cwd": "${workspaceRoot}/2023/day04"
         }
     ]
 }

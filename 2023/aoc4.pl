@@ -36,7 +36,7 @@ for (my $c = 0; $c < scalar(@cards); $c++) {
 	}
 	if ($price) {
 		$part1 += 1 << ($price-1);
-		my $curr = $copies[$c]; # How many copies to we have of the current card?
+		my $curr = $copies[$c]; # How many copies do we have of the current card?
 		for (my $i = 1; $i <= $price; $i++) {
 			$copies[$c+$i] += $curr;
 		}
