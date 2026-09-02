@@ -1,5 +1,5 @@
 // day04
-// Surface:  15.6 us
+// Surface:  15.4 us
 // Acer:     
 use std::fs;
 use devtimer::run_benchmark;
