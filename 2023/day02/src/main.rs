@@ -5,6 +5,9 @@
 use std::fs;
 use devtimer::run_benchmark;
 
+// perfect hash: b=0,g=1,r=2
+const SKIP:[usize;4] = [4,5,3,0];
+
 pub fn process(inp:&String)->(u32, u32)
 {
     let input = inp.as_bytes();
@@ -15,6 +18,7 @@ pub fn process(inp:&String)->(u32, u32)
     let mut rm = 0;
     let mut gm = 0;
     let mut bm = 0;
+    let mut brg:[u32;3] = [0,0,0];
     while i < input.len() {
         game += 1;
         while input[i] != b':' { i += 1;}
@@ -26,18 +30,12 @@ pub fn process(inp:&String)->(u32, u32)
             }
 //            println!("n={n} {}", input[i+1] as char);
             i += 1; //skip space
-            if input[i] == b'r' {
-                if n > rm {rm = n;}
-                i += 3;  // "red"
+            let b = input[i];
+            let hash = ((b & 1) | ((b >> 3) & 2)) as usize;
+            if n > brg[hash] {
+                brg[hash] = n;
             }
-            else if input[i] == b'g' {
-                if n > gm {gm = n;}
-                i += 5; // "green"
-            }
-            else if input[i] == b'b' {
-                if n > bm {bm = n;}
-                i += 4; // "blue"
-            }
+            i += SKIP[hash]; //skip color text
             if input[i] == b'\n' { //end of line, aggregate results
                 break;
             }
