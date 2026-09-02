@@ -1,10 +1,10 @@
 // day04
-// Surface:  15.4 us
+// Surface:  14 us
 // Acer:     
 use std::fs;
 use devtimer::run_benchmark;
 
-pub fn process(inp:&String)->(usize, usize)
+pub fn process(inp:&String)->(u32, u32)
 {
     let input = inp.as_bytes();
     let ilen = input.len();
@@ -12,10 +12,9 @@ pub fn process(inp:&String)->(usize, usize)
     let mut c:usize = 0;
     let mut part1 = 0;
     let mut part2 = 0;
-    let mut copies:Vec<usize> = vec![0;250];
+    let mut copies:Vec<u32> = vec![0;256];
     loop {
         i += 10;
-//        while copies.len() <= c {copies.push(0);}
         copies[c] += 1;
         c += 1;
         let mut winners:[u8;100] = [0;100];
@@ -36,16 +35,14 @@ pub fn process(inp:&String)->(usize, usize)
 
         if price > 0 {
             part1 += 1 << (price-1);
-//            while c+price >= copies.len() {copies.push(0)}
             let curr = copies[c];
             for j in 1..=price {
                 copies[c+j] += curr;
             }
         }
-//        println!("At offset {i}, {c} cards");
         if i >= ilen {break}
     }
-    for i in 0..copies.len() {
+    for i in 0..copies.len() { // Faster than iter().sum()!
         part2 += copies[i];
     }
     return (part1, part2);
