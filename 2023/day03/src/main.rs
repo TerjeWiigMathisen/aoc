@@ -1,6 +1,6 @@
 // day03
 // Surface:     79.7 us
-// Acer:        27.5 us
+// Acer:        26.6 us
 
 use std::fs;
 use devtimer::run_benchmark;
@@ -64,34 +64,25 @@ fn symbols_around_number(grid:&mut Vec<u16>, stride:usize, num:&Number) -> (u64,
     let numlen = num.len;
     let mut part1 = 0;
     let mut part2 = 0;
-//    print!("left: ");
     for offs in [pos-stride, pos, pos+stride] {
         let (p1,p2) = check_grid_pos(&mut grid[offs], val);
         if p1 > part1 {part1 = p1;}
         if p2 > part2 {part2 = p2;}
-//        print!("({offs},{p1},{p2}) ");
     }
-//    println!();
     pos += 1;
-//    print!("middle: ");
     for _ in 0..numlen {
         for offs in [pos-stride, pos+stride] {
             let (p1,p2) = check_grid_pos(&mut grid[offs], val);
             if p1 > part1 {part1 = p1;}
             if p2 > part2 {part2 = p2;}
-//            print!("({offs},{p1},{p2}) ");
         }
         pos += 1;
     }
-//    println!();
-//    print!("right: ");
     for offs in [pos-stride, pos, pos+stride] {
         let (p1,p2) = check_grid_pos(&mut grid[offs], val);
         if p1 > part1 {part1 = p1;}
         if p2 > part2 {part2 = p2;}
-//        print!("({offs},{p1},{p2}) ");
     }
-//    println!();
     (part1, part2)
 }
 
