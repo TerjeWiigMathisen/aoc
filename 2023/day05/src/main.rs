@@ -1,6 +1,6 @@
 // day05
 // Surface:
-// Acer:        8.1 us
+// Acer:        8.2 us
 use std::fs;
 use devtimer::run_benchmark;
 
@@ -104,9 +104,16 @@ pub fn process(inp:&String)->(u32, u32)
                     mappedseeds2.push(SeedRange { src: seeds2[s].src - ranges[r].src + ranges[r].dst, len: seeds2[s].len });
                     s += 1;
                 }
-            } else { // "Seed range is before mapping range, so keep it as is"
-                mappedseeds2.push(SeedRange { src: seeds2[s].src, len: seeds2[s].len });
-                s += 1;
+            } else { // "Seed range starts before the mapping range, so we might need to split it"
+                if seeds2[s].src + seeds2[s].len > ranges[r].src {
+                    let overlap = seeds2[s].src + seeds2[s].len - ranges[r].src;
+                    mappedseeds2.push(SeedRange { src: seeds2[s].src, len: seeds2[s].len - overlap });
+                    seeds2[s].src = ranges[r].src;
+                    seeds2[s].len = overlap;
+                } else {
+                    mappedseeds2.push(SeedRange { src: seeds2[s].src, len: seeds2[s].len });
+                    s += 1;
+                }
             }
         }
         seeds2 = mappedseeds2;
