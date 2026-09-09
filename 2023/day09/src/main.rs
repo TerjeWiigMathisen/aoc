@@ -1,5 +1,5 @@
 // day09
-// Surface:
+// Surface: 62.0 us
 // Acer:    31.4 us
 use std::fs;
 use devtimer::run_benchmark;
