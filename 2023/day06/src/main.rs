@@ -1,6 +1,6 @@
 // day06
-// Surface:
-// Acer:       92.2 ns
+// Surface:   176 ns
+// Acer:       92 ns
 use std::fs;
 use devtimer::run_benchmark;
 
