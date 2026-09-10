@@ -1,97 +1,71 @@
 // day11
-// Surface:
-// Acer:    127 us
+// Surface:   29.0 us
+// Acer:      12.4 us
 use std::fs;
 use devtimer::run_benchmark;
 
-struct Point {
-    x: u32,
-    y: u32,
+fn parse(inp:&[u8], xs:&mut Vec<u8>, ys:&mut Vec<u8>)
+{
+    let mut i = 0;
+    while inp[i] != b'\n' { i += 1;}
+    let xlen = i;
+    let ylen = (inp.len() + 1) / (i+1);
+    i = 0;
+    for y in 0..ylen {
+        for x in 0..xlen {
+            if inp[i] == b'#' {
+                xs.push(x as u8);
+                ys.push(y as u8);
+            }
+            i += 1;
+        }
+        i +=1;
+    }
+    xs.sort_unstable();
 }
 
-pub fn process(inp:&str) -> (usize, usize)
+fn sum_dist(xs:&[u8]) -> (usize, usize)
 {
-    let input = inp.as_bytes();
-    let mut i = 0;
-    while input[i] != b'\n' { i += 1; } // Measure line length
-    let line_len = i;
-    i = 0;
-    let vert_len = input.len() / line_len;
-
-    let mut x = 0;
-    let mut y = 0;
-    let mut hblank = true;
-    let mut hblank_cnt:Vec<usize> = vec![0; vert_len];
-    let mut vblank = vec![true; line_len];
-    let mut vblank_cnt:Vec<usize> = vec![0; line_len];
-    let mut prev_hblank_cnt = 0;
-    let mut points:Vec<Point> = Vec::new();
-    while i < input.len() {
-        let c = input[i]; i += 1;
-        if c == b'\n' {
-            if hblank == true { 
-                prev_hblank_cnt += 1;
-//                println!("hblank_cnt[{}]={}", y, prev_hblank_cnt);
-            }
-            hblank_cnt[y] = prev_hblank_cnt;
-            y += 1;
-            x = 0;
-            hblank = true;
-        } else {
-            if c == b'#' { 
-                points.push(Point { x: x as u32, y: y as u32 });
-                vblank[x as usize] = false;
-                hblank = false;
-            }
-            x += 1;
-        }
-    }
-    let mut prev_vblank_cnt = 0;
-    for x in 0..line_len {
-        if vblank[x] { 
-            prev_vblank_cnt += 1; 
-//            println!("vblank_cnt[{}]={}", x, prev_vblank_cnt);
-        }
-        vblank_cnt[x] = prev_vblank_cnt;
-    }
+    let len = xs.len();
     let mut part1 = 0;
     let mut part2 = 0;
-    for second in 1..points.len() {
-        let p2 = &points[second];
-        for first in 0..second {
-            let p1 = &points[first];
-            let mut x0 = p1.x as usize;
-            let mut x1 = p2.x as usize;
-            let mut y0 = p1.y as usize;
-            let mut y1 = p2.y as usize;
-            if x0 > x1 {
-                let t = x0; x0 = x1; x1 = t;
-            }
-            if y0 > y1 {
-                let t = y0; y0 = y1; y1 = t;
-            }
-            let dx = x1 - x0 + ((vblank_cnt[x1] - vblank_cnt[x0])) * 1;
-            let dy = y1 - y0 + ((hblank_cnt[y1] - hblank_cnt[y0])) * 1;
-            part1 += dx + dy;
-            let dx = x1 - x0 + ((vblank_cnt[x1] - vblank_cnt[x0])) * 999999;
-            let dy = y1 - y0 + ((hblank_cnt[y1] - hblank_cnt[y0])) * 999999;
-            part2 += dx + dy;
+    let mut prev = xs[0] as usize;
+    for i in 1..len {
+        let curr = xs[i] as usize;
+        let delta = curr - prev;
+        if delta > 0 {
+            let gap = delta - 1;
+            let dist1 = delta + gap;
+            let dist2 = delta + gap * 999999;
+            let count = i * (len-i);
+            part1 += dist1 * count;
+            part2 += dist2 * count;
         }
+        prev = curr;
     }
     (part1, part2)
 }
 
+fn process(inp:&str)->(usize,usize)
+{
+    let input = inp.as_bytes();
+    let mut xs:Vec<u8> = Vec::new();
+    let mut ys:Vec<u8> = Vec::new();
+    parse(input, &mut xs, &mut ys);
+    let (x1, x2) = sum_dist(&xs);
+    let (y1, y2) = sum_dist(&ys);
+    (x1+y1, x2+y2)
+}
+
 fn main() {
     let fname = "input.txt"; // instead of args[1]
-//    let fname = "test.txt"; // instead of args[1]
-    let mut input = fs::read_to_string(fname).expect("Error readin input file");
-    if input.as_bytes()[input.as_bytes().len()-1] != b'\n' as u8 {input.push('\n');}
+    let input = fs::read_to_string(fname).expect("Error readin input file");
 
     let bench_result = run_benchmark(1000, |_| {
         process(&input);
     });
     bench_result.print_stats();
 
-    let res = process(&input);
-    println!("part1={}\npart2={}", res.0, res.1);
+    let (part1, part2) = process(&input);
+    println!("part1={part1}\npart2={part2}");
 }
