@@ -51,8 +51,6 @@ fn mirror(out:&[u64], p1:usize, p2:usize) -> (usize, usize)
             }
             if mirror { 
                 res[diff as usize] = i;
-//                found += 1;
-//                println!("Found mirror with {diff} changes at line {i}, res={:?}", res);
                 if res[0] != 0 && res[1] != 0 {return (res[0],res[1])}
             }
         }
@@ -85,29 +83,16 @@ fn process(inp:&str)->(usize,usize, usize, usize)
     loop {
         let (o, xmax, out) = parse_block(&input, i);
         blocks += 1;
-        // let tra = transpose(&out, xmax);
-        // let rtn = transpose(&tra, out.len());
-        // for i in 0..out.len() {
-        //     if out[i] != rtn[i] {
-        //         println!("Round trip failed {:?} -> {:?} -> {:?}", out, tra, rtn);
-        //         return (0,0);
-        //     }
-        // }
         i = o;
- //       println!("Found {}x{} block ending at {i}", xmax, out.len());
         let (p1,p2) = mirror(&out, 0, 0);
-//        println!("vert mirror: {p1},{p2}");
         part1 += p1 * 100; part2 += p2 * 100;
         if p1 == 0 || p2 == 0 {
             let tra = transpose(&out, xmax);
             transposes += 1;
-//            println!("Transpose");
             let (p3,p4) = mirror(&tra, p1, p2);
-//            println!("horz mirror: {p3},{p4}");
             if p1 == 0 { part1 += p3; } 
             if p2 == 0 { part2 += p4; }
         }
-//        println!("part1: {part1}, part2: {part2}");
         if i >= input.len() {break;}
     }
     (part1, part2, blocks, transposes)
