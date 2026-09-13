@@ -2,6 +2,8 @@
 use strict;
 use Time::HiRes qw(time);
 
+# Surface: 2.836s
+
 my $t0 = time;
 my $part1 = 0;
 my $part2 = 0;
