@@ -42,12 +42,13 @@ fn mirror(out:&[u64], p1:usize, p2:usize) -> (usize, usize)
             let mut dn = i+1;
             let mut mirror = true;
             while up > 0 && dn < out.len() {
-                diff += (out[up-1] ^ out[dn]).count_ones();
+                up -= 1;
+                diff += (out[up] ^ out[dn]).count_ones();
                 if diff > 1 {
                     mirror = false;
                     break;
                 }
-                up -= 1; dn += 1;
+                dn += 1;
             }
             if mirror { 
                 res[diff as usize] = i;
