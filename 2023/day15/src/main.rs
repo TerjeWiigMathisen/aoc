@@ -1,6 +1,6 @@
 // day15
 // Surface: 105.0 us
-// Acer:     38.5 us
+// Acer:     36.1 us
 
 use std::fs;
 use devtimer::run_benchmark;
@@ -98,13 +98,13 @@ fn main() {
     if input.ends_with('\n') { input.pop(); }
     if !input.ends_with(',') { input.push(','); }
 
-    let input:&'static str = Box::leak(input.into_boxed_str());
+//    let input:&'static str = Box::leak(input.into_boxed_str());
 
     let bench_result = run_benchmark(1000, |_| {
         process(&input);
     });
     bench_result.print_stats();
 
-    let res = process(input);
+    let res = process(&input);
     println!("part1={}\npart2={}", res.0, res.1);
 }
