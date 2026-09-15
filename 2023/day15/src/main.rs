@@ -1,6 +1,6 @@
 // day15
-// Surface:
-// Acer:   95.9 us
+// Surface: 110 us
+// Acer:     95.9 us
 
 use std::fs;
 use devtimer::run_benchmark;
@@ -12,7 +12,7 @@ fn hash(b:u8, hash: usize) -> usize
     hash
 }
 
-fn hash_sum(inp:&[u8]) -> usize
+fn _hash_sum(inp:&[u8]) -> usize
 {
     let mut i = 0;
     let mut part1 = 0;
@@ -39,9 +39,10 @@ struct Onebox {
     tags:Vec<Tag>,
 }
 
-fn hash_map(inp:&'static str) -> usize
+fn hash_map(inp:&'static str) -> (usize, usize)
 {
     let mut i:usize = 0;
+    let mut part1 = 0;
     let mut part2 = 0;
     let mut boxes:Vec<Onebox> = vec![];
     for _ in 0..256 {
@@ -50,16 +51,17 @@ fn hash_map(inp:&'static str) -> usize
     let input = inp.as_bytes();
     while i < input.len() {
 //        println!("At {i}, next input: {}", input[i] as char);
-        let mut h = 0;
+        let mut h2 = 0;
         let start = i;
         loop {
             let b = input[i]; i += 1;
             if b == b'-' || b == b'=' { break; }
-            h = hash(b, h);
+            h2 = hash(b, h2);
         }
         let op = input[i-1];
+        let mut h1 = hash(op, h2);
         let tag = &inp[start..i-1]; // Use the slice in place
-        let tags = &mut boxes[h].tags;
+        let tags = &mut boxes[h2].tags;
         if op == b'-' { // Must be '-', remove matching lens if found
             for t in 0..tags.len() {
                 if tag == tags[t].o {
@@ -70,6 +72,7 @@ fn hash_map(inp:&'static str) -> usize
             i += 1;
         }
         else { // op == b'='
+            h1 = hash(input[i], h1);
             let v = (input[i] - b'0') as usize; i += 2;
             let mut replaced = false;
             for t in 0..tags.len() {
@@ -81,6 +84,7 @@ fn hash_map(inp:&'static str) -> usize
             }
             if !replaced { tags.push(Tag{o:tag, val:v})}
         }
+        part1 += h1;
     }
     for b in 1..=256 {
         let tags = &boxes[b-1].tags;
@@ -89,14 +93,14 @@ fn hash_map(inp:&'static str) -> usize
             part2 += focus;
         }
     }
-    part2
+    (part1, part2)
 }
 
 fn process(inp:&'static str)->(usize, usize)
 {
-    let input = inp.as_bytes();
-    let part1 = hash_sum(&input);
-    let part2 = hash_map(&inp);
+//    let input = inp.as_bytes();
+//    let part1 = hash_sum(&input);
+    let (part1, part2) = hash_map(&inp);
     (part1, part2)
 }
 
