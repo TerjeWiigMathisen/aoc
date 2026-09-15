@@ -1,5 +1,5 @@
 // day15
-// Surface: 109.8 us
+// Surface: 105.0 us
 // Acer:     95.9 us
 
 use std::fs;
@@ -10,22 +10,6 @@ fn hash(b:u8, hash: usize) -> usize
     let mut hash = hash;
     hash = (hash + b as usize) * 17 % 256;
     hash
-}
-
-fn _hash_sum(inp:&[u8]) -> usize
-{
-    let mut i = 0;
-    let mut part1 = 0;
-    while i < inp.len() {
-        let mut h = 0;
-        loop {
-            let b = inp[i]; i += 1;
-            if b == b',' { break; }
-            h = hash(b, h);
-        }
-        part1 += h;
-    }
-    part1
 }
 
 #[derive(Clone, Copy)]
@@ -45,7 +29,7 @@ impl Onebox {
     }
 }
 
-fn hash_map(inp:&'static str) -> (usize, usize)
+fn process(inp:&'static str) -> (usize, usize)
 {
     let mut i:usize = 0;
     let mut part1 = 0;
@@ -56,12 +40,13 @@ fn hash_map(inp:&'static str) -> (usize, usize)
 //        println!("At {i}, next input: {}", input[i] as char);
         let mut h2 = 0;
         let start = i;
+        let mut b:u8;
         loop {
-            let b = input[i]; i += 1;
+            b = input[i]; i += 1;
             if b == b'-' || b == b'=' { break; }
             h2 = hash(b, h2);
         }
-        let op = input[i-1];
+        let op = b;
         let mut h1 = hash(op, h2);
         let tag = &inp[start..i-1]; // Use the slice in place
         let tags = &mut boxes[h2].tags;
@@ -72,11 +57,11 @@ fn hash_map(inp:&'static str) -> (usize, usize)
                     break;
                 }
             }
-            i += 1;
         }
         else { // op == b'='
-            h1 = hash(input[i], h1);
-            let v = (input[i] - b'0') as usize; i += 2;
+            let v = input[i]; i += 1;
+            h1 = hash(v, h1);
+            let v = (v - b'0') as usize;
             let mut replaced = false;
             for t in 0..tags.len() {
                 if tag == tags[t].o {
@@ -87,6 +72,7 @@ fn hash_map(inp:&'static str) -> (usize, usize)
             }
             if !replaced { tags.push(Tag{o:tag, val:v})}
         }
+        i += 1; // skip comma
         part1 += h1;
     }
     for b in 1..=256 {
@@ -96,14 +82,6 @@ fn hash_map(inp:&'static str) -> (usize, usize)
             part2 += focus;
         }
     }
-    (part1, part2)
-}
-
-fn process(inp:&'static str)->(usize, usize)
-{
-//    let input = inp.as_bytes();
-//    let part1 = hash_sum(&input);
-    let (part1, part2) = hash_map(&inp);
     (part1, part2)
 }
 
