@@ -38,16 +38,19 @@ struct Tag {
 struct Onebox {
     tags:Vec<Tag>,
 }
+impl Onebox {
+    fn new() -> Onebox
+    {
+        Onebox {tags:vec![]}
+    }
+}
 
 fn hash_map(inp:&'static str) -> (usize, usize)
 {
     let mut i:usize = 0;
     let mut part1 = 0;
     let mut part2 = 0;
-    let mut boxes:Vec<Onebox> = vec![];
-    for _ in 0..256 {
-        boxes.push(Onebox {tags:vec![]});
-    }
+    let mut boxes:[Onebox;256] = core::array::from_fn(|i| Onebox::new());
     let input = inp.as_bytes();
     while i < input.len() {
 //        println!("At {i}, next input: {}", input[i] as char);
