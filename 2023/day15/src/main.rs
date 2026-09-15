@@ -1,5 +1,5 @@
 // day15
-// Surface: 110 us
+// Surface: 109.8 us
 // Acer:     95.9 us
 
 use std::fs;
@@ -50,7 +50,7 @@ fn hash_map(inp:&'static str) -> (usize, usize)
     let mut i:usize = 0;
     let mut part1 = 0;
     let mut part2 = 0;
-    let mut boxes:[Onebox;256] = core::array::from_fn(|i| Onebox::new());
+    let mut boxes:[Onebox;256] = core::array::from_fn(|_| Onebox::new());
     let input = inp.as_bytes();
     while i < input.len() {
 //        println!("At {i}, next input: {}", input[i] as char);
