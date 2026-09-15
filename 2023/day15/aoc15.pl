@@ -30,12 +30,17 @@ sub hash_sum
 	return $sum;
 }
 
+my $longest_key = 0;
+my $longest_list = 0;
+
 sub hashmap
 {
 	my ($init) = @_;
 	my @box;
 	foreach (split(/,/,$init)) {
 		my ($op, $focal) = split(/[\-\=]/);
+		if (length($op) > $longest_key) { $longest_key = length($op);}
+		if (length($op) > 4) { printf(" $op"); }
 		my $b = hash($op);
 		$box[$b] = '' unless (defined($box[$b]));
 		if ($focal eq '') { # remove lens if found
@@ -63,6 +68,7 @@ sub hashmap
 			}
 			push(@new,$op.' '.$focal) unless ($replaced);
 			$box[$b] = join("\t",@new);
+			if (scalar(@new) > $longest_list) { $longest_list = scalar(@new); }
 		}
 		
 	}
@@ -85,6 +91,7 @@ sub hashmap
 			}
 		}
 	}
+	printf("Longest key: %d\nLongest list: %d\n", $longest_key, $longest_list);
 	return $focusing_power;
 }
 

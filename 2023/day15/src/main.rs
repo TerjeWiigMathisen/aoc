@@ -1,6 +1,6 @@
 // day15
 // Surface: 105.0 us
-// Acer:     68.9 us
+// Acer:     38.5 us
 
 use std::fs;
 use devtimer::run_benchmark;
@@ -13,47 +13,49 @@ fn hash(b:u8, hash: usize) -> usize
 }
 
 #[derive(Clone, Copy)]
-struct Tag {
-    o:&'static str,
-    val:usize,
-}
-
-#[derive(Clone)]
 struct Onebox {
-    tags:Vec<Tag>,
+    tags:[u32;8],
+    vals:[u32;8],
 }
 impl Onebox {
     fn new() -> Onebox
     {
-        Onebox {tags:vec![]}
+        Onebox {tags:[0;8],vals:[0;8]}
     }
 }
 
-fn process(inp:&'static str) -> (usize, usize)
+fn process(inp:&str) -> (usize, usize)
 {
     let mut i:usize = 0;
     let mut part1 = 0;
     let mut part2 = 0;
-    let mut boxes:[Onebox;256] = core::array::from_fn(|_| Onebox::new());
+    let mut boxes:[Onebox;256] = [Onebox::new();256];
     let input = inp.as_bytes();
     while i < input.len() {
 //        println!("At {i}, next input: {}", input[i] as char);
         let mut h2 = 0;
-        let start = i;
         let mut b:u8;
+        let mut tag:u32 = 0;
         loop {
             b = input[i]; i += 1;
             if b == b'-' || b == b'=' { break; }
             h2 = hash(b, h2);
+            assert!(b >= b'a' && b <= b'z');
+            let t = (b & 31) as u32;
+            tag = (tag << 5) | t;
         }
         let op = b;
         let mut h1 = hash(op, h2);
-        let tag = &inp[start..i-1]; // Use the slice in place
         let tags = &mut boxes[h2].tags;
+        let vals = &mut boxes[h2].vals;
         if op == b'-' { // Must be '-', remove matching lens if found
             for t in 0..tags.len() {
-                if tag == tags[t].o {
-                    tags.remove(t);
+                if tag == tags[t] {
+                    for j in t+1..tags.len() {
+                        tags[j-1] = tags[j];
+                        vals[j-1] = vals[j];
+                        if vals[j] == 0 { break; }
+                    }
                     break;
                 }
             }
@@ -61,24 +63,28 @@ fn process(inp:&'static str) -> (usize, usize)
         else { // op == b'='
             let v = input[i]; i += 1;
             h1 = hash(v, h1);
-            let v = (v - b'0') as usize;
-            let mut replaced = false;
+            let v = (v - b'0') as u32;
             for t in 0..tags.len() {
-                if tag == tags[t].o {
-                    tags[t].val = v;
-                    replaced = true;
+                if tag == tags[t] {
+                    vals[t] = v;
+                    break;
+                }
+                if vals[t] == 0 {
+                    tags[t] = tag;
+                    vals[t] = v;
                     break;
                 }
             }
-            if !replaced { tags.push(Tag{o:tag, val:v})}
         }
         i += 1; // skip comma
         part1 += h1;
     }
     for b in 1..=256 {
-        let tags = &boxes[b-1].tags;
-        for slot in 1..=tags.len() {
-            let focus = b*slot*tags[slot-1].val;
+        let vals = &boxes[b-1].vals;
+        for slot in 1..=vals.len() {
+            let v = vals[slot-1] as usize;
+            if v == 0 { break; }
+            let focus = b*slot*v;
             part2 += focus;
         }
     }
