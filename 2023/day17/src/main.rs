@@ -71,7 +71,7 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
                 l += (lines[ny as usize].as_bytes()[nx as usize] & 15) as u16;
                 if r < lmin {continue;}
 //                println!("push({nx},{ny},{nd}");
-                let pri =u64::MAX - l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
+                let pri =u64::MAX - 256 * l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
                 bfs.push(BfsEntry {pri:pri, loss:l, x:nx, y:ny, dir:nd});
             }
         }
