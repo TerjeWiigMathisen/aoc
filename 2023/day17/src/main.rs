@@ -8,7 +8,7 @@ use std::collections::BinaryHeap;
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct BfsEntry{
-    pri:u16,
+    pri:u64,
     loss:u16,
     x:i16,
     y:i16,
@@ -27,32 +27,33 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
     let xmax = lines[0].len()-1;
     let ymax = lines.len()-1;
 //    println!("xmax:{xmax}, ymax:{ymax}");
-    let mut seen:Vec<Vec<u8>> = vec![vec![0;xmax+1];ymax+1];
-    bfs.push(BfsEntry {pri:u16::MAX, loss:0,x:0,y:0,dir:0});
-    bfs.push(BfsEntry {pri:u16::MAX, loss:0,x:0,y:0,dir:1});
+    let mut seen:Vec<Vec<[u16;4]>> = vec![vec![[u16::MAX;4];xmax+1];ymax+1];
+    bfs.push(BfsEntry {pri:u64::MAX, loss:0,x:0,y:0,dir:0});
+    bfs.push(BfsEntry {pri:u64::MAX, loss:0,x:0,y:0,dir:1});
     let mut best = u16::MAX;
 //    let mut xy = 0;
     while let Some(e) = bfs.pop() {
-        let bit = 1 << e.dir;
+//        let bit = 1 << e.dir;
         let (x,y) = (e.x as usize, e.y as usize);
         // if x+y > xy { 
         //     xy = x+y;
         //     println!("{:?}", e); 
         // }
-        let prev = seen[y][x];
+        let dir =e.dir as usize;
+        let prev = seen[y][x][dir];
         let loss = e.loss;
-        if prev & bit != 0 /* && ((prev >> (4+12*(e.dir&1))) & 4095) < loss */ {continue;}
-        let (x, y) = (e.x as usize, e.y as usize);
-        seen[y][x] |= bit;
+        if prev <= loss {continue;}
+        seen[y][x][dir] = loss;
 
         if x == xmax && y == xmax {
 //            println!("BFS = {loss}");
             if loss < best { 
                 best = loss; 
             }
-            return best as usize;
-//            break;
+//            return best as usize;
+            break;
         }
+        if loss + (xmax-x) as u16 + (ymax-y) as u16 >= best {continue;}
         for turn in 0..2 {
 //            let mut pri = e.pri;
             let nd = (e.dir+1+turn*2) & 3;
@@ -64,10 +65,14 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
                 nx += dx; ny += dy;
 //                println!("{r},{nx},{ny}");
                 if nx < 0 || nx as usize > xmax || ny < 0 || ny as usize > ymax {break;}
+//                if seen[ny as usize][nx as usize] & (1 << nd) != 0 { break;}
+//                seen[ny as usize][nx as usize] |= 1 << nd;
+
                 l += (lines[ny as usize].as_bytes()[nx as usize] & 15) as u16;
                 if r < lmin {continue;}
 //                println!("push({nx},{ny},{nd}");
-                bfs.push(BfsEntry {pri:u16::MAX-l, loss:l, x:nx, y:ny, dir:nd});
+                let pri =u64::MAX - l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
+                bfs.push(BfsEntry {pri:pri, loss:l, x:nx, y:ny, dir:nd});
             }
         }
     }
