@@ -27,19 +27,18 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
     let xmax = lines[0].len()-1;
     let ymax = lines.len()-1;
     println!("xmax:{xmax}, ymax:{ymax}");
-    let mut seen:Vec<Vec<u32>> = vec![vec![0;xmax+1];ymax+1];
+    let mut seen:Vec<Vec<u8>> = vec![vec![0;xmax+1];ymax+1];
     bfs.push(BfsEntry {pri:u16::MAX, loss:0,x:0,y:0,dir:0});
     bfs.push(BfsEntry {pri:u16::MAX, loss:0,x:0,y:0,dir:1});
     let mut best = u16::MAX;
     while let Some(e) = bfs.pop() {
         if e.loss > 1100 { println!("{:?}", e); }
         let bit = 1 << (e.dir&1);
-        let prev = seen[y][x];
-        let loss = e.loss;
-        if prev & bit != 0 && ((prev >> (4+12*(e.dir&1))) & 4095) < loss {continue;}
         let (x, y) = (e.x as usize, e.y as usize);
+        if seen[y][x] & bit != 0 {continue;}
         seen[y][x] |= bit;
 
+        let loss = e.loss;
         if x == xmax && y == xmax {
             println!("BFS = {loss}");
             if loss < best { 
