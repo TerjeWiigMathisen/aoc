@@ -1,6 +1,6 @@
 // day17
 // Surface: 151010 us
-// Acer:    40733 us
+// Acer:    39937 us
 
 use std::fs;
 use devtimer::run_benchmark;
@@ -21,7 +21,7 @@ const
 const
   DY:[i16;4] = [0,1,0,-1];
 
-fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
+fn solve(lines:&Vec<&[u8]>, lmin:usize, lmax:usize) -> usize
 {
     let mut bfs:BinaryHeap<Entry> = BinaryHeap::new();
     let xmax = lines[0].len()-1;
@@ -36,7 +36,7 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
         let bit = 1 << (dir & 1);
         let prev = seen[y][x];
         if prev & bit != 0 {continue;}
-        seen[y][x] |= bit;
+        seen[y][x] = prev | bit;
         let loss = e.loss;
 
         if x == xmax && y == xmax {
@@ -54,7 +54,7 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
                 nx += dx; ny += dy;
                 if nx < 0 || nx as usize > xmax || ny < 0 || ny as usize > ymax {break;}
 
-                l += (lines[ny as usize].as_bytes()[nx as usize] & 15) as u16;
+                l += (lines[ny as usize][nx as usize] & 15) as u16;
                 if r < lmin {continue;}
 
                 let pri = u64::MAX - 256  * l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
@@ -62,12 +62,12 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
             }
         }
     }
-    best as usize
+    0
 }
 
 fn process(inp:&str) -> (usize, usize)
 {
-    let lines:Vec<&str> = inp.lines().collect();
+    let lines:Vec<&[u8]> = inp.lines().map(|s| s.as_bytes()).collect();
     let part1 = solve(&lines, 1, 3);
     let part2 = solve(&lines, 4, 10);
     (part1, part2)
@@ -79,7 +79,7 @@ fn main() {
     let mut input:String = fs::read_to_string(fname).expect("Error reading input file");
     if input.ends_with('\n') { input.pop(); }
     
-    let bench_result = run_benchmark(25, |_| {
+    let bench_result = run_benchmark(100, |_| {
         process(&input);
     });
     bench_result.print_stats();
