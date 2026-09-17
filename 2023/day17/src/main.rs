@@ -1,5 +1,5 @@
 // day17
-// Surface: 272331 us
+// Surface: 151010 us
 // Acer:    
 
 use std::fs;
@@ -39,24 +39,25 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
         //     xy = x+y;
         //     println!("{:?}", e); 
         // }
-        let dir =e.dir as usize;
+        let dir = e.dir as usize;
         let prev = seen[y][x][dir];
         let loss = e.loss;
         if prev <= loss {continue;}
         seen[y][x][dir] = loss;
 
         if x == xmax && y == xmax {
-//            println!("BFS = {loss}");
+//           println!("BFS = {loss}");
             if loss < best { 
                 best = loss; 
             }
-//            return best as usize;
-            break;
+            return best as usize;
+//            break;
         }
-        if loss + (xmax-x) as u16 + (ymax-y) as u16 >= best {continue;}
+//        if loss + (xmax-x) as u16 + (ymax-y) as u16 >= best {continue;}
+        let mut nd = e.dir + 3;
         for turn in 0..2 {
 //            let mut pri = e.pri;
-            let nd = (e.dir+1+turn*2) & 3;
+            nd = (nd + 2) & 3;
             let mut l = loss;
             let (dx, dy) = (DX[nd as usize], DY[nd as usize]);
             let (mut nx, mut ny) = (e.x, e.y);
@@ -71,7 +72,8 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
                 l += (lines[ny as usize].as_bytes()[nx as usize] & 15) as u16;
                 if r < lmin {continue;}
 //                println!("push({nx},{ny},{nd}");
-                let pri =u64::MAX - 256 * l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
+
+                let pri =u64::MAX - 256  * l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
                 bfs.push(BfsEntry {pri:pri, loss:l, x:nx, y:ny, dir:nd});
             }
         }
@@ -93,7 +95,7 @@ fn main() {
     let mut input:String = fs::read_to_string(fname).expect("Error reading input file");
     if input.ends_with('\n') { input.pop(); }
     
-    let bench_result = run_benchmark(100, |_| {
+    let bench_result = run_benchmark(25, |_| {
         process(&input);
     });
     bench_result.print_stats();
