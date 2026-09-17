@@ -1,6 +1,6 @@
 // day17
 // Surface: 151010 us
-// Acer:    
+// Acer:    40733 us
 
 use std::fs;
 use devtimer::run_benchmark;
@@ -27,51 +27,35 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
     let xmax = lines[0].len()-1;
     let ymax = lines.len()-1;
 //    println!("xmax:{xmax}, ymax:{ymax}");
-    let mut seen:Vec<Vec<[u16;4]>> = vec![vec![[u16::MAX;4];xmax+1];ymax+1];
+    let mut seen:Vec<Vec<u8>> = vec![vec![0;xmax+1];ymax+1];
     bfs.push(Entry {pri:u64::MAX, loss:0,x:0,y:0,dir:0});
     bfs.push(Entry {pri:u64::MAX, loss:0,x:0,y:0,dir:1});
-    let mut best = u16::MAX;
-//    let mut xy = 0;
     while let Some(e) = bfs.pop() {
-//        let bit = 1 << e.dir;
         let (x,y) = (e.x as usize, e.y as usize);
-        // if x+y > xy { 
-        //     xy = x+y;
-        //     println!("{:?}", e); 
-        // }
         let dir = e.dir as usize;
-        let prev = seen[y][x][dir];
+        let bit = 1 << (dir & 1);
+        let prev = seen[y][x];
+        if prev & bit != 0 {continue;}
+        seen[y][x] |= bit;
         let loss = e.loss;
-        if prev <= loss {continue;}
-        seen[y][x][dir] = loss;
 
         if x == xmax && y == xmax {
-//           println!("BFS = {loss}");
-            if loss < best { 
-                best = loss; 
-            }
-            return best as usize;
-//            break;
+            return loss as usize;
         }
-//        if loss + (xmax-x) as u16 + (ymax-y) as u16 >= best {continue;}
+
         let mut nd = e.dir + 3;
-        for turn in 0..2 {
+        for _turn in 0..2 {
 //            let mut pri = e.pri;
             nd = (nd + 2) & 3;
             let mut l = loss;
             let (dx, dy) = (DX[nd as usize], DY[nd as usize]);
             let (mut nx, mut ny) = (e.x, e.y);
             for r in 1..=lmax {
-//                pri -= 1;
                 nx += dx; ny += dy;
-//                println!("{r},{nx},{ny}");
                 if nx < 0 || nx as usize > xmax || ny < 0 || ny as usize > ymax {break;}
-//                if seen[ny as usize][nx as usize] & (1 << nd) != 0 { break;}
-//                seen[ny as usize][nx as usize] |= 1 << nd;
 
                 l += (lines[ny as usize].as_bytes()[nx as usize] & 15) as u16;
                 if r < lmin {continue;}
-//                println!("push({nx},{ny},{nd}");
 
                 let pri = u64::MAX - 256  * l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
                 bfs.push(Entry {pri:pri, loss:l, x:nx, y:ny, dir:nd});
