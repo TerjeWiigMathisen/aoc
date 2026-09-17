@@ -21,9 +21,11 @@ sub dig1
 	my %d2dir = ('R' => 0,'D' => 1, 'L' => 2, 'U' => '3');
 	foreach (@inp) {
 		my ($d,$l,$c) = split;
+		my $sd = $d;
 		$d = $d2dir{$d};
 		$x += $dx[$d]*$l; $y += $dy[$d]*$l;
 		push(@poly,[$x,$y]);
+		printf("$sd $l ($x,$y)\n");
 	}
 	my $area = polygon_area(@poly)+polygon_perimeter(@poly)*0.5+1;
 	return $area;
