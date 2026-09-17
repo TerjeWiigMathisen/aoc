@@ -7,7 +7,7 @@ use devtimer::run_benchmark;
 use std::collections::BinaryHeap;
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
-struct BfsEntry{
+struct Entry{
     pri:u64,
     loss:u16,
     x:i16,
@@ -23,13 +23,13 @@ const
 
 fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
 {
-    let mut bfs:BinaryHeap<BfsEntry> = BinaryHeap::new();
+    let mut bfs:BinaryHeap<Entry> = BinaryHeap::new();
     let xmax = lines[0].len()-1;
     let ymax = lines.len()-1;
 //    println!("xmax:{xmax}, ymax:{ymax}");
     let mut seen:Vec<Vec<[u16;4]>> = vec![vec![[u16::MAX;4];xmax+1];ymax+1];
-    bfs.push(BfsEntry {pri:u64::MAX, loss:0,x:0,y:0,dir:0});
-    bfs.push(BfsEntry {pri:u64::MAX, loss:0,x:0,y:0,dir:1});
+    bfs.push(Entry {pri:u64::MAX, loss:0,x:0,y:0,dir:0});
+    bfs.push(Entry {pri:u64::MAX, loss:0,x:0,y:0,dir:1});
     let mut best = u16::MAX;
 //    let mut xy = 0;
     while let Some(e) = bfs.pop() {
@@ -73,8 +73,8 @@ fn solve(lines:&Vec<&str>, lmin:usize, lmax:usize) -> usize
                 if r < lmin {continue;}
 //                println!("push({nx},{ny},{nd}");
 
-                let pri =u64::MAX - 256  * l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
-                bfs.push(BfsEntry {pri:pri, loss:l, x:nx, y:ny, dir:nd});
+                let pri = u64::MAX - 256  * l as u64 - (xmax-nx as usize) as u64 - (ymax-ny as usize) as u64;
+                bfs.push(Entry {pri:pri, loss:l, x:nx, y:ny, dir:nd});
             }
         }
     }
