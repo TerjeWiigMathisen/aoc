@@ -1,5 +1,5 @@
 // day17
-// Surface: 272331 us
+// Surface: 168661 us
 // Acer:    
 
 use std::fs;
