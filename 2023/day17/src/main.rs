@@ -39,7 +39,7 @@ fn solve(lines:&Vec<&[u8]>, lmin:usize, lmax:usize) -> usize
         seen[y][x] = prev | bit;
         let loss = e.loss;
 
-        if x == xmax && y == xmax {
+        if x == xmax && y == ymax {
             return loss as usize;
         }
 
