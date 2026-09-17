@@ -1,5 +1,5 @@
 // day18
-// Surface:  25.2 us
+// Surface:  25.0 us
 // Acer:   
 
 use std::fs;
@@ -80,7 +80,8 @@ fn process(inp:&str) -> (usize, usize)
         for _ in 0..5 {
             len2 = len2 * 16 + hex2bin(line[i]) as i64; i += 1;
         }
-        let dir2 = hex2bin(line[i]) as usize;
+//        let dir2 = hex2bin(line[i]) as usize;
+        let dir2 = (line[i] & 3) as usize;
         x2 += DX[dir2]*len2; y2 += DY[dir2]*len2;
         ext2.push(Coord {x:x2 as f64, y:y2 as f64});
     }
