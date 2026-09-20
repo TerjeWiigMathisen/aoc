@@ -1,12 +1,12 @@
 // day18
-// Surface:  25.0 us
+// Surface:  20.7 us
 // Acer:   
 
 use std::fs;
 use devtimer::run_benchmark;
 use geo_types::{Polygon, LineString, Coord};
 use geo::{Area};
-use geo::algorithm::line_measures::{Euclidean, Length};
+//use geo::algorithm::line_measures::{Euclidean, Length};
 
 // directions = rt 0, dn 1, lt 2, up 3
 const
@@ -66,6 +66,7 @@ fn process(inp:&str) -> (usize, usize)
     ext1.push(Coord{ x:0.0, y:0.0});
     let (mut x, mut y) = (0,0);
     let (mut x2,mut y2) = (0,0);
+    let(mut circ1, mut circ2) = (0,0);
     for line in lines {
         let dir1 = d2d(line[0]);
         let mut i = 2;
@@ -74,6 +75,7 @@ fn process(inp:&str) -> (usize, usize)
             n = n*10 + (line[i] & 15) as i64; i += 1;
         }
         x += DX[dir1]*n; y += DY[dir1]*n;
+        circ1 += n;
         ext1.push(Coord {x:x as f64, y:y as f64});
         i += 3; // skip ' (#')
         let mut len2 = 0;
@@ -83,34 +85,43 @@ fn process(inp:&str) -> (usize, usize)
 //        let dir2 = hex2bin(line[i]) as usize;
         let dir2 = (line[i] & 3) as usize;
         x2 += DX[dir2]*len2; y2 += DY[dir2]*len2;
+        circ2 += len2;
         ext2.push(Coord {x:x2 as f64, y:y2 as f64});
     }
     let ls = LineString::from(ext1);
     let poly = Polygon::new(ls, vec![]);
     let area = poly.unsigned_area();
-    let circ = Euclidean.length(poly.exterior());
+//    let circ = Euclidean.length(poly.exterior());
 
-    let part1 = (area + circ*0.5 + 1.00001) as usize;
+    let part1 = (area + circ1 as f64 *0.5 + 1.00001) as usize;
 
     let ls = LineString::from(ext2);
     let poly = Polygon::new(ls, vec![]);
     let area = poly.unsigned_area();
-    let circ = Euclidean.length(poly.exterior());
+//    let circ = Euclidean.length(poly.exterior());
 
-    let part2 = (area + circ*0.5 + 1.00001) as usize;
+    let part2 = (area + circ2 as f64*0.5 + 1.00001) as usize;
 
     (part1, part2)
 }
 
 fn main() {
-    // print!("const\n  D2D:[u8;256] = [\n");
-    // for i in 0..256 {
-    //     let n = d2d(i as u8);
-    //     print!("{n}, ");
-    //     if i & 31 == 31 {println!();}
-    // }
-    // println!("];");
-    // return;
+    print!("RDLU: ");
+    for i in [b'R',b'D',b'L',b'U'] {
+        let j = i as u32;
+        let n = (j + ((j * 7) >> 8)) & 3;
+        lea ebx,[eax*8]
+        neg eax
+        lea ecx,[ebx*8]
+        lea eax,[ebx+eax]
+        add eax,ecx
+        shr eax,8
+        and eax,3
+
+        print!("{n}, ");
+    }
+    println!();
+    return;
 //    let fname = "test.txt"; // instead of args[1]
     let fname = "input.txt"; // instead of args[1]
     let mut input:String = fs::read_to_string(fname).expect("Error reading input file");

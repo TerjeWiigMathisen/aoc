@@ -7,5 +7,3 @@ edition = "2024"
 
 [dependencies]
 devtimer = "4.0.1"
-#geo = "0.33.1"
-#geo-types = "0.7.20"
