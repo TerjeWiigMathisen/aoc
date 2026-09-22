@@ -114,15 +114,14 @@ sub solve
 		if ($press == 1000) {
 			$p1 = $counts[0]*$counts[1];
 			printf("part1=%d\n",$p1);
-			$p2 = 3793*3947*4003*4019;
-			return ($p1,$p2);
+#			$p2 = 3793*3947*4003*4019;
+#			return ($p1,$p2);
 		}
 	}
 	return ($p1,$p2)
 }
 
 ($part1,$part2) = solve();
-#$part2 = solve(4,10);
 my $used = time-$t0;
 
 printf("solve %s\n%s\n", $part1, $part2);
