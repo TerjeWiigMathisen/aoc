@@ -1,4 +1,4 @@
-// Fastest run 400 us
+// Fastest run 155 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -12,72 +12,38 @@ use devtimer::run_benchmark;
 
 fn safe2(l:Vec<i32>) -> (i32, i32) {
     let llen = l.len();
-    let mut p = l[0];
-    let mut c = l[1];
-    let mut ok = true;
-    if c > p {
-        for i in 1..llen {
-            c = l[i];
-            let d = c-p;
-            if d < 1 || d > 3 {
-                ok = false;
-                break;
-            }
-            p = c;
-        }
-        if ok { return (1,1); }
-    }
-    if c < p {
-        for i in 1..llen {
-            c = l[i];
-            let d = p-c;
-            if d < 1 || d > 3 {
-                ok = false;
-                break;
-            }
-            p = c;
-        }
-        if ok { return (1,1); }
-    }
-
-    let mut l = l.clone();
-    let mut saved = l.pop().unwrap();
-    let llen = l.len();
-    let mut index = llen;
-    
-    loop {
-        let mut p = l[0];
-        let mut c = l[1];
-        let mut ok = true;
-        if c > p {
-            for i in 1..llen {
-                c = l[i];
-                let d = c-p;
-                if d < 1 || d > 3 {
-                    ok = false;
-                    break;
+    let mut a = l[0];
+    let mut b = l[1];
+    let mut c = l[2];
+    let mut d = l[3];
+    let mut ok = 0;
+    let mut increase = (a < b ) as i8 + (b < c) as i8 + (c < d) as i8;
+    if increase >= 2 {
+        let mut skip = 0;
+        for i in 1.llen {
+            let diff = l[i]-l[i-1];
+            if diff < 1 || diff > 3 {
+                if i != 1 && i != llen-1 {
+                    // Try to skip l[i]
+                    diff = 
                 }
-                p = c;
             }
-            if ok { return (0,1); }
         }
-        if c < p {
-            for i in 1..llen {
-                c = l[i];
-                let d = p-c;
-                if d < 1 || d > 3 {
-                    ok = false;
-                    break;
-                }
-                p = c;
-            }
-            if ok { return (0,1); }
+        increase -= (b-a > 3) as i8 + (c-b > 3) as i8 + (d-c > 3) as i8;
+        if increase < 2 {return (0,0);}
+        for i in 4..llen {
+            increase -= (l[i] <= d || (l[i]-d > 3)) as i8;
         }
-        if index == 0 { break; }
-        index -= 1;
-        let curr = l[index];
-        l[index] = saved;
-        saved = curr;
+        return ((increase == 3) as i32, (increase >= 2) as i32);
+    }
+    let mut decrease = (a > b ) as i8 + (b > c) as i8 + (c > d) as i8;
+    if decrease >= 2 {
+        decrease -= (a-b > 3) as i8 + (b-c > 3) as i8 + (c-d > 3) as i8;
+        if decrease < 2 {return (0,0);}
+        for i in 4..llen {
+            decrease -= (l[i] >= d || (d-l[i] > 3)) as i8;
+        }
+        return ((increase == 3) as i32, (increase >= 2) as i32);
     }
     return (0,0);
 }
