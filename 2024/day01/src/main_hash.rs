@@ -1,5 +1,4 @@
-// Fastest 
-//   Acer 64 us
+// Fastest run 165 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -10,58 +9,37 @@ use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use substring::Substring;
+use rustc_hash::FxHashMap;
 
-fn process(inp:String) -> (u32, u32)
+fn process(inp:String) -> (i32, i32)
 {
-    let mut left:Vec<u32> = Vec::new();
-    let mut right:Vec<u32> = Vec::new();
-//    let mut rdict:Vec<u32> = vec![0; 100000];
+    let mut left:Vec<i32> = Vec::new();
+    let mut right:Vec<i32> = Vec::new();
+    let mut rdict:FxHashMap<i32, i32> = FxHashMap::default();
 
     for line in inp.lines() {
-        let pair = line.split_whitespace().map(|x| x.parse::<u32>().unwrap()).collect::<Vec<u32>>();
+        let pair = line.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
         left.push(pair[0]);
         right.push(pair[1]);
-//        rdict[pair[1] as usize] += 1;
+        if rdict.contains_key(&pair[1]) {
+            let val = rdict.get_mut(&pair[1]).unwrap();
+            *val += 1;
+        } else {
+            rdict.insert(pair[1], 1);
+        }
     }
-    left.sort_unstable();
-    right.sort_unstable();
+    left.sort();
+    right.sort();
     let mut part1 = 0;
     let mut part2 = 0;
     for i in 0..left.len() {
         let l = left[i];
         let r = right[i];
-        let diff = if l < r {r-l} else {l-r};
+        let diff = (l - r).abs();
         part1 += diff;
-    }
-    let arr_length = left.len();
-    right.push(u32::MAX);
-    left.push(u32::MAX);
-    let mut j = 0;
-    let mut li = 0;
-    let mut lcnt = 0;
-    let mut ri = right[0];
-    let mut rcnt = 0;
-    let mut i = 0;
-    loop {
-        li = left[i]; i += 1;
-        lcnt = 1;
-        while left[i] == li { 
-            i += 1;
-            lcnt += 1;
+        if rdict.contains_key(&l) {
+            part2 += l * rdict.get(&l).unwrap();
         }
-        while ri < li {
-            j += 1;
-            ri = right[j];
-        }
-        if ri == li {
-            rcnt = 1;
-            while right[j+1] == ri {
-                j += 1;
-                rcnt += 1;
-            }
-            part2 += li * lcnt * rcnt;
-        }
-        if i >= arr_length {break;}
     }
     (part1, part2)
 }
