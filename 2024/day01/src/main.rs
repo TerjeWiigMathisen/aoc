@@ -1,5 +1,5 @@
 // Fastest 
-//   Acer 13.5 us
+//   Acer 13.3 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
