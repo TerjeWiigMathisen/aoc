@@ -1,4 +1,4 @@
-// Fastest run 400 us
+// Fastest run 32.5 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -10,7 +10,7 @@ use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use substring::Substring;
 
-fn safe2(l:Vec<i32>) -> (i32, i32) {
+fn safe2(l:&Vec<i32>) -> (i32, i32) {
     let llen = l.len();
     let mut p = l[0];
     let mut c = l[1];
@@ -86,11 +86,22 @@ fn process(inp:String) -> (i32, i32)
 {
     let mut part1 = 0;
     let mut part2 = 0;
-    for line in inp.lines() {
-        let l = line.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
-        let (p1,p2) = safe2(l);
-        part1 += p1;
-        part2 += p2;
+    let mut nums:Vec<i32> = Vec::new();
+    let mut i = 0;
+    let input = inp.as_bytes();
+    while i < input.len() {
+        let mut n = (input[i] - b'0') as i32; i += 1;
+        while input[i] >= b'0' {
+            n = n*10 + (input[i] - b'0') as i32; i += 1;
+        }
+        nums.push(n);
+        if input[i] == b'\n' {
+            let (p1,p2) = safe2(&nums);
+            part1 += p1;
+            part2 += p2;
+            nums.clear();
+        }
+        i += 1;
     }
     (part1, part2)
 }
@@ -98,7 +109,7 @@ fn process(inp:String) -> (i32, i32)
 fn main() {
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
-    if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
+    if input.as_bytes()[input.as_bytes().len()-1] != '\n' as u8 {input.push('\n');}
 
     let mut devtime = DevTime::new_simple();
 
