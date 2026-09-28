@@ -11,41 +11,68 @@ use devtimer::run_benchmark;
 //use substring::Substring;
 
 fn safe2(l:Vec<i32>) -> (i32, i32) {
-    let llen = l.len();
-    let mut a = l[0];
-    let mut b = l[1];
-    let mut c = l[2];
-    let mut d = l[3];
-    let mut ok = 0;
-    let mut increase = (a < b ) as i8 + (b < c) as i8 + (c < d) as i8;
-    if increase >= 2 {
-        let mut skip = 0;
-        for i in 1.llen {
-            let diff = l[i]-l[i-1];
-            if diff < 1 || diff > 3 {
-                if i != 1 && i != llen-1 {
-                    // Try to skip l[i]
-                    diff = 
+    let llen = l.len()-1;
+    let mut diffs:Vec<i32> = vec![0;llen];
+    let mut prev = l[0];
+    let mut inc = 0;
+    let mut dec = 0;
+    for i in 1..=llen {
+        let curr = l[i];
+        let d = curr-prev;
+        diffs[i-1] = d;
+        inc += (d > 0 && d <= 3) as usize;
+        dec += (d < 0 && d >= -3) as usize;
+        prev = curr;
+    }
+    if inc > dec {
+        if inc == llen { return (1,1); }
+        if inc+2 < llen { return (0,0); }
+        for i in 0..llen {
+            if diffs[i] < 1 || diffs[i] > 3 {
+                if i == 0 || i+1 == llen {
+                    inc += 1;
+                    if inc == llen { return (0,1); }
+                    continue;
+                }
+                let d2 = diffs[i-1] + diffs[i];
+                if d2 > 0 && d2 <= 3 {
+                    inc += 1;
+                    if inc == llen { return (0,1); }
+                    continue;
+                }
+                let d2 = diffs[i] + diffs[i+1];
+                if d2 > 0 && d2 <= 3 {
+                    inc += 1;
+                    if inc == llen { return (0,1); }
+                    continue;
                 }
             }
         }
-        increase -= (b-a > 3) as i8 + (c-b > 3) as i8 + (d-c > 3) as i8;
-        if increase < 2 {return (0,0);}
-        for i in 4..llen {
-            increase -= (l[i] <= d || (l[i]-d > 3)) as i8;
-        }
-        return ((increase == 3) as i32, (increase >= 2) as i32);
+        return (0,(inc == llen) as i32);
     }
-    let mut decrease = (a > b ) as i8 + (b > c) as i8 + (c > d) as i8;
-    if decrease >= 2 {
-        decrease -= (a-b > 3) as i8 + (b-c > 3) as i8 + (c-d > 3) as i8;
-        if decrease < 2 {return (0,0);}
-        for i in 4..llen {
-            decrease -= (l[i] >= d || (d-l[i] > 3)) as i8;
+    if dec == llen { return (1,1); }
+    if dec+2 < llen { return (0,0); }
+    for i in 0..llen {
+        if -diffs[i] < 1 || -diffs[i] > 3 {
+            if i == 0 || i+1 == llen {
+                dec += 1;
+                continue;
+            }
+            let d2 = diffs[i-1] + diffs[i];
+            if -d2 > 0 && -d2 <= 3 {
+                dec += 1;
+                if dec == llen { return (0,1); }
+                continue;
+            }
+            let d2 = diffs[i] + diffs[i+1];
+            if -d2 > 0 && -d2 <= 3 {
+                dec += 1;
+                if dec == llen { return (0,1); }
+                continue;
+            }
         }
-        return ((increase == 3) as i32, (increase >= 2) as i32);
     }
-    return (0,0);
+    return (0,(dec == llen) as i32);
 }
 
 fn process(inp:String) -> (i32, i32)
