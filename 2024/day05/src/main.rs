@@ -1,4 +1,4 @@
-// 113 us
+// 50.3 us
 
 use std::fs;
 use devtimer::DevTime;
@@ -39,7 +39,7 @@ impl Pages {
         self.pages[front as usize].add_behind(behind);
         self.pages[behind as usize].add_infront(front);
     }
-    fn is_ordered(&self, pages:Vec<u32>) -> bool {
+    fn is_ordered(&self, pages:&Vec<u32>) -> bool {
         let mut prev = pages[0];
         for p in 1..pages.len() {
             let curr = pages[p];
@@ -79,7 +79,7 @@ fn twodigits_to_u32(s:&str) -> u32 {
     ((s.as_bytes()[0] - b'0')*10 + (s.as_bytes()[1] - b'0')) as u32
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 fn process(inp:String) -> (i32, i32)
 {
     let mut pages = Pages::new();
@@ -95,7 +95,7 @@ fn process(inp:String) -> (i32, i32)
     for line in _pages.lines() {
         let pagelist:Vec<u32> = line.split(",").map(|x| twodigits_to_u32(x)).collect();
         let plen = pagelist.len();
-        if pages.is_ordered(pagelist.clone()) {
+        if pages.is_ordered(&pagelist) {
             part1 += pagelist[plen>>1] as i32;
         }
         else {
