@@ -1,4 +1,4 @@
-// 50.3 us
+// 10.867 us Acer, Fastest average over 1000 runs
 
 use std::fs;
 use devtimer::DevTime;
@@ -17,10 +17,10 @@ impl Pagemap {
             infront: 0,
         }
     }
-    fn add_behind(&mut self, page:u32) {
+    fn add_behind(&mut self, page:u8) {
         self.behind |= 1 << page;
     }
-    fn add_infront(&mut self, page:u32) {
+    fn add_infront(&mut self, page:u8) {
         self.infront |= 1 << page;
     }
 }
@@ -35,14 +35,14 @@ impl Pages {
             pages: vec![Pagemap::new();100],
         }
     }
-    fn add_rule(&mut self, front:u32, behind:u32) {
+    fn add_rule(&mut self, front:u8, behind:u8) {
         self.pages[front as usize].add_behind(behind);
         self.pages[behind as usize].add_infront(front);
     }
-    fn is_ordered(&self, pages:&Vec<u32>) -> bool {
-        let mut prev = pages[0];
-        for p in 1..pages.len() {
-            let curr = pages[p];
+    fn is_ordered(&self, pagelist:&Vec<u8>) -> bool {
+        let mut prev = pagelist[0];
+        for p in 1..pagelist.len() {
+            let curr = pagelist[p];
             if self.pages[prev as usize].infront & (1 << curr) != 0 {
                 return false;
             }
@@ -50,12 +50,12 @@ impl Pages {
         }
         true
     }
-    fn order(&self, pages:Vec<u32>) -> i32 {
+    fn order(&self, pagelist:&Vec<u8>) -> u8 {
         //let mut ordered = Vec::new();
-        let mut unordered = pages.clone();
+        let mut unordered = pagelist.clone();
         let mut pagemask:u128 = 0;
-        let mut target_page = 1+(pages.len()>>1);
-        for p in pages.iter() {
+        let mut target_page = 1+(pagelist.len()>>1);
+        for p in pagelist.iter() {
             pagemask |= 1 << p;
         }
         let mut target = 0;
@@ -71,54 +71,76 @@ impl Pages {
             }
             target_page -= 1;
         }
-        target as i32
+        target as u8
     }
 }
 
-fn twodigits_to_u32(s:&str) -> u32 {
-    ((s.as_bytes()[0] - b'0')*10 + (s.as_bytes()[1] - b'0')) as u32
+fn twodig_to_u8(s:&[u8]) -> u8 {
+//    assert!(s[0] >= b'0' && s[0] <= b'9', "First char {}", s[0]);
+    (s[0]-b'0')*10 + s[1] - b'0'
 }
 
 #[unsafe(no_mangle)]
-fn process(inp:String) -> (i32, i32)
+fn process(inp:&str) -> (i32, i32)
 {
     let mut pages = Pages::new();
-    let (_rules, _pages) = inp.split_once("\n\n").unwrap();
     let mut part1 = 0;
     let mut part2 = 0;
 
-    for rule in _rules.lines() {
-        let (f,b) = (twodigits_to_u32(rule), twodigits_to_u32(rule.get(3..).unwrap()));
+    let input = inp.as_bytes();
+    let mut i = 0;
+    while input[i] != b'\n' { // First part ends with a blank line
+        let (f,b) = (twodig_to_u8(&input[i..i+2]), twodig_to_u8(&input[i+3..i+5]));
         pages.add_rule(f, b);
+        i += 6;         // Jump to next line
     }
+    i += 1; // Skip the blank line
 
-    for line in _pages.lines() {
-        let pagelist:Vec<u32> = line.split(",").map(|x| twodigits_to_u32(x)).collect();
+    let mut pagelist:Vec<u8> = vec![];
+    let llen = input.len() - 2;
+    while i < llen {
+        loop {
+            let n = twodig_to_u8(&input[i..i+2]);
+            pagelist.push(n);
+            i += 3;
+            if input[i-1] == b'\n' {break;}
+        }
+
+//    for line in _pages.lines() {
+//        let pagelist:Vec<u32> = line.split(",").map(|x| twodigits_to_u32(x)).collect();
         let plen = pagelist.len();
         if pages.is_ordered(&pagelist) {
             part1 += pagelist[plen>>1] as i32;
         }
         else {
-            part2 += pages.order(pagelist);
+            part2 += pages.order(&pagelist) as i32;
         }
-
+        pagelist.clear();
     }
 
     (part1, part2)
+}
+
+fn process1k(i:&str) -> (i32,i32)
+{
+    for _i in 0..1000 {
+        process(i);
+    }
+    (0,0)
 }
 
 pub fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     let fname: &str = if args.len() < 2 { "input.txt" } else { args[1].as_str() };
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
-    if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
+    if input.as_bytes()[input.as_bytes().len()-1] != b'\n' {input.push('\n');}
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(100, |_| { process1k(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
