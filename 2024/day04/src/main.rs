@@ -1,4 +1,4 @@
-// 173 us
+// 153 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -174,35 +174,41 @@ fn process_linu8(inp:String) -> (i32, i32)
     while p < lim {
         if board[p] == b'A' {
             // Diagonals: dnrt, dnlt, uprt, uplt
-            let mut drt = 0; 
-            let mut dlt = 0; 
-            let mut urt = 0; 
-            let mut ult = 0;
+            // let mut drt = 0; 
+            // let mut dlt = 0; 
+            // let mut urt = 0; 
+            // let mut ult = 0;
+            let mut fslash = false;
+            let mut bslash = false;
             if board[p+uplt] == b'M' && board[p+dnrt] == b'S'{
-                drt = 1;
+                //drt = 1;
+                fslash = true;
                 if board[p+uplt+uplt] == b'X' {
                     part1 += 1;
                 }
             }
             if board[p+uprt] == b'M' && board[p+dnlt] == b'S'{
-                dlt = 1;
+                //dlt = 1;
+                bslash = true;
                 if board[p+uprt+uprt] == b'X' {
                     part1 += 1;
                 }
             }
             if board[p+dnlt] == b'M' && board[p+uprt] == b'S' {
-                urt = 1;
+                //urt = 1;
+                bslash = true;
                 if board[p+dnlt+dnlt] == b'X' {
                     part1 += 1;
                 }
             }
             if board[p+dnrt] == b'M' && board[p+uplt] == b'S' {
-                ult = 1;
+                //ult = 1;
+                fslash = true;
                 if board[p+dnrt+dnrt] == b'X' {
                     part1 += 1;
                 }
             }
-            part2 += (drt | ult) & (dlt | urt);
+            part2 += (fslash & bslash) as i32; //(drt | ult) & (dlt | urt);
             // Try 4 remaining directions
             for dir in [up, dn, lt, rt].iter() {
                 if board[p+dir] == b'M' && board[p+dir+dir] == b'X'  && board[p-dir] == b'S' {
