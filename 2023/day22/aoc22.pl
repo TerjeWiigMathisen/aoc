@@ -10,6 +10,8 @@ my $part1 = 0;
 my $part2 = 0;
 
 my @inp = (<>); chomp(@inp);
+@inp = sort {(split(/[,~]/,$a))[2] <=> (split(/[,~]/,$b))[2]} @inp;
+printf("Z range is %d - %d\n", (split(/[,~]/,$inp[0]))[2],(split(/[,~]/,$inp[-1]))[2]);
 #printf("Input:\n%s\n\n", join("\n",@inp));
 
 my @supports = ('');

@@ -1,4 +1,5 @@
-// 7.0 us
+// Fastest run Acer 7.0 us
+// Surface 21.8 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -10,7 +11,7 @@ use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use substring::Substring;
 
-fn process(byt:&[u8]) -> (u32, u32)
+pub fn process(byt:&[u8]) -> (u32, u32)
 {
     let mut p:usize = 0;
     //let byt: &[u8] = inp.as_bytes();
