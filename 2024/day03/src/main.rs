@@ -1,6 +1,7 @@
 // Fastest run Acer 7.0 us
 // Surface 21.8 us
 
+#![allow(internal_features)]
 #![feature(core_intrinsics)]
 use std::intrinsics::likely;
 //use std::collections::VecDeque;
