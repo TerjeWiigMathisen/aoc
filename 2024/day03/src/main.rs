@@ -20,43 +20,41 @@ pub fn process(byt:&[u8]) -> (u32, u32)
     let mut part2 = 0;
     while p+7 < byt.len() {  // Minimum room for a mul(a,b)
         let c = byt[p];
-        if c == b'd' {
-            if byt[p+1] == b'o' {
-                if byt[p+2] == b'(' && byt[p+3] == b')' {
-                    enable = u32::MAX;
-                    p += 3;
-                }
-                else if byt[p+2] == b'n' && byt[p+3] == b'\'' && byt[p+4] == b't' &&
-                    byt[p+5] == b'(' && byt[p+6] == b')' {
-                    enable = 0;
-                    p += 6;
-                }
-            }
+        let c4 = u32::from_le_bytes(byt[p..p+4].try_into().unwrap());
+        if c4 == (b'd' as u32 + (b'o' as u32)*256 + 
+            (b'(' as u32)*65536 + (b')' as u32)*256*65536) { 
+            enable = u32::MAX;
+            p += 4;
         }
-        else if c == b'm' {
-            if byt[p+1] == b'u' && byt[p+2] == b'l' && byt[p+3] == b'(' {
-                let mut i:u32 = 0;
-                p += 4;
-                let mut m = p;
+        else if c4 == (b'd' as u32 + (b'o' as u32)*256 + 
+              (b'\'' as u32)*65536 + (b't' as u32)*256*65536) &&
+               byt[p+5] == b'(' && byt[p+6] == b')' {
+            enable = 0;
+            p += 6;
+        }
+        else if c4 == (b'm' as u32 + (b'u' as u32)*256 + 
+              (b'l' as u32)*65536 + (b'(' as u32)*256*65536) {
+            let mut i:u32 = 0;
+            p += 4;
+            let mut m = p;
+            while byt[m] >= b'0' && byt[m] <= b'9' {
+                i = i * 10 + (byt[m] - b'0') as u32;
+                m += 1;
+            }
+            if byt[m] == b',' {
+                m += 1;
+                p = m;
+                let mut j:u32 = 0;
                 while byt[m] >= b'0' && byt[m] <= b'9' {
-                    i = i * 10 + (byt[m] - b'0') as u32;
+                    j = j * 10 + (byt[m] - b'0') as u32;
                     m += 1;
                 }
-                if byt[m] == b',' {
-                    m += 1;
+                if byt[m] == b')' {
+                    if i < 1000 && j < 1000 {
+                        part1 += i * j;
+                        part2 += (i * j) & enable;
+                    }
                     p = m;
-                    let mut j:u32 = 0;
-                    while byt[m] >= b'0' && byt[m] <= b'9' {
-                        j = j * 10 + (byt[m] - b'0') as u32;
-                        m += 1;
-                    }
-                    if byt[m] == b')' {
-                        if i < 1000 && j < 1000 {
-                            part1 += i * j;
-                            part2 += (i * j) & enable;
-                        }
-                        p = m;
-                    }
                 }
             }
         }
