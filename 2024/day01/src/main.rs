@@ -1,6 +1,6 @@
 // Fastest 
 //   Acer 13.3 us
-//   Surface 22.9 us
+//   Surface 22.6 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -84,7 +84,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
     let (part1, part2) = process(&input);
