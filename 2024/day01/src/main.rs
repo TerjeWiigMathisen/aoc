@@ -1,6 +1,6 @@
 // Fastest 
 //   Acer 13.3 us
-//   Surface 28.8 us
+//   Surface 23.3 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
