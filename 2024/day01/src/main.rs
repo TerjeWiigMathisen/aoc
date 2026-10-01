@@ -1,6 +1,6 @@
 // Fastest 
 //   Acer 13.3 us
-//   Surface 23.3 us
+//   Surface 22.9 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -12,7 +12,7 @@ use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use substring::Substring;
 
-pub fn process(inp:String) -> (u32, u32)
+pub fn process(inp:&str) -> (u32, u32)
 {
     let input = inp.as_bytes();
     let mut left:Vec<u32> = Vec::with_capacity(1000);
@@ -84,10 +84,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(100, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
