@@ -30,7 +30,7 @@ fn extract_u64(bytes:&[u8]) -> Vec<u64>
     res
 }
 
-fn process(inp:String) -> (u64, u64)
+fn process(inp:&str) -> (u64, u64)
 {
     let mut part1 = 0;
     let mut part2 = 0;
@@ -93,16 +93,18 @@ fn try_opsr3(target:u64, nums:&Vec<u64>, pos:usize) -> bool
 }
 
 fn main() {
-    let fname = "input.txt"; // instead of args[1]
-    let mut input = fs::read_to_string(fname).expect("Error readin input file");
+    let args = std::env::args().collect::<Vec<String>>();
+    let fname: &str = if args.len() < 2 { "input.txt" } else { args[1].as_str() };
+    let mut input = fs::read_to_string(fname).expect("Error reading input file");
+//    if input.as_bytes()[input.as_bytes().len()-1] != b'\n' {input.push('\n');}
     if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");

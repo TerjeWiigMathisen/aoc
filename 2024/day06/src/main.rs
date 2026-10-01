@@ -142,10 +142,10 @@ fn process(inp:String) -> (usize, usize)
 }
 
 fn main() {
-    //let fname = "input.txt"; // instead of args[1]
-    let fname = std::env::args().nth(1).expect("Please provide a filename as an argument");
+    let args = std::env::args().collect::<Vec<String>>();
+    let fname: &str = if args.len() < 2 { "input.txt" } else { args[1].as_str() };
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
-    if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
+    if input.as_bytes()[input.as_bytes().len()-1] != b'\n' {input.push('\n');}
 
     let mut devtime = DevTime::new_simple();
 

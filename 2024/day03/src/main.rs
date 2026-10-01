@@ -1,6 +1,9 @@
 // Fastest run Acer 7.0 us
 // Surface 21.8 us
 
+#![allow(internal_features)]
+#![feature(core_intrinsics)]
+use std::intrinsics::likely;
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
 //use std::io;
@@ -9,6 +12,7 @@ use std::fs;
 //use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
+
 //use substring::Substring;
 
 pub fn process(byt:&[u8]) -> (u32, u32)
@@ -51,7 +55,7 @@ pub fn process(byt:&[u8]) -> (u32, u32)
                         m += 1;
                     }
                     if byt[m] == b')' {
-                        if i < 1000 && j < 1000 {
+                        if likely(i < 1000 && j < 1000) {
                             part1 += i * j;
                             part2 += (i * j) & enable;
                         }
