@@ -79,8 +79,8 @@ pub fn process(inp:&str) -> (u32, u32)
 
 fn main() {
     let fname = "input.txt"; // instead of args[1]
-    let mut input = fs::read_to_string(fname).expect("Error readin input file");
-    if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
+    let input = fs::read_to_string(fname).expect("Error readin input file");
+//    if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
 
     let mut devtime = DevTime::new_simple();
 
