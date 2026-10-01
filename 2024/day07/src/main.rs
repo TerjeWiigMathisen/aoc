@@ -44,8 +44,17 @@ fn process(inp:&str) -> (u64, u64)
             part1 += target;
             part2 += target;
         }
-        else if try_opsr3(target, &nums, pos) {
-            part2 += target;
+        else {
+            let org = try_opsr3(target, &nums, pos);
+            let ny = try_opsr3b(target, &nums, pos);
+            if org != ny {
+                println!("{}: {} != {}", line, org, ny);
+                try_opsr3(target, &nums, pos);
+                try_opsr3b(target, &nums, pos);
+            }
+            if org {
+                part2 += target;
+            }
         }
     }
     (part1, part2)
@@ -74,22 +83,49 @@ fn try_opsr3(target:u64, nums:&Vec<u64>, pos:usize) -> bool
     if pos == 0 { return n == target; }
     if target % n == 0 {
         let rem = target / n;
-        if try_opsr3(rem, nums, pos) {return true;}
+        if try_opsr3(rem, nums, pos) { return true;}
     }
     if n % 10 == target % 10 {
         let targetstr = target.to_string();
         let nstr = n.to_string();
         if targetstr.len() > nstr.len() {
-            if targetstr[targetstr.len()-nstr.len()..] == nstr {
+            if targetstr.as_bytes()[targetstr.len()-nstr.len()..] == nstr.as_bytes()[..] {
                 let front = targetstr[..targetstr.len()-nstr.len()].parse::<u64>().unwrap();
-                if try_opsr3(front, nums, pos) {return true;}
+                if try_opsr3(front, nums, pos) { return true;}
             }
         }
     }
 
     if target <= n { return false; }
     let diff = target - n;
-    try_opsr3(diff, nums, pos)
+    if try_opsr3(diff, nums, pos) {return true;}
+    false
+}
+
+fn try_opsr3b(target:u64, nums:&Vec<u64>, pos:usize) -> bool
+{
+    if pos == 0 {return false;}
+    let pos = pos - 1;
+    let n = nums[pos];
+    if pos == 0 { return n == target; }
+    if target <= n { return false; }
+
+    if target % n == 0 {
+        let rem = target / n;
+        if try_opsr3b(rem, nums, pos) {return true;}
+    }
+    let mut n2s = n;
+    let mut t2s = target;
+    while n2s % 10 == t2s % 10 {
+        n2s /= 10;
+        t2s /= 10;
+    }
+    if n2s == 0 {
+        if try_opsr3b(t2s, nums, pos) {println!("{} || {}", target, n); return true;}
+    }
+
+    let diff = target - n;
+    try_opsr3b(diff, nums, pos)
 }
 
 fn main() {
@@ -101,7 +137,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
+//    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
     let (part1, part2) = process(&input);
