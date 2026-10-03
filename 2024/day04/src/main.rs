@@ -1,4 +1,4 @@
-// 150 us
+// Acer 127 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -9,142 +9,6 @@ use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use substring::Substring;
-
-fn _process(inp:String) -> (i32, i32)
-{
-    let mut board:Vec<Vec<char>> = Vec::new();
-    board.push(vec!['*'; 1]);
-
-    for line in inp.lines() {
-        let l = "*".to_owned() + line + "*";
-        board.push(l.chars().collect());
-    }
-    board[0] = vec!['*'; board[1].len()];
-    board.push(vec!['*'; board[1].len()]);
-    let mut part1 = 0;
-    let mut part2 = 0;
-    let mut y = 1;
-    while y < board.len()-1 {
-        let mut x = 1;
-        while x < board[1].len()-1 {
-            if board[y][x] == 'A' {
-                let dnrt = board[y-1][x-1] == 'M' && board[y+1][x+1] == 'S';
-                let dnlt = board[y-1][x+1] == 'M' && board[y+1][x-1] == 'S';
-                let uprt = board[y+1][x-1] == 'M' && board[y-1][x+1] == 'S';
-                let uplt = board[y+1][x+1] == 'M' && board[y-1][x-1] == 'S';
-                if (dnrt | uplt) && (dnlt | uprt) {
-                    part2 += 1;
-                }
-            }
-            else if board[y][x] == 'X' {
-                // up
-                if board[y-1][x] == 'M' && board[y-2][x] == 'A'  && board[y-3][x] == 'S' {
-                    part1 += 1;
-                }
-                // dn
-                if board[y+1][x] == 'M' && board[y+2][x] == 'A'  && board[y+3][x] == 'S' {
-                    part1 += 1;
-                }
-                // lt
-                if board[y][x-1] == 'M' && board[y][x-2] == 'A'  && board[y][x-3] == 'S' {
-                    part1 += 1;
-                }
-                // rt
-                if board[y][x+1] == 'M' && board[y][x+2] == 'A'  && board[y][x+3] == 'S' {
-                    part1 += 1;
-                }
-                // up-lt
-                if board[y-1][x-1] == 'M' && board[y-2][x-2] == 'A'  && board[y-3][x-3] == 'S' {
-                    part1 += 1;
-                }
-                // up-rt
-                if board[y-1][x+1] == 'M' && board[y-2][x+2] == 'A'  && board[y-3][x+3] == 'S' {
-                    part1 += 1;
-                }
-                // dn-lt
-                if board[y+1][x-1] == 'M' && board[y+2][x-2] == 'A'  && board[y+3][x-3] == 'S' {
-                    part1 += 1;
-                }
-                // dn-rt
-                if board[y+1][x+1] == 'M' && board[y+2][x+2] == 'A'  && board[y+3][x+3] == 'S' {
-                    part1 += 1;
-                }
-            }
-            x += 1;
-        }
-        y += 1;
-    }
-
-    (part1, part2)
-}
-
-fn _processu8(inp:String) -> (i32, i32)
-{
-    let mut board:Vec<Vec<u8>> = Vec::new();
-    board.push(vec![b'*'; 1]);
-
-    for line in inp.lines() {
-        let l = "*".to_owned() + line + "*";
-        board.push(l.as_bytes().to_vec());
-    }
-    board[0] = vec![b'*'; board[1].len()];
-    board.push(vec![b'*'; board[1].len()]);
-    let mut part1 = 0;
-    let mut part2 = 0;
-    let mut y = 1;
-    while y < board.len()-1 {
-        let mut x = 1;
-        while x < board[1].len()-1 {
-            if board[y][x] == b'A' {
-                let dnrt = board[y-1][x-1] == b'M' && board[y+1][x+1] == b'S';
-                let dnlt = board[y-1][x+1] == b'M' && board[y+1][x-1] == b'S';
-                let uprt = board[y+1][x-1] == b'M' && board[y-1][x+1] == b'S';
-                let uplt = board[y+1][x+1] == b'M' && board[y-1][x-1] == b'S';
-                if (dnrt | uplt) && (dnlt | uprt) {
-                    part2 += 1;
-                }
-            }
-            else if board[y][x] == b'X' {
-                // up
-                if board[y-1][x] == b'M' && board[y-2][x] == b'A'  && board[y-3][x] == b'S' {
-                    part1 += 1;
-                }
-                // dn
-                if board[y+1][x] == b'M' && board[y+2][x] == b'A'  && board[y+3][x] == b'S' {
-                    part1 += 1;
-                }
-                // lt
-                if board[y][x-1] == b'M' && board[y][x-2] == b'A'  && board[y][x-3] == b'S' {
-                    part1 += 1;
-                }
-                // rt
-                if board[y][x+1] == b'M' && board[y][x+2] == b'A'  && board[y][x+3] == b'S' {
-                    part1 += 1;
-                }
-                // up-lt
-                if board[y-1][x-1] == b'M' && board[y-2][x-2] == b'A'  && board[y-3][x-3] == b'S' {
-                    part1 += 1;
-                }
-                // up-rt
-                if board[y-1][x+1] == b'M' && board[y-2][x+2] == b'A'  && board[y-3][x+3] == b'S' {
-                    part1 += 1;
-                }
-                // dn-lt
-                if board[y+1][x-1] == b'M' && board[y+2][x-2] == b'A'  && board[y+3][x-3] == b'S' {
-                    part1 += 1;
-                }
-                // dn-rt
-                if board[y+1][x+1] == b'M' && board[y+2][x+2] == b'A'  && board[y+3][x+3] == b'S' {
-                    part1 += 1;
-                }
-            }
-            x += 1;
-        }
-        y += 1;
-    }
-
-    (part1, part2)
-}
 
 fn process_linu8(inp:String) -> (i32, i32)
 {
@@ -174,34 +38,31 @@ fn process_linu8(inp:String) -> (i32, i32)
     while p < lim {
         if board[p] == b'A' {
             // Diagonals: dnrt, dnlt, uprt, uplt
-            // let mut drt = 0; 
-            // let mut dlt = 0; 
-            // let mut urt = 0; 
-            // let mut ult = 0;
             let mut fslash = false;
             let mut bslash = false;
-            if board[p+uplt] == b'M' && board[p+dnrt] == b'S'{
+            let (ul, ur, dl, dr) = (board[p+uplt], board[p+uprt], board[p+dnlt], board[p+dnrt]);
+            if ul == b'M' && dr == b'S'{
                 //drt = 1;
                 fslash = true;
                 if board[p+uplt+uplt] == b'X' {
                     part1 += 1;
                 }
             }
-            if board[p+uprt] == b'M' && board[p+dnlt] == b'S'{
+            if ur == b'M' && dl == b'S'{
                 //dlt = 1;
                 bslash = true;
                 if board[p+uprt+uprt] == b'X' {
                     part1 += 1;
                 }
             }
-            if board[p+dnlt] == b'M' && board[p+uprt] == b'S' {
+            if dl == b'M' && ur == b'S' {
                 //urt = 1;
                 bslash = true;
                 if board[p+dnlt+dnlt] == b'X' {
                     part1 += 1;
                 }
             }
-            if board[p+dnrt] == b'M' && board[p+uplt] == b'S' {
+            if dr == b'M' && ul == b'S' {
                 //ult = 1;
                 fslash = true;
                 if board[p+dnrt+dnrt] == b'X' {
@@ -210,10 +71,18 @@ fn process_linu8(inp:String) -> (i32, i32)
             }
             part2 += (fslash & bslash) as i32; //(drt | ult) & (dlt | urt);
             // Try 4 remaining directions
-            for dir in [up, dn, lt, rt].iter() {
-                if board[p+dir] == b'M' && board[p+dir+dir] == b'X'  && board[p-dir] == b'S' {
-                    part1 += 1;
-                }
+            let (u, d, l, r) = (board[p+up], board[p+dn], board[p+lt], board[p+rt]);
+            if u == b'M' && d == b'S' && board[p+up+up] == b'X' {
+                part1 += 1;
+            }
+            if d == b'M' && u == b'S' && board[p+dn+dn] == b'X' {
+                part1 += 1;
+            }
+            if l == b'M' && r == b'S' && board[p+lt+lt] == b'X' {
+                part1 += 1;
+            }
+            if r == b'M' && l == b'S' && board[p+rt+rt] == b'X' {
+                part1 += 1;
             }
         }
         p += 1;
