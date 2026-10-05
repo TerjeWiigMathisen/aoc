@@ -73,6 +73,30 @@ impl Pages {
         }
         target as u8
     }
+    fn median(&self, pagelist:&mut Vec<u8>) -> u8 {
+        let mut l0 = 0;
+        let mut r0 = pagelist.len()-1;
+        let med = (r0>>1) + 1;
+//        println!("pagelist:{:?}", pagelist);
+        while l0 < r0 {
+            let (mut l, mut r) = (l0+1,r0);
+            let pivot = pagelist[l0];
+//            let pivot = pagelist[(l+r)>>1];
+            let behind = self.pages[pivot as usize].behind;
+            loop {
+                while l < r && ((1 as u128) << pagelist[l]) & behind == 0 { l += 1;}
+                while l < r && ((1 as u128) << pagelist[r]) & behind != 0 { r -= 1;}
+                if l >= r {break;}
+//                println!("Pivot = {pivot} Swapping {l} and {r}");
+                let t = pagelist[l];
+                pagelist[l] = pagelist[r];
+                pagelist[r] = t;
+            }
+            if l >= med { r0 = l-1} else {l0 = r+1}
+//            println!("l0:{l0}, r0:{r0}, pagelist:{:?}", pagelist);
+        }
+        pagelist[med]
+    }
 }
 
 fn twodig_to_u8(s:&[u8]) -> u8 {
@@ -114,6 +138,7 @@ fn process(inp:&str) -> (i32, i32)
         }
         else {
             part2 += pages.order(&pagelist) as i32;
+//            part2 += pages.median(&mut pagelist) as i32;
         }
         pagelist.clear();
     }
