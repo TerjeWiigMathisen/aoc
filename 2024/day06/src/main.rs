@@ -1,22 +1,11 @@
-//use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
-//use std::env;
 use std::fs;
-//use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
-//use substring::Substring;
-//use core::intrinsics::wrapping_add;
 
 struct Board {
     board:Vec<u8>,
     width:usize,
     dp:[usize;4],
-    //uplt:usize,
-    //uprt:usize,
-    //dnlt:usize,
-    //dnrt:usize,
 }
 
 impl Board {
@@ -32,16 +21,12 @@ impl Board {
         let up = (0 - width as isize) as usize;
         let dn = width;
         let dp:[usize;4] = [up,rt,dn,lt];
-        //let uprt = (up as isize + rt as isize) as usize;
-        //let uplt = (up as isize + lt as isize) as usize;
-        //let dnrt = dn + 1;
-        //let dnlt = dn - 1;
     
         let mut board:Vec<u8> = Vec::<u8>::with_capacity(inp.as_bytes().len()+width*2+2);
         for _ in 0..width+1 { board.push(b' '); }
         board.append(&mut Vec::from(inp.as_bytes()));
         for _ in 0..width+1 { board.push(b' '); }
-        Board {board, width, dp } //, uplt, uprt, dnlt, dnrt}
+        Board {board, width, dp }
     }
 
     pub fn _show(&self) {
@@ -144,7 +129,7 @@ fn process(inp:String) -> (usize, usize)
 fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     let fname: &str = if args.len() < 2 { "input.txt" } else { args[1].as_str() };
-    let mut input = fs::read_to_string(fname).expect("Error readin input file");
+    let mut input = fs::read_to_string(fname).expect("Error reading input file");
     if input.as_bytes()[input.as_bytes().len()-1] != b'\n' {input.push('\n');}
 
     let mut devtime = DevTime::new_simple();
