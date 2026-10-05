@@ -24,6 +24,10 @@ pub fn process(byt:&[u8]) -> (u32, u32)
     let mut part2 = 0;
     while p+7 < byt.len() {  // Minimum room for a mul(a,b)
         let c = byt[p];
+        // if c != b'd' && c != b'm' {
+        //     p += 1;
+        //     continue;
+        // }
         if c == b'd' {
             if byt[p+1] == b'o' {
                 if byt[p+2] == b'(' && byt[p+3] == b')' {
