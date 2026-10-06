@@ -6,7 +6,7 @@ These equations ignore normal operator precedense rules, both are at the same le
 
 In the test data set the number of values is so low that it seems OK to just try all combinations, in the real input we find up to 12-14 numbers but we would still only need to test 4096-16384 possibilites.
 
-However, it is immediately obvious that if the last operator is a multiplication, then the target value must be divisible by the last number. Otherwise it must be an addition, so then we can just subtract that value from the target and retry with the remaining set.
+However, it is immediately clear that if the last operator is a multiplication, then the target value must be divisible by the last number. Otherwise it must be an addition, so then we can just subtract that value from the target and retry with the remaining set.
 
 The obvious choice is therefore a recursive descent where we for each level first test if multiplication works, if so divide and recurse down, otherwise subtract and recurse.
 

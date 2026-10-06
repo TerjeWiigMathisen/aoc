@@ -1,26 +1,17 @@
 [2024 Day 6] In Review (Guard Gallivant)
 
-The task for the day is to search a rectangular area (N*M cells) of a lab where a single guard is patrolling. Since there are no walls around this area,
-the guard will leave (and never return presumably?) if her walk hits one of the edges. Before this happens, she always walks in a straight line 
-until she hits an obstacle, whereupon she will turn right and keep going.
+The task for the day is to search a rectangular area (130x130 cells in my input) of a lab where a single guard is patrolling. Since there are no walls around this area, the guard will leave (and never return presumably?) if her walk hits one of the edges. Before this happens, she always walks in a straight line until she hits an obstacle, whereupon she will turn right and keep going.
 
 For Part1 we just need to simulate this process in order to count how many unique cells she will have visited before leaving.
 
-Direct step-by-step simulation is the obvious choise, and afaik probably also the most efficient, except when walking in a 
-horizontal direction where a language like Perl provides faster search, but I did not bother, just brute forced it to get the first star.
+Direct step-by-step simulation is the obvious choise, and afaik probably also the most efficient, except when walking in a horizontal direction where a language like Perl provides faster search, but I did not bother, just brute forced it to get the first star.
 
-For Rust, C(++) and other low-level languages, direct simulation is a reasonable choice, so that's what I used here, recording in each cell 
-that it had been visited with a bit per direction.
+For Rust, C(++) and other low-level languages, direct simulation is a reasonable choice, so that's what I used here, recording in each cell that it had been visited with a bit per direction.
 
-For Part2 we want to introduce a single extra obstacle in the path the guard is about to walk, placed in such a spot that her path will turn 
-into an infinite loop. I recorded the path taken in Part1, so for Part2 I just iterated over this path, checking what would happen for each
-possible choice. I could not see any obvious ways to short-circuit this search. I first had to good idea (NOT) to think that any choice had 
-to be placed just after a point where the guard had just passed going right. Such a location would indeed work, but not if the real 
-solution depends on hitting one or more previously unhit obstacles before starting the loop. Since we need to determine all possible locations, 
-this means that part2 is going to require far more work than Part1, but we are all used to that at this point.
+For Part2 we want to introduce a single extra obstacle in the path the guard is about to walk, placed in such a spot that her path will turn into an infinite loop. I recorded the path taken in Part1, so for Part2 I just iterated over this path, checking what would happen for each possible choice. I could not see any obvious ways to short-circuit this search. I first had the good idea (NOT) to think that any choice had 
+to be placed just after a point where the guard had previously passed going right. Such a location would indeed work, but not if the real solution depends on hitting one or more previously unhit obstacles before starting the loop. Since we need to determine all possible locations, this means that part2 is going to require far more work than Part1, but we are all used to that at this point.
 
-My main problem is that u/maneatingape is about an order of magnitude faster, so I must in fact have missed at least one huge speedup here!
+My main problem is that u/maneatingape is about an order of magnitude faster, so I must in fact have missed at least one huge optmization here!
 
-Perhaps it makes sense to backtrack from each turn taken by the guard and check if a reverse path will hit a point previously visited, 
-such that a right turn there would start the loop? There are far less turns than steps in the Pert1 path, so this could be faster?
+Perhaps it makes sense to backtrack from each turn taken by the guard and check if a reverse path will hit a point previously visited, such that a right turn there would start the loop? There are far less turns than steps in the Part1 path, so this should be faster!
 
