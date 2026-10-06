@@ -49,4 +49,4 @@ fn try_part2(target:u64, nums:&Vec<u64>, pos:usize) -> bool
 
 I guessed that u/maneatingape should have very similar logic, his time of 136 us on an Apple CPU could easily be explained by the optimized divider circuit in later Apple cores, but when I tested with cargo bench year2024::day07 I got 133 us on my Intel cpu, so he is still a little bit more efficient!
 
-I am using the standard library to split the input into lines and then parse each line with an extract_u64() function, when I tried to go hardcore with a full custom input parser, it turned out to be significantly slower!
+I am using the standard library to split the input into lines and then parse each line with an extract_u64() function, when I tried to go hardcore with a full custom input parser, it turned out to be significantly slower.
