@@ -1,0 +1,52 @@
+[2024 Day 7] In Review (Bridge Repair)
+
+Today we need to cross a brige which is currently under repair, only the final calibrations remain, but there the engineers have a problem: Each calibration consist of a target value and a computation which is supposed to reach that value. A group of elephants nearby have stolen all the operators so that only the numbers remain, our task is to figure out where we can insert '*' (multiplication) or '+' (addition) between the numbers to make it come out OK.
+
+These equations ignore normal operator precedense rules, both are at the same level and will be applied as soon as possible.
+
+In the test data set the number of values is so low that it seems OK to just try all combinations, in the real input we find up to 12-14 numbers but we would still only need to test 4096-16384 possibilites.
+
+However, it is immediately obvious that if the last operator is a multiplication, then the target value must be divisible by the last number. Otherwise it must be an addition, so then we can just subtract that value from the target and retry with the remaining set.
+
+The obvious choice is therefore a recursive descent where we for each level first test if multiplication works, if so divide and recurse down, otherwise subtract and recurse.
+
+This process finished in a ms or two in Perl.
+
+For Part2 we are told that one elephant had hidden away a third operator, concatenation!
+
+At this point all Perl programmers rejoiced since for Perl any number is both a string and a numeric value, so that checking if the last N digits match an N-digit value is dead simple, and so is removing the corresponding digits from the current target so that we can recurse.
+
+My Rust code started out with the exact same logic, converting numbers to ascii and back for each concatenation attempt, and it took about twice as long as the Ape, even though I started with a sanity check: For concatenation to be possible, the last digits had to match so I checked this before doing the string conversion and comparison.
+
+After I had stared at this logic for a while I realized that I could repeat the final digit check until it either stopped matching or all digits were OK, at which point the temporary target would contain the remaining leading digits, without any need for any binary-to-ascii and ascii-to-binary conversions!
+
+At this point the inner logic was quite short & nice, it ran in 163 us:
+
+fn try_part2(target:u64, nums:&Vec<u64>, pos:usize) -> bool
+{
+    if pos == 0 {return false;}
+    let pos = pos - 1;
+    let n = nums[pos];
+    if pos == 0 { return n == target; }
+
+    if target % n == 0 {
+        let rem = target / n;
+        if try_part2(rem, nums, pos) {return true;}
+    }
+    let mut n2s = n;
+    let mut t2s = target;
+    while n2s > 0 && n2s % 10 == t2s % 10 {
+        n2s /= 10;
+        t2s /= 10;
+    }
+    if n2s == 0 {
+        if try_part2(t2s, nums, pos) {return true;}
+    }
+
+    let diff = target - n;
+    try_part2(diff, nums, pos)
+}
+
+I guessed that u/maneatingape should have very similar logic, his time of 136 us on an Apple CPU could easily be explained by the optimized divider circuit in later Apple cores, but when I tested with cargo bench year2024::day07 I got 133 us on my Intel cpu, so he is still a little bit more efficient!
+
+I am using the standard library to split the input into lines and then parse each line with an extract_u64() function, when I tried to go hardcore with a full custom input parser, it turned out to be significantly slower!

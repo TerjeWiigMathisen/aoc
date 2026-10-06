@@ -1,16 +1,14 @@
-//use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
-//use std::env;
+// Acer 162.8 us
+
 use std::fs;
 //use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use substring::Substring;
 
-fn extract_u64(bytes:&[u8]) -> Vec<u64>
+fn extract_u64(bytes:&[u8], res:&mut Vec<u64>)
 {
-    let mut res:Vec<u64> = Vec::new();
+    res.clear();
     let mut n = 0;
     let mut valid = false;
     for c in bytes {
@@ -27,40 +25,9 @@ fn extract_u64(bytes:&[u8]) -> Vec<u64>
     if valid {
         res.push(n);
     }
-    res
 }
 
-fn process(inp:&str) -> (u64, u64)
-{
-    let mut part1 = 0;
-    let mut part2 = 0;
-    let lines = inp.split("\n");
-    for line in lines {
-        let nums = extract_u64(line.as_bytes());
-        let target = nums[0];
-        let nums = nums[1..].to_vec();
-        let pos = nums.len();
-        if try_opsr(target, &nums, pos) {
-            part1 += target;
-            part2 += target;
-        }
-        else {
-            let org = try_opsr3(target, &nums, pos);
-            let ny = try_opsr3b(target, &nums, pos);
-            if org != ny {
-                println!("{}: {} != {}", line, org, ny);
-                try_opsr3(target, &nums, pos);
-                try_opsr3b(target, &nums, pos);
-            }
-            if org {
-                part2 += target;
-            }
-        }
-    }
-    (part1, part2)
-}
-
-fn try_opsr(target:u64, nums:&Vec<u64>, pos:usize) -> bool
+fn try_part1(target:u64, nums:&Vec<u64>, pos:usize) -> bool
 {
     if pos == 0 {return false;}
     let pos = pos - 1;
@@ -68,14 +35,14 @@ fn try_opsr(target:u64, nums:&Vec<u64>, pos:usize) -> bool
     if pos == 0 { return n == target; }
     if target % n == 0 {
         let rem = target / n;
-        if try_opsr(rem, nums, pos) {return true;}
+        if try_part1(rem, nums, pos) {return true;}
     }
     if target <= n { return false; }
     let diff = target - n;
-    try_opsr(diff, nums, pos)
+    try_part1(diff, nums, pos)
 }
 
-fn try_opsr3(target:u64, nums:&Vec<u64>, pos:usize) -> bool
+fn _try_opsr3(target:u64, nums:&Vec<u64>, pos:usize) -> bool
 {
     if pos == 0 {return false;}
     let pos = pos - 1;
@@ -83,7 +50,7 @@ fn try_opsr3(target:u64, nums:&Vec<u64>, pos:usize) -> bool
     if pos == 0 { return n == target; }
     if target % n == 0 {
         let rem = target / n;
-        if try_opsr3(rem, nums, pos) { return true;}
+        if _try_opsr3(rem, nums, pos) { return true;}
     }
     if n % 10 == target % 10 {
         let targetstr = target.to_string();
@@ -91,41 +58,73 @@ fn try_opsr3(target:u64, nums:&Vec<u64>, pos:usize) -> bool
         if targetstr.len() > nstr.len() {
             if targetstr.as_bytes()[targetstr.len()-nstr.len()..] == nstr.as_bytes()[..] {
                 let front = targetstr[..targetstr.len()-nstr.len()].parse::<u64>().unwrap();
-                if try_opsr3(front, nums, pos) { return true;}
+                if _try_opsr3(front, nums, pos) { return true;}
             }
         }
     }
 
     if target <= n { return false; }
     let diff = target - n;
-    if try_opsr3(diff, nums, pos) {return true;}
+    if _try_opsr3(diff, nums, pos) {return true;}
     false
 }
 
-fn try_opsr3b(target:u64, nums:&Vec<u64>, pos:usize) -> bool
+fn try_part2(target:u64, nums:&Vec<u64>, pos:usize) -> bool
 {
     if pos == 0 {return false;}
     let pos = pos - 1;
     let n = nums[pos];
     if pos == 0 { return n == target; }
-    if target <= n { return false; }
 
     if target % n == 0 {
         let rem = target / n;
-        if try_opsr3b(rem, nums, pos) {return true;}
+        if try_part2(rem, nums, pos) {return true;}
     }
     let mut n2s = n;
     let mut t2s = target;
-    while n2s % 10 == t2s % 10 {
+    while n2s > 0 && n2s % 10 == t2s % 10 {
         n2s /= 10;
         t2s /= 10;
     }
     if n2s == 0 {
-        if try_opsr3b(t2s, nums, pos) {println!("{} || {}", target, n); return true;}
+        if try_part2(t2s, nums, pos) {return true;}
     }
 
     let diff = target - n;
-    try_opsr3b(diff, nums, pos)
+    try_part2(diff, nums, pos)
+}
+
+fn process(inp:&str) -> (u64, u64)
+{
+    let mut part1 = 0;
+    let mut part2 = 0;
+    let lines = inp.split("\n");
+    let mut nums = Vec::new();
+    for line in lines {
+        extract_u64(line.as_bytes(), &mut nums);
+        let target = nums[0];
+        let nums = nums[1..].to_vec();
+        let pos = nums.len();
+        if try_part1(target, &nums, pos) {
+            part1 += target;
+            part2 += target;
+        }
+        else {
+//            println!("Testing {}", line);
+//            let org = try_part13(target, &nums, pos);
+            let ny = try_part2(target, &nums, pos);
+            // if org != ny {
+            //     println!("{}: {} != {}", line, org, ny);
+            //     try_part13(target, &nums, pos);
+            //     try_part2(target, &nums, pos);
+            // }
+            if ny {
+//                println!("OK, adding {}", target);
+                part2 += target;
+            }
+        }
+    }
+    (part1, part2)
 }
 
 fn main() {
@@ -137,7 +136,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-//    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
     let (part1, part2) = process(&input);
