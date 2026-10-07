@@ -1,4 +1,4 @@
-// fastest version without HashSet runs in 8.4 us
+// fastest version without HashSet runs in 3.519 us
 
 //use std::collections::VecDeque;
 use std::collections::HashSet;
@@ -99,7 +99,7 @@ fn _process(inp:String) -> (i32, i32)
     (part1, part2)
 }
 
-fn process_noset(inp:String) -> (i32, i32)
+fn process_noset(inp:&str) -> (i32, i32)
 {
     let mut antennas:Vec<Vec<Point>> = vec![Vec::<Point>::new();(b'z'-b'0'+1) as usize];
 
@@ -168,6 +168,16 @@ fn process_noset(inp:String) -> (i32, i32)
     (part1, part2)
 }
 
+fn p1k(inp:&str) -> (i32, i32)
+{
+    let mut p1 = 0;
+    let mut p2 = 0;
+    for _ in 0..1000 {
+        (p1, p2) = process_noset(inp);
+    }
+    (p1, p2)
+}
+
 pub fn main() {
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
@@ -175,10 +185,11 @@ pub fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process_noset(input.clone()); }); bench_result.print_stats();
+//    let bench_result = run_benchmark(1000, |_| { process_noset(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { p1k(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process_noset(input.clone());
+    let (part1, part2) = process_noset(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");

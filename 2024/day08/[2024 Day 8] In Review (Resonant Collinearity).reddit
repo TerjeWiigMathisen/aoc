@@ -1,0 +1,28 @@
+[2024 Day 8] In Review (Resonant Collinearity)
+
+We're on the roof of the top-secret Easter Bunny installation, where we realize that the city contains a bunch of antennas, at many different frequencies. They are named with single digits, upper or lower-case letters, so there can be up to 62 different kinds.
+
+For Part1 we are told to look for antinodes, defined as a location that are in line with a pair of same-frequency antennas, at the same distance away as the internal pair offset. We want ot determine how many total locations contain one or more anti-nodes.
+
+In Perl I created a hash of arrays, the hash is keyed by the antenna name (ascii byte value), then each array contains the (x,y) coordinates of an antenna with that name. The list of anti-nodes is another hash table, keyed by the corresponding (x.y) pair. The main issue is that we have to ignore any locations that are outside of the city grid.
+
+This worked pretty much as quickly as I could type it in.
+
+For Part2 we need to iterate over all multiples of the internal distance, so we get a lot more antinodes, but otherwise it was more or less the same process.
+
+Total Perl runtime 16 ms.
+
+In Rust I first implemented it the same way, using HashSet, but later on decided that the name key set was small enough that it didn't matter if I extended it by filling in the gaps between '9' and 'A' and between 'Z' and 'a', and instead of a HashSet of antinode addresses I just used the input byte map, using bit 1 for Part1 and 2 for Part2.
+
+When I ran my code just now the fastest was 3.9 us, so I'll have to average 1000 iterations to get a more precise measurement:
+...
+The average over 1000 iterations was 3519 ns, so less than half the stated Ape time.
+
+I therefore tested 'cargo bench year2024::day08' and got
+
+running 3 tests
+test year2024::day08::parse_bench ... bench:       3,745.39 ns/iter (+/- 247.27)
+test year2024::day08::part1_bench ... bench:         724.87 ns/iter (+/- 29.24)
+test year2024::day08::part2_bench ... bench:       1,375.97 ns/iter (+/- 94.11)
+
+So his total was about 5.8 us on my machine, not a big but still somewhat significant difference.
