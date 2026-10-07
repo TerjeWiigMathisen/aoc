@@ -1,4 +1,5 @@
 // Acer 162.8 us
+// Surface 267 us
 
 use std::fs;
 //use aoc_parse::{parser, prelude::*};
@@ -42,33 +43,6 @@ fn try_part1(target:u64, nums:&Vec<u64>, pos:usize) -> bool
     try_part1(diff, nums, pos)
 }
 
-fn _try_opsr3(target:u64, nums:&Vec<u64>, pos:usize) -> bool
-{
-    if pos == 0 {return false;}
-    let pos = pos - 1;
-    let n = nums[pos];
-    if pos == 0 { return n == target; }
-    if target % n == 0 {
-        let rem = target / n;
-        if _try_opsr3(rem, nums, pos) { return true;}
-    }
-    if n % 10 == target % 10 {
-        let targetstr = target.to_string();
-        let nstr = n.to_string();
-        if targetstr.len() > nstr.len() {
-            if targetstr.as_bytes()[targetstr.len()-nstr.len()..] == nstr.as_bytes()[..] {
-                let front = targetstr[..targetstr.len()-nstr.len()].parse::<u64>().unwrap();
-                if _try_opsr3(front, nums, pos) { return true;}
-            }
-        }
-    }
-
-    if target <= n { return false; }
-    let diff = target - n;
-    if _try_opsr3(diff, nums, pos) {return true;}
-    false
-}
-
 fn try_part2(target:u64, nums:&Vec<u64>, pos:usize) -> bool
 {
     if pos == 0 {return false;}
@@ -76,18 +50,18 @@ fn try_part2(target:u64, nums:&Vec<u64>, pos:usize) -> bool
     let n = nums[pos];
     if pos == 0 { return n == target; }
 
+    if n < 10 && target % 10 == n {
+        if try_part2(target / 10, nums, pos) { return true;}
+    }
+    else if n < 100 && target % 100 == n {
+        if try_part2(target / 100, nums, pos) { return true;}
+    }
+    else if target % 1000 == n {
+        if try_part2(target / 1000, nums, pos) { return true;}
+    }
+
     if target % n == 0 {
-        let rem = target / n;
-        if try_part2(rem, nums, pos) {return true;}
-    }
-    let mut n2s = n;
-    let mut t2s = target;
-    while n2s > 0 && n2s % 10 == t2s % 10 {
-        n2s /= 10;
-        t2s /= 10;
-    }
-    if n2s == 0 {
-        if try_part2(t2s, nums, pos) {return true;}
+        if try_part2(target / n, nums, pos) {return true;}
     }
 
     let diff = target - n;
