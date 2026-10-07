@@ -1,4 +1,4 @@
-// Acer 162.8 us
+// Acer 150.5 us
 // Surface 267 us
 
 use std::fs;
