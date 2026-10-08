@@ -78,11 +78,11 @@ fn process_noset_bitmap(inp:&str) -> (i32, i32)
                 }
                 // Use GCD here if the input could be bad.
                 // part2
-                let gcd = _gcd(dx, dy);
-                if gcd > 1 {
-                    dx = dx / gcd;
-                    dy = dy / gcd;
-                }
+                // let gcd = _gcd(dx, dy);
+                // if gcd > 1 {
+                //     dx = dx / gcd;
+                //     dy = dy / gcd;
+                // }
                 let mut x = p.x + dx;
                 let mut y = p.y + dy;
                 while x >= 0 && x < width as i32 && y >= 0 && y < height as i32 {
