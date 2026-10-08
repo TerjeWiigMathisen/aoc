@@ -59,6 +59,7 @@ my $used;
 
 my @files = ();
 my @free = ();
+my @lastfree = (0) x 10;
 my $pos = 0;
 $id = 0;
 for (my $i = 1; $i < scalar(@blocks); $i+=2) {
@@ -80,20 +81,21 @@ for (my $i = scalar(@files)-3; $i > 0; $i-=3) {
 	my $len = $files[$i+1];
 	my $pos = $files[$i+2];
 	
-	for (my $f = 0; $f < scalar(@free); $f+=2) {
+	for (my $f = $lastfree[$len]; $f < scalar(@free); $f+=2) {
+		$freescans++;
 		my $fpos = $free[$f+1];
 		last if ($fpos >= $pos);
-		$freescans++;
 		my $flen = $free[$f];
 
 		if ($flen >= $len) {
-			$free[$f] -= $len;
+			my $remfree = $flen - $len;
+			$free[$f] = $remfree;
 			$free[$f+1] += $len;
 			$files[$i+2] = $fpos;
+			$lastfree[$len] = $f+2;
+#			$lastfree[$remfree] = 0;
 			
-			if ($free[$f] == 0) {
-				splice(@free,$f,2);
-			}
+			if ($lastfree[$remfree] > $f) { $lastfree[$remfree] = $f; }
 			last;
 		}
 	}

@@ -15,10 +15,28 @@ This setup made part1 really easy, just iterate from the front to locate free bl
 
 For part2 we need to find open gaps large enough for a full file, so here it made much more sense to have free lists, either organized by size (1-9) and location, or just by location. Since all partially filled free spaces would result in a tail space which would have to be inserted in the right order in the smaller map I decided to use the simpler setup of a single free list.
 
-I did consider keeping around a cache of the first free list entry of each size, but went brute force instead, always scanning from the beginning. I counted the scan iterations, the average was 133 entries inspected before finding a large enough slot, so a better data structure would have been faster.
+I did consider keeping around a cache of the last found free list entry of each size, but went brute force instead, always scanning from the beginning. I counted the scan iterations, the average was 133 entries inspected before finding a large enough slot, so a better data structure would have been faster.
 
 Perl runtime 271 ms
 
 I started on a more ambitious Rust version but never had time to finish the way I would have liked.
 
 It would in fact have been easier to solve this in an optimal way, using size-ordered free lists and always try to move files to an exactly large enough gap, only fall back to larger slots if none could be found.
+
+Later edit:
+
+Watching TV with my wife ("71 degree North", check it out if you can!) and waiting until Oslo midnight to make the reddit post, I looked somewhat unhappily at what I had written above:
+
+I decided to at least implement the simplest possible cache, just a table of the last found free entry for each size, this immediately dropped the runtime to 48.6 ms, so more than 5x faster, and the number of free list steps dropped from 133 to 4.6 per file. The only problem was that I had to update the cache also for the tail end of a partially filled free space, when that was before the current cache entry.
+
+    if ($flen >= $len) {
+        my $remfree = $flen - $len;
+        $free[$f] = $remfree;
+        $free[$f+1] += $len; # update free block position
+        $files[$i+2] = $fpos; # The file is moved here
+        $lastfree[$len] = $f+2; # Next scan starts after this entry
+        
+        if ($lastfree[$remfree] > $f) { $lastfree[$remfree] = $f; }
+        last;
+    }
+
