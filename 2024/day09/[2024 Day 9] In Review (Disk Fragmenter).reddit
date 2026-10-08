@@ -1,0 +1,24 @@
+[2024 Day 9] In Review (Disk Fragmenter)
+
+Today an amphipod has a classic problem: it has a disk that is fragmented and it wants to defragment it.
+The disk map is stored in a compressed format, alternating between a disk length and a free space length. If there is no free space between two files, the free space length is 0.
+
+For Part1, the amphipod moves blocks, starting with the last file block which it then moves into the first free block, systematically moving all blocks as close to the front as possible, and as a side effect reversing the storage order for all moved files. We then produce a disk checksum consisting of summing up for every file block the product of the file number and the block position.
+
+For Part2, because the amphipod ralized that the disk becomes too fragmented, it will instead only move full files as close to the front as it can find a large enough free space for them. The checksum is then calculated in the same way as Part1.
+
+My Perl code solved this one using brute force for Part1:
+
+First expand the run length encodings, using -1 to designate free blocks, the filenr ID for the files. My input contained 10K files, so worst case this could be expanded to 9*2*10K = 180 K entries, but the average should be closer to half of this.
+
+This setup made part1 really easy, just iterate from the front to locate free blocks and from the end to find  file blocks to move.
+
+For part2 we need to find open gaps large enough for a full file, so here it made much more sense to have free lists, either organized by size (1-9) and location, or just by location. Since all partially filled free spaces would result in a tail space which would have to be inserted in the right order in the smaller map I decided to use the simpler setup of a single free list.
+
+I did consider keeping around a cache of the first free list entry of each size, but went brute force instead, always scanning from the beginning. I counted the scan iterations, the average was 133 entries inspected before finding a large enough slot, so a better data structure would have been faster.
+
+Perl runtime 271 ms
+
+I started on a more ambitious Rust version but never had time to finish the way I would have liked.
+
+It would in fact have been easier to solve this in an optimal way, using size-ordered free lists and always try to move files to an exactly large enough gap, only fall back to larger slots if none could be found.
