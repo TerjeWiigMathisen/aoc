@@ -27,14 +27,16 @@ Later edit:
 
 Watching TV with my wife ("71 degree North", check it out if you can!) and waiting until Oslo midnight to make the reddit post, I looked somewhat unhappily at what I had written above:
 
-I decided to at least implement the simplest possible cache, just a table of the last found free entry for each size, this immediately dropped the runtime to 47.8 ms, so nearly 6x faster.
-The number of free list steps dropped from 133 to 4.6 per file. The only problem was that I had to update the cache also for the tail end of a partially filled free space, when that was before the current cache entry.
+I decided to at least implement the simplest possible cache I mentioned, just a table of the last found free entry for each size, this immediately dropped the runtime to 47.8 ms, so nearly 6x faster.
+The number of free list steps dropped from 133 to 4.6 per file. 
+
+The only small problem was that I had to update the cache also for the tail end of a partially filled free space, when that was before the current cache entry.
 
     if ($flen >= $len) {
         my $remfree = $flen - $len;
         $free[$f] = $remfree;
-        $free[$f+1] += $len; # update free block position
-        $files[$i+2] = $fpos; # The file is moved here
+        $free[$f+1] += $len;    # update free block position
+        $files[$i+2] = $fpos;   # The file is moved here
         $lastfree[$len] = $f+2; # Next scan starts after this entry
         
         if ($remfree & $lastfree[$remfree] > $f) { $lastfree[$remfree] = $f; }
