@@ -1,4 +1,6 @@
 // fastest version without HashSet runs in 3.519 us
+// 6.028 us on Surface 
+// 6.622 us including GCD
 
 //use std::collections::VecDeque;
 use std::collections::HashSet;
@@ -131,8 +133,8 @@ fn process_noset(inp:&str) -> (i32, i32)
             let p2 = &ant[j];
             for i in 0..j {
                 let p = &ant[i];
-                let dx = p2.x - p.x;
-                let dy = p2.y - p.y;
+                let mut dx = p2.x - p.x;
+                let mut dy = p2.y - p.y;
                 let mut x = p2.x + dx;
                 let mut y = p2.y + dy;
                 if x >= 0 && x < width as i32 && y >= 0 && y < height as i32 {
@@ -142,6 +144,12 @@ fn process_noset(inp:&str) -> (i32, i32)
                 y = p.y - dy;
                 if x >= 0 && x < width as i32 && y >= 0 && y < height as i32 {
                     anti[(y as usize)*width + x as usize] |= 1;
+                }
+                // part2
+                let gcd = _gcd(dx, dy);
+                if gcd > 1 {
+                    dx = dx / gcd;
+                    dy = dy / gcd;
                 }
                 let mut x = p.x + dx;
                 let mut y = p.y + dy;
