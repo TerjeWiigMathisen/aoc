@@ -95,7 +95,7 @@ for (my $i = scalar(@files)-3; $i > 0; $i-=3) {
 			$lastfree[$len] = $f+2;
 #			$lastfree[$remfree] = 0;
 			
-			if ($lastfree[$remfree] > $f) { $lastfree[$remfree] = $f; }
+			if ($remfree && $lastfree[$remfree] > $f) { $lastfree[$remfree] = $f; }
 			last;
 		}
 	}
