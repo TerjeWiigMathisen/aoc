@@ -80,8 +80,9 @@ for (my $i = scalar(@files)-3; $i > 0; $i-=3) {
 	my $id = $files[$i];
 	my $len = $files[$i+1];
 	my $pos = $files[$i+2];
-	
-	for (my $f = $lastfree[$len]; $f < scalar(@free); $f+=2) {
+	my $f;
+#	my $found = 0;
+	for ($f = $lastfree[$len]; $f < scalar(@free); $f+=2) {
 		$freescans++;
 		my $fpos = $free[$f+1];
 		last if ($fpos >= $pos);
@@ -94,11 +95,13 @@ for (my $i = scalar(@files)-3; $i > 0; $i-=3) {
 			$files[$i+2] = $fpos;
 			$lastfree[$len] = $f+2;
 #			$lastfree[$remfree] = 0;
+#			$found = 1;
 			
 			if ($remfree && $lastfree[$remfree] > $f) { $lastfree[$remfree] = $f; }
 			last;
 		}
 	}
+	$lastfree[$len] = $f if ($f >= scalar(@free));
 }
 
 my $p2 = 0;
