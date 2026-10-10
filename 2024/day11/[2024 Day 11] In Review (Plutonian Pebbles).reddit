@@ -63,4 +63,6 @@ I used the Perl version to search for a faster but still good enough hash to han
         (cnt,left,right)
     }
 
-All in all, one of the more interesting puzzles this year.
+No,the difference must be in other places, with less than 4K total hashmap lookups, using FxHashMap instead of the default only made a tiny difference.
+
+All in all, one of the more interesting puzzles this year!

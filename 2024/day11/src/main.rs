@@ -1,8 +1,10 @@
 // 844 us Acer
-// 1107 us Surface
+// 1080 us Surface
 
 //use hashbrown::DefaultHashBuilder;
-use std::collections::HashMap;
+//use std::collections::HashMap;
+use rustc_hash::FxHashMap;
+
 //use std::hash::RandomState;
 //use std::io;
 //use std::env;
@@ -19,12 +21,12 @@ struct Stone {
 struct StoneList {
     stones:Vec<Stone>,
     stone_cnt:Vec<u64>,
-    stone_index:HashMap<u64, u32>,
+    stone_index:FxHashMap<u64, u32>,
 }
 
 impl StoneList {
     fn new() -> StoneList {
-        StoneList { stones:Vec::with_capacity(5000), stone_cnt:Vec::with_capacity(5000), stone_index:HashMap::with_capacity(5000) }
+        StoneList { stones:Vec::with_capacity(5000), stone_cnt:Vec::with_capacity(5000), stone_index:FxHashMap::default() }
     }
 
 //    #[inline(always)]
