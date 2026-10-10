@@ -1,9 +1,9 @@
 // 844 us Acer
-// 1121 us Surface
+// 1107 us Surface
 
 //use hashbrown::DefaultHashBuilder;
 use std::collections::HashMap;
-use std::hash::RandomState;
+//use std::hash::RandomState;
 //use std::io;
 //use std::env;
 use std::fs;
@@ -63,13 +63,8 @@ impl StoneList {
 //                assert!(right > 0);
                 self.stones[ix].left = left;
                 self.stones[ix].right = right;
-            } else if value == 0 {
-                left = self.get_idx(1);
-//                assert!(left > 0);
-                self.stones[ix].left = left;
-//                assert!(self.stones[ix].right == 0);
-            } else {
-                left = self.get_idx(value*2024);
+            } else { //if value == 0 {
+                left = if value == 0 {1} else { self.get_idx(value*2024) };
 //                assert!(left > 0);
                 self.stones[ix].left = left;
 //                assert!(self.stones[ix].right == 0);
@@ -84,6 +79,7 @@ fn process(inp:&str) -> (u64,u64)
     let nums = inp.split_ascii_whitespace().map(|x| x.parse::<u64>().unwrap()).collect::<Vec<u64>>();
     let mut sl = StoneList::new();
     sl.get_idx(u64::MAX); // Fill up the zero slot!
+    sl.get_idx(1); // Force 1 into slot 1
     for n in nums.iter() {
         let idx = sl.get_idx(*n);
         sl.stone_cnt[idx as usize] = 1;
