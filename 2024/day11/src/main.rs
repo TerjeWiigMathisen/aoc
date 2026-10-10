@@ -1,4 +1,4 @@
-// 844 us Acer
+// 449 us Acer
 // 1080 us Surface
 
 //use hashbrown::DefaultHashBuilder;
@@ -51,18 +51,17 @@ impl StoneList {
         let mut right = self.stones[ix].right;
         if left == 0 {
             let value = self.stones[ix].stonevalue;
-            let stonestr = format!("{}", value);
-            let l = stonestr.len();
-            if l & 1 == 0 {
-                let half = l>>1;
-                let left_half = &stonestr[0..half];
-                let right_half = &stonestr[half..];
-                left = left_half.parse::<u32>().unwrap();
-                right = right_half.parse::<u32>().unwrap();
+            let mut pairs = 100;
+            let mut half = 10;
+            while value > pairs {
+                pairs *= 100;
+                half *= 10;
+            }
+            if value * 10 > pairs { // Even number of digits
+                left = (value / half) as u32;
+                right = (value % half) as u32;
                 left = self.get_idx(left as u64);
-//                assert!(left > 0);
                 right = self.get_idx(right as u64);
-//                assert!(right > 0);
                 self.stones[ix].left = left;
                 self.stones[ix].right = right;
             } else { //if value == 0 {
