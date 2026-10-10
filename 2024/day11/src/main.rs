@@ -1,4 +1,5 @@
-// 844 us
+// 844 us Acer
+// 1121 us Surface
 
 //use hashbrown::DefaultHashBuilder;
 use std::collections::HashMap;
@@ -38,7 +39,7 @@ impl StoneList {
         self.stones.push(Stone{stonevalue:value,left:0,right:0});
         self.stone_cnt.push(0);
         self.stone_index.insert(value, idx);
-        assert!(self.stones.len() == self.stone_cnt.len() && self.stones.len() == self.stone_index.len());
+//        assert!(self.stones.len() == self.stone_cnt.len() && self.stones.len() == self.stone_index.len());
         idx
     }
 
@@ -57,28 +58,28 @@ impl StoneList {
                 left = left_half.parse::<u32>().unwrap();
                 right = right_half.parse::<u32>().unwrap();
                 left = self.get_idx(left as u64);
-                assert!(left > 0);
+//                assert!(left > 0);
                 right = self.get_idx(right as u64);
-                assert!(right > 0);
+//                assert!(right > 0);
                 self.stones[ix].left = left;
                 self.stones[ix].right = right;
             } else if value == 0 {
                 left = self.get_idx(1);
-                assert!(left > 0);
+//                assert!(left > 0);
                 self.stones[ix].left = left;
-                assert!(self.stones[ix].right == 0);
+//                assert!(self.stones[ix].right == 0);
             } else {
                 left = self.get_idx(value*2024);
-                assert!(left > 0);
+//                assert!(left > 0);
                 self.stones[ix].left = left;
-                assert!(self.stones[ix].right == 0);
+//                assert!(self.stones[ix].right == 0);
             }
         }
         (cnt,left,right)
     }
 }
 
-fn process(inp:String) -> (u64,u64) 
+fn process(inp:&str) -> (u64,u64) 
 {
     let nums = inp.split_ascii_whitespace().map(|x| x.parse::<u64>().unwrap()).collect::<Vec<u64>>();
     let mut sl = StoneList::new();
@@ -89,11 +90,11 @@ fn process(inp:String) -> (u64,u64)
     }
     let mut part1 = 0;
     let mut part2 = 0;
-    for gen in 1..=75 {
+    for generation in 1..=75 {
 //        println!("stone_cnt: {:?}", sl.stone_cnt);
         let slen = sl.stone_cnt.len();
-        assert!(slen == sl.stones.len());
-        assert!(slen == sl.stone_index.len());
+//        assert!(slen == sl.stones.len());
+//        assert!(slen == sl.stone_index.len());
         let mut newcnt = vec![0;slen];
         //let mut _alive = 0;
         //let mut _growth = 0;
@@ -104,15 +105,15 @@ fn process(inp:String) -> (u64,u64)
             let (cnt, left, right) = sl.update(idx);
 //            println!("update idx {idx}, value={}, cnt={cnt}, left={left}, right={right}",sl.stones[idx].stonevalue);
             while newcnt.len() < sl.stone_cnt.len() { newcnt.push(0);}
-            assert!(left > 0);
+//            assert!(left > 0);
             newcnt[left as usize] += cnt;
             // if right > 0 { newcnt[right as usize] += cnt; }
             newcnt[right as usize] += cnt;
             
         }
         
-//        println!("Gen {gen}: {:?}\nslen={}, alive={alive}, total={part2}, growth={growth}", newcnt, sl.stone_cnt.len());
-        if gen == 25 || gen == 75 {
+//        println!("generation {generation}: {:?}\nslen={}, alive={alive}, total={part2}, growth={growth}", newcnt, sl.stone_cnt.len());
+        if generation == 25 || generation == 75 {
             part2 = 0;
             //let mut alive = 0;
             //let mut max = 0;
@@ -123,8 +124,8 @@ fn process(inp:String) -> (u64,u64)
                 //alive += 1;
                 //if n > max { max = n;}
             }
-            //println!("Gen {gen}: len={}, alive={alive}, total={part2}, max={max}", sl.stone_cnt.len());
-            if gen == 25 {
+            //println!("generation {generation}: len={}, alive={alive}, total={part2}, max={max}", sl.stone_cnt.len());
+            if generation == 25 {
                 part1 = part2;
             }
         }
@@ -142,10 +143,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");

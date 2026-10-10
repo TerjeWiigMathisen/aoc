@@ -1,0 +1,15 @@
+[2024 Day 10] In Review (Hoof It)
+
+Today we are going to help a reindeer reconstruct the hiking trail map of an area recently scoured by lava. We have a digital height map (0 to 9) and are told to, for all starting points (elevation 0) find out how many peaks (elev. 9) can be reached from that point while always climbing exactly one level per step.
+
+The total sum is the part1 answer.
+
+Solving this reminded me a lot of several previous map search puzzles, so I did it the obvious way: Use the input as a linear flat map, with newlines as a guard between each horizontal line and the next. I also put a line of guard characters before and after the input.
+
+Next was a scan of the input map, for each '0' start a recursive DFS, using a parallel seen[] array to note visited cells, then just aggregate the counts.
+
+In hindsight, it would probably be better to cache the search results from each visited cell, so that later searches could reuse the work previously done.
+
+For part2 we are instead told to count how many different ways there are to reach a top, here I also used a recursive search, but totally forgot to make it memoizing!
+
+Adding two lines just now to return early with a cached answer, otherwise do the seach and cache the result made my code run twice as fast. The only reason it wasn't much worse was because every path had to be exactly 8 steps long, so the total overhead wasn't anything like previous puzzles where a cache could very often save 95-99% of the work.

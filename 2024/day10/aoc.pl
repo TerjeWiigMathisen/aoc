@@ -1,4 +1,5 @@
 #!perl -w
+# Surface 11.9 ms 
 use strict;
 use Time::HiRes qw (time);
 use English;
@@ -28,6 +29,7 @@ my %seen = ();
 my $tops = 0;
 my @dx = (0,1,0,-1);
 my @dy = (-1,0,1,0);
+my %tops = ();
 
 sub find_tops
 {
@@ -35,7 +37,7 @@ sub find_tops
 	return 0 if (defined($seen{"$x,$y"}));
 	$seen{"$x,$y"} = 1;
 
-	if ($curr == 9) {
+	if ($curr == '9') {
 		return 1;
 	}
 	
@@ -61,11 +63,14 @@ for (my $y = 1; $y <= $H; $y++) {
 	}
 }
 
+%seen = ();
+
 sub find_trails
 {
 	my ($x,$y,$curr) = @_;
+	if ($seen{"$x,$y"}) { return $seen{"$x,$y"}; }
 
-	if ($curr == 9) {
+	if ($curr == '9') {
 		return 1;
 	}
 
@@ -77,6 +82,7 @@ sub find_trails
 			$tops += find_trails($nx,$ny,$c);
 		}
 	}
+	$seen{"$x,$y"} = $tops;
 	return $tops;
 }
 

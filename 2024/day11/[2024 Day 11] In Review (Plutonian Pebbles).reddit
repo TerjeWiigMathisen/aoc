@@ -1,0 +1,66 @@
+[2024 Day 11] In Review (Plutonian Pebbles)
+
+The ancient civilization on Pluto was known for its ability to manipulate spacetime, and while The Historians explore their infinite corridors, you've noticed a strange set of physics-defying stones.
+
+At first glance, they seem like normal stones: they're arranged in a perfectly straight line, and each stone has a number engraved on it.
+
+The strange part is that every time you blink, the stones change.
+
+This was both very easy, and quite hard:
+
+The logic is somewhat reminiscent of Game of Life, except everything happens in a straight line.
+
+For Part1 we're asked to simulate 25 blinks (generations), this is just small enough that brute force works, and I was able to solve it in a few minutes.
+At the end of this round I had 233K stones, but with the slow but still exponential growth in the number of stones I knew that Part2, which asked for 75 generations, would make this approach infeasible.
+
+After a little bit of pondering I realized that every stone with a given face value (engraved number), would always produce the same results in the following generations, so instead of simulating each stone I could just count them and simulate the group.
+
+I used a hashmap to allocate a sequence index to each number as it first turned up, each stone was therefore a small struct:
+
+struct Stone {
+    stonevalue:u64,
+    left:u32,
+    right:u32,
+}
+
+I gathered these stones into a StoneList which had the stones themselves, a vector of the corresponding counts, and the HashMap converting stone numbers to a 1-based index, reserving 0 as a none marker.
+
+struct StoneList {
+    stones:Vec<Stone>,
+    stone_cnt:Vec<u64>,
+    stone_index:HashMap<u64, u32>,
+}
+
+The Perl version uses 94 ms on Surface while Rust reduces this to 1.1 ms, so about 80 x faster.
+I used the Perl version to search for a faster but still good enough hash to handle the 3758 different stone values my input generates, but the Rust code still uses the default hasher. I suspect that a significant part of the speed difference (about 3 x) between my code and Ape lies somewhere in this region, since my core algorithm seems sound?
+
+    fn update(&mut self, ix:usize ) -> (u64,u32,u32){
+        let cnt = self.stone_cnt[ix];
+        let mut left = self.stones[ix].left;
+        let mut right = self.stones[ix].right;
+        if left == 0 {  // Only true the first time a new stone number is processed
+            let value = self.stones[ix].stonevalue;
+            let stonestr = format!("{}", value);
+            let l = stonestr.len();
+            if l & 1 == 0 {  // Even number of digits?
+                let half = l>>1;
+                let left_half = &stonestr[0..half];
+                let right_half = &stonestr[half..];
+                left = left_half.parse::<u32>().unwrap();
+                right = right_half.parse::<u32>().unwrap();
+                left = self.get_idx(left as u64);
+                right = self.get_idx(right as u64);
+                self.stones[ix].left = left;
+                self.stones[ix].right = right;
+            } else if value == 0 {
+                left = self.get_idx(1);
+                self.stones[ix].left = left;
+            } else {
+                left = self.get_idx(value*2024);
+                self.stones[ix].left = left;
+            }
+        }
+        (cnt,left,right)
+    }
+
+All in all, one of the more interesting puzzles this year.
