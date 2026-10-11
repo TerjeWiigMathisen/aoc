@@ -1,7 +1,6 @@
 // 844 us Acer
-// 1080 us Surface
+// 752 us Surface
 
-//use hashbrown::DefaultHashBuilder;
 //use std::collections::HashMap;
 use rustc_hash::FxHashMap;
 
@@ -51,25 +50,32 @@ impl StoneList {
         let mut right = self.stones[ix].right;
         if left == 0 {
             let value = self.stones[ix].stonevalue;
-            let stonestr = format!("{}", value);
-            let l = stonestr.len();
-            if l & 1 == 0 {
-                let half = l>>1;
-                let left_half = &stonestr[0..half];
-                let right_half = &stonestr[half..];
-                left = left_half.parse::<u32>().unwrap();
-                right = right_half.parse::<u32>().unwrap();
-                left = self.get_idx(left as u64);
-//                assert!(left > 0);
-                right = self.get_idx(right as u64);
-//                assert!(right > 0);
-                self.stones[ix].left = left;
-                self.stones[ix].right = right;
-            } else { //if value == 0 {
-                left = if value == 0 {1} else { self.get_idx(value*2024) };
-//                assert!(left > 0);
-                self.stones[ix].left = left;
-//                assert!(self.stones[ix].right == 0);
+            if value == 0 {
+                left = 1;
+                self.stones[ix].left = 1;
+            }
+            else {
+                // let stonestr = format!("{}", value);
+                // let l = stonestr.len();
+                let mut pairs = 100;
+                let mut divisor = 10;
+                while pairs <= value {
+                    pairs *= 100;
+                    divisor *= 10;
+                }
+                if value*10 >= pairs { // Even number of digits
+                    let l = value / divisor;
+                    let r = value % divisor;
+                    left = self.get_idx(l);
+                    right = self.get_idx(r);
+                    self.stones[ix].left = left;
+                    self.stones[ix].right = right;
+                } else {
+                    left = self.get_idx(value*2024);
+    //                assert!(left > 0);
+                    self.stones[ix].left = left;
+    //                assert!(self.stones[ix].right == 0);
+                }
             }
         }
         (cnt,left,right)
