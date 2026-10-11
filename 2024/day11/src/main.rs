@@ -1,4 +1,4 @@
-// 844 us Acer
+// 448 us Acer
 // 752 us Surface
 
 //use std::collections::HashMap;
