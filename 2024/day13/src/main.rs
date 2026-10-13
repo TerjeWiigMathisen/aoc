@@ -1,4 +1,4 @@
-// Best runtime 57.0 us (Vec of puzzles)
+// Best runtime 39.5 us (Vec of puzzles)
 // Rewrite as a struct of vectors, making vectorization easier.
 // New runtime 6205 ns
 
