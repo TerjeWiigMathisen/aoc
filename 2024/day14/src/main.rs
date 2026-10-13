@@ -18,13 +18,15 @@ impl Point {
     }
 }
 
-static LR: Lazy<Point> = Lazy::new(|| Point::new(101, 103));
+const WIDTH:i32 = 101;
+const HEIGHT:i32 = 103;
+static LR: Lazy<Point> = Lazy::new(|| Point::new(WIDTH, HEIGHT));
 
 struct Robot {
-    x:i32,
-    y:i32,
-    vx:i32,
-    vy:i32,
+    x:u32,
+    y:u32,
+    vx:u32,
+    vy:u32,
 }
 impl Robot {
     /*
@@ -33,18 +35,18 @@ impl Robot {
     }
     */
 
-    fn newpos(&mut self, iter:i32) -> (i32, i32)
+    fn newpos(&mut self, iter:u32) -> (u32, u32)
     {
-        let x = (self.x + self.vx * iter) % LR.x;
-        let y = (self.y + self.vy * iter) % LR.y;
+        let x = (self.x + self.vx * iter) % WIDTH;
+        let y = (self.y + self.vy * iter) % HEIGHT;
         (x,y)
     }
-    fn nextpos(&mut self) -> (i32, i32)
+    fn nextpos(&mut self) -> (u32, u32)
     {
         self.x += self.vx;
-        if self.x >= LR.x {self.x -= LR.x;}
+        if self.x >= WIDTH {self.x -= WIDTH;}
         self.y += self.vy;
-        if self.y >= LR.y {self.y -= LR.y;}
+        if self.y >= HEIGHT {self.y -= HEIGHT;}
         (self.x,self.y)
     }
 }
@@ -53,18 +55,18 @@ fn process2(inp:String) -> (i32, i32)
 {
     let mut robots:Vec<Robot> = Vec::new();
 
-    let lp = parser!("p=" x:i32 "," y:i32 " v=" vx:i32 "," vy:i32 => Robot {x, y, vx, vy });
+    let lp = parser!("p=" x:u32 "," y:u32 " v=" vx:i32 "," vy:i32 => Robot {x, y, vx, vy });
     for line in inp.lines() {
         let mut r = lp.parse(line).unwrap();
         /* Make all delta values positive, this simplifies and speeds up the % operations */
-        if r.vx < 0 {r.vx += LR.x;}
-        if r.vy < 0 {r.vy += LR.y;}
+        if r.vx < 0 {r.vx += WIDTH;}
+        if r.vy < 0 {r.vy += HEIGHT;}
         robots.push(r);
     }
     // part1
     let mut quad:Vec<i32> = vec![0, 0, 0, 0];
-    let x2 = LR.x/2;
-    let y2 = LR.y/2;
+    let x2 = WIDTH/2;
+    let y2 = HEIGHT/2;
     for r in &mut robots {
         let (x, y) = r.newpos(100);
         let xq = if x < x2 {0} else if x > x2 {1} else {continue};
