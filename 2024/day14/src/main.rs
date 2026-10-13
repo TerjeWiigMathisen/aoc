@@ -1,4 +1,4 @@
-// 67.5 ms
+// Acer 2540 us
 
 use std::env::args;
 use once_cell::sync::Lazy; // 1.3.1
