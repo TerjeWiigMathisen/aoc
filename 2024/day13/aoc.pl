@@ -56,7 +56,7 @@ sub solve2
 		printf("Input parsing error:\n%s\n", $puzzle);
 		return (0,0);
 	}
-	my $p1 = solve($ax,$ay,$bx,$by,$px,$py,0);
+	my $p1 = solve($ax,$ay,$bx,$by,$px,$py);
 	my $p2 = solve($ax,$ay,$bx,$by,$px+10000000000000,$py+10000000000000);
 	return ($p1,$p2);
 }
