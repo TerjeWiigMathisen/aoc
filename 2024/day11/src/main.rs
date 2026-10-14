@@ -11,48 +11,59 @@ use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
-struct Stone {
-    stonevalue:u64,
-    left:u32,
-    right:u32,
-}
-
 struct StoneList {
-    stones:Vec<Stone>,
+    stones:Vec<u64>,
     stone_cnt:Vec<u64>,
-    stone_index:FxHashMap<u64, u32>,
+    left:Vec<u16>,
+    right:Vec<u16>,
+    stone_index:FxHashMap<u64, u16>,
 }
 
 impl StoneList {
     fn new() -> StoneList {
-        StoneList { stones:Vec::with_capacity(5000), stone_cnt:Vec::with_capacity(5000), stone_index:FxHashMap::default() }
+        let mut sl = StoneList { stones:Vec::with_capacity(4000), stone_cnt:Vec::with_capacity(4000), 
+            left:Vec::with_capacity(4000), right:Vec::with_capacity(4000),
+            stone_index:FxHashMap::default() };
+        let mut i = 0;
+        sl.stones.push(u64::MAX);
+        for _ in 0..255 {
+            sl.stones.push(i);
+            i += 1;
+        }
+        sl.left = vec![0;sl.stones.len()];
+        sl.right = vec![0;sl.stones.len()];
+        sl.stone_cnt = vec![0;sl.stones.len()];
+        sl
     }
 
 //    #[inline(always)]
-    fn get_idx(&mut self, value:u64) -> u32 {
+    fn get_idx(&mut self, value:u64) -> u16 {
+        if value < 255 {return value as u16;}
         let pidx = self.stone_index.get(&value);
         if pidx.is_some() {
             let idx = *pidx.unwrap();
             return idx
         }
 
-        let idx = self.stones.len() as u32;
-        self.stones.push(Stone{stonevalue:value,left:0,right:0});
+        let idx = self.stones.len() as u16;
+        self.stones.push(value);
+        self.left.push(0);
+        self.right.push(0);
         self.stone_cnt.push(0);
         self.stone_index.insert(value, idx);
 //        assert!(self.stones.len() == self.stone_cnt.len() && self.stones.len() == self.stone_index.len());
         idx
     }
 
-    fn update(&mut self, ix:usize ) -> (u64,u32,u32){
+    fn update(&mut self, ix:usize ) -> (u64,u16,u16){
         let cnt = self.stone_cnt[ix];
-        let mut left = self.stones[ix].left;
-        let mut right = self.stones[ix].right;
+        let mut left = self.left[ix];
+        let mut right = self.left[ix];
         if left == 0 {
-            let value = self.stones[ix].stonevalue;
+            let value = self.stones[ix];
             if value == 0 {
                 left = 1;
-                self.stones[ix].left = 1;
+                self.left[ix] = 1;
             }
             else {
                 // let stonestr = format!("{}", value);
@@ -68,12 +79,12 @@ impl StoneList {
                     let r = value % divisor;
                     left = self.get_idx(l);
                     right = self.get_idx(r);
-                    self.stones[ix].left = left;
-                    self.stones[ix].right = right;
+                    self.left[ix] = left;
+                    self.right[ix] = right;
                 } else {
                     left = self.get_idx(value*2024);
     //                assert!(left > 0);
-                    self.stones[ix].left = left;
+                    self.left[ix] = left;
     //                assert!(self.stones[ix].right == 0);
                 }
             }
@@ -86,8 +97,7 @@ fn process(inp:&str) -> (u64,u64)
 {
     let nums = inp.split_ascii_whitespace().map(|x| x.parse::<u64>().unwrap()).collect::<Vec<u64>>();
     let mut sl = StoneList::new();
-    sl.get_idx(u64::MAX); // Fill up the zero slot!
-    sl.get_idx(1); // Force 1 into slot 1
+//    sl.get_idx(u64::MAX); // Fill up the zero slot!
     for n in nums.iter() {
         let idx = sl.get_idx(*n);
         sl.stone_cnt[idx as usize] = 1;
@@ -113,7 +123,6 @@ fn process(inp:&str) -> (u64,u64)
             newcnt[left as usize] += cnt;
             // if right > 0 { newcnt[right as usize] += cnt; }
             newcnt[right as usize] += cnt;
-            
         }
         
 //        println!("generation {generation}: {:?}\nslen={}, alive={alive}, total={part2}, growth={growth}", newcnt, sl.stone_cnt.len());
