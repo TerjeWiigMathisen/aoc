@@ -9,17 +9,6 @@ use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
-struct Point {
-    x:u32,
-    y:u32,
-}
-
-impl Point {
-    fn new(x: u32, y: u32) -> Point {
-        Point {x:x, y:y}
-    }
-}
-
 const WIDTH:u32 = 101;
 const HEIGHT:u32 = 103;
 
@@ -70,21 +59,26 @@ fn process2(inp:&str) -> (i32, i32)
         robots.push(Robot{x, y, vx:vx as u32, vy:vy as u32});
     }
 
+    // part1
     let mut quad:Vec<i32> = vec![0, 0, 0, 0];
     let x2 = WIDTH/2;
     let y2 = HEIGHT/2;
+    for r in &mut robots {
+        let (x,y) = r.newpos(100);
+        let xq = if x < x2 {0} else if x > x2 {1} else {continue};
+        let yq = if y < y2 {0} else if y > y2 {2} else {continue};
+        let idx = (xq + yq) as usize;
+        quad[idx] += 1;
+    }
 
     // part2
     let mut xvar_min_index = 0;
-    let mut xvarmax = i64::MAX;
+    let mut xvarmin = i64::MAX;
     let mut yvar_min_index = 0;
-    let mut yvarmax = i64::MAX;
+    let mut yvarmin = i64::MAX;
     for i in 1..=103 {
-        let mut cnt = 0;
-        let mut xdelta:i64 = 0;
         let mut xmean:i64 = 0;
         let mut x_sum_squared:i64 = 0;
-        let mut ydelta:i64 = 0;
         let mut ymean:i64 = 0;
         let mut y_sum_squared:i64 = 0;
 
@@ -92,33 +86,32 @@ fn process2(inp:&str) -> (i32, i32)
             let (x,y) = r.nextpos();
             xmean += x as i64;
             ymean += y as i64;
-            if i == 100 {
-                let xq = if x < x2 {0} else if x > x2 {1} else {continue};
-                let yq = if y < y2 {0} else if y > y2 {2} else {continue};
-                let idx = (xq + yq) as usize;
-                quad[idx] += 1;
-            }
         }
         xmean /= robots.len() as i64;
         ymean /= robots.len() as i64;
         for r in &robots {
             let (x,y) = (r.x, r.y);
-            xdelta = x as i64 - xmean;
-            ydelta = y as i64 - ymean;
+            let xdelta = x as i64 - xmean;
+            let ydelta = y as i64 - ymean;
             x_sum_squared += xdelta * xdelta;
             y_sum_squared += ydelta * ydelta;
         }
-        if x_sum_squared < xvarmax {
-            xvarmax = x_sum_squared; xvar_min_index = i;
-//            println!("i={} xvarmax={}", i, xvarmax);
+        if x_sum_squared < xvarmin {
+            xvarmin = x_sum_squared; xvar_min_index = i;
+//            println!("i={} xvarmin={}", i, xvarmin);
         }
-        if y_sum_squared < yvarmax {
-            yvarmax = y_sum_squared; yvar_min_index = i;
-//            println!("i={} yvarmax={}", i, yvarmax);
+        if y_sum_squared < yvarmin {
+            yvarmin = y_sum_squared; yvar_min_index = i;
+//            println!("i={} yvarmin={}", i, yvarmin);
         }
         // if (i == 43 || i == 68) {
         //     println!("i={} xvar_min_index={} yvar_min_index={}", i, xvar_min_index, yvar_min_index);
         // }
+        if xvarmin * 3 < x_sum_squared * 2 && yvarmin * 3 < y_sum_squared * 2 {
+            // println!("i={} xvar_min_index={} yvar_min_index={} x_sum_squared={} y_sum_squared={}", 
+            //     i, xvar_min_index, yvar_min_index, x_sum_squared, y_sum_squared);
+            break;
+        } // if variance is increasing more than 1.5 x the smallest, we are done
     }
     loop {
         if xvar_min_index == yvar_min_index {break;} 
