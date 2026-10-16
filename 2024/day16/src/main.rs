@@ -1,3 +1,5 @@
+// Surface 787 us
+
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
 //use hashbrown::hash_map::DefaultHashBuilder;
@@ -181,7 +183,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(input.clone()); }); bench_result.print_stats();
 
     devtime.start();
     let (part1, part2) = process(input.clone());
