@@ -1,4 +1,4 @@
-// Surface 787 us
+// Surface 773 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -23,7 +23,7 @@ struct Map {
 }
 
 impl Map {
-    fn new(width:i32, height:i32, inp:String) -> Map {
+    fn new(width:i32, height:i32, inp:&str) -> Map {
         Map {
             width: width,
             height: height,
@@ -68,7 +68,7 @@ fn unpack(p:u64) -> (i32, u8, i32) {
     (pos, dir, cost)
 }
 
-fn process(inp:String) -> (i32, i32)
+fn process(inp:&str) -> (i32, i32)
 {
     let mut part1 = 0;
     let mut part2 = 0;
@@ -183,10 +183,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
