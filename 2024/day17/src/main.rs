@@ -1,5 +1,4 @@
-// 9.7 us with full emulation of 1K lookup table
-// 11.6 us including parsing of input
+// Acer 9096 ns
 
 use std::fs;
 use devtimer::DevTime;
@@ -105,7 +104,7 @@ fn search(prog:[u8;16], lookup:[u8;1024]) -> usize
     mina
 }
 
-fn searchtop(prog:[u8;16], lookup:[u8;1024], dig:usize, rega:usize) -> usize
+fn _searchtop(prog:[u8;16], lookup:[u8;1024], dig:usize, rega:usize) -> usize
 {
     let r3 = rega << 3;
     let top7 = r3 & 0x3f8;
@@ -114,14 +113,14 @@ fn searchtop(prog:[u8;16], lookup:[u8;1024], dig:usize, rega:usize) -> usize
         if lookup[b] == p {
             let r = r3 | b;
             if dig == 0 {return r;}
-            let res = searchtop(prog, lookup, dig-1, r);
+            let res = _searchtop(prog, lookup, dig-1, r);
             if res < usize::MAX { return res;}
         }
     }
     usize::MAX
 }
 
-fn process(inp:String) -> (String, usize)
+fn process(inp:&str) -> (String, usize)
 {
     let byt = inp.as_bytes();
     let mut p = 0;
@@ -158,6 +157,13 @@ fn process(inp:String) -> (String, usize)
     (part1, part2)
 }
 
+pub fn p1k(inp:&str)
+{
+    for _ in 0..1000 {
+        let (_p1,_p2) = process(inp);
+    }
+}
+
 fn main() {
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
@@ -165,10 +171,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { p1k(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
