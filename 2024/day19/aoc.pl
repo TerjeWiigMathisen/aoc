@@ -36,7 +36,7 @@ sub ways
 		my $t = substr($need,0,$i);
 		if (defined($pat{$t})) {
 			my $rem = substr($need,$i);
-			$ways += ways($rem);
+			$ways += $rem ? ways($rem) : 1;
 		}
 	}
 	$tail{$need} = $ways;
@@ -44,7 +44,7 @@ sub ways
 }
 
 foreach (split(/\n/,$towels)) {
-	%tail = ('',1);
+	%tail = ();
 	my $w = ways($_);
 	$part1 += $w > 0;
 	$part2 += $w;
