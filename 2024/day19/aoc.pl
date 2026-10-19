@@ -43,13 +43,18 @@ sub ways
 	return $ways;
 }
 
+my $maxtow = 0;
 foreach (split(/\n/,$towels)) {
 	%tail = ();
 	my $w = ways($_);
+#	printf("%s -> %d\n", $_, $w);
 	$part1 += $w > 0;
 	$part2 += $w;
+	$maxtow = length($_) if (length($_) > $maxtow);
 }
 
 my $used = time - $start;
 printf("%s\n%s\n", $part1, $part2);
 printf("Used %5.3fms\n",$used*1000);
+printf("maxpatlen = $maxpatlen\n");
+printf("maxtow = $maxtow\n");
