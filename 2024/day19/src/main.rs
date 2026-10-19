@@ -1,7 +1,8 @@
 // Acer 5976 us
+// Acer 1958 us with tail end counting
 
 //use std::collections::VecDeque;
-use std::collections::HashMap;
+//use std::collections::HashMap;
 use std::collections::HashSet;
 //use std::io;
 //use std::env;
@@ -14,34 +15,31 @@ use devtimer::run_benchmark;
 struct Patterns<'a> {
     patterns:HashSet<&'a str>,
     maxpathlen:usize,
-    tails:Vec<usize>,
 }
 
-fn ways<'a>(need:&'a str, pat:&mut Patterns<'a>) -> usize
+fn ways<'a>(need:&'a str, pat:&Patterns<'a>) -> usize
 {
     let nlen = need.len();
-    if pat.tails[nlen] != usize::MAX  { return pat.tails[nlen];}
-
-	let mut w = 0;
-    let len = if nlen < pat.maxpathlen {nlen} else {pat.maxpathlen};
-	for i in 1..=len {
-		let t = &need[0..i];
-		if pat.patterns.contains(t) {
-            if i == nlen { w += 1; }
-            else {
-    			let rem = &need[i..];
-	    		w += ways(&rem, pat);
+    let mut tails:Vec<usize> = vec![0;nlen+1];
+    tails[0] = 1;
+	for i in 1..=nlen {
+    	let mut w = 0;
+        let slice_start = nlen-i;
+        for slice_end in slice_start+1..=nlen {
+            if slice_end - slice_start > pat.maxpathlen {break;}
+            let t = &need[slice_start..slice_end];
+            if pat.patterns.contains(t) {
+                w += tails[nlen-slice_end];
             }
-		}
+        }
+    	tails[i] = w;
 	}
-//    println!("{need} -> {w}");
-	pat.tails[nlen] = w;
-	w
+	tails[nlen]
 }
 
 fn process(inp:&str) -> (usize, usize)
 {
-    let mut pat = Patterns{patterns:HashSet::new(), maxpathlen:0, tails:Vec::with_capacity(64)};
+    let mut pat = Patterns{patterns:HashSet::new(), maxpathlen:0}; //, tails:Vec::with_capacity(64)};
     let (patterns, targets) = inp.split_once("\n\n").unwrap();
     let pats = patterns.split(", ");
     for p in pats {
@@ -51,10 +49,7 @@ fn process(inp:&str) -> (usize, usize)
     let mut part1 = 0;
     let mut part2 = 0;
     for target in targets.lines() {
-        pat.tails = vec![usize::MAX;64];
-        pat.tails[0] = 1;
-        let w = ways(target, &mut pat);
-//        println!("{target} -> {w}");
+        let w = ways(target, &pat);
         part1 += (w > 0) as usize;
         part2 += w;
     }
@@ -62,7 +57,7 @@ fn process(inp:&str) -> (usize, usize)
 }
 
 fn main() {
-   let fname = "input.txt"; // instead of args[1]
+    let fname = "input.txt"; // instead of args[1]
 //    let fname = "test.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
     if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
