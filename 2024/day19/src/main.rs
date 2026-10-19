@@ -12,19 +12,22 @@ use devtimer::DevTime;
 use devtimer::run_benchmark;
 //use substring::Substring;
 
-struct Patterns<'a> {
-    patterns:HashSet<&'a str>,
+struct Patterns {
+    patterns:Vec<&str>,
+    pstart:[u16;32],
     maxpathlen:usize,
 }
 
-fn ways<'a>(need:&'a str, pat:&Patterns<'a>) -> usize
+fn ways(need:&str, pat:&Patterns) -> usize
 {
-    let nlen = need.len();
+    let needb = need.as_bytes();
+    let nlen = needb.len();
     let mut tails:Vec<usize> = vec![0;nlen+1];
     tails[0] = 1;
 	for i in 1..=nlen {
     	let mut w = 0;
         let slice_start = nlen-i;
+        let mut idx = pat.pstart[(needb[slice_start] & 31) as usize];
         for slice_end in slice_start+1..=nlen {
             if slice_end - slice_start > pat.maxpathlen {break;}
             let t = &need[slice_start..slice_end];
