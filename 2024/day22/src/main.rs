@@ -1,3 +1,6 @@
+// Acer 3644 us seen:bool
+// Acer 2435 us seen:bitmap
+
 //use std::collections::VecDeque;
 // use std::collections::{HashMap, HashSet};
 //use std::io;
@@ -47,14 +50,16 @@ fn inner(nums:Vec<u32>) -> (i64,Vec<u16>)
         let mut cp = secret % 10;
         let mut d1 = (cp+9-bp)*19;
 
-        let mut seen = [false;19*19*19*19];
+        let mut seen:[u64;(19*19*19*19+63)>>6] = [0;(19*19*19*19+63)>>6];
         for _ in 4..=2000 {
             secret = iterate(secret);
             sp = secret % 10;
             let d0 = sp+9-cp;
             let index = (d3 + d2 + d1 + d0) as usize;
-            if !seen[index] {
-                seen[index] = true;
+            let word = index >> 6;
+            let bit = 1 << (index & 63);
+            if seen[word] & bit == 0 {
+                seen[word] |= bit;
                 sum[index] += sp as u16;
             }
             (d1,d2,d3) = (d0*19,d1*19,d2*19);     
@@ -66,7 +71,7 @@ fn inner(nums:Vec<u32>) -> (i64,Vec<u16>)
     (part1, sum)
 }
 
-fn process(inp:String) -> (i64,i64)
+fn process(inp:&str) -> (i64,i64)
 {
     let mut part1= 0;
     let mut sum:Vec<u16> = vec![0;19*19*19*19];
@@ -117,10 +122,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
