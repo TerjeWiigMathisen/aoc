@@ -1,3 +1,5 @@
+// Acer 4462 us
+
 use std::collections::VecDeque;
 //use std::collections::HashMap;
 //use std::io;
@@ -41,30 +43,26 @@ impl Board {
 
     fn bfs(&self, sx:i32,sy:i32,ex:i32,ey:i32) -> Vec<u16> {
         let mut queue = VecDeque::new();
-        let mut visited = vec![false; (self.stride * (self.height +self. yguard + self.yguard)) as usize];
         let mut dist:Vec<u16> = vec![u16::MAX; (self.stride * (self.height + self.yguard + self.yguard)) as usize];
         let start = self.xy2pos(sx, sy);
         let end = self.xy2pos(ex, ey);
         dist[start] = 1;
         queue.push_back(start);
-        visited[start] = true;
         while !queue.is_empty() {
             let p = queue.pop_front().unwrap();
-            let di = dist[p];
             if p == end { continue;}
+            let di = dist[p] + 1;
             for np in [p as i32 - self.stride, p as i32 - 1, p as i32 + 1, p as i32 + self.stride].iter() {
                 let n = *np as usize;
-                if visited[n] || self.board[n] == b'#' {
+                if dist[n] <= di || self.board[n] == b'#' {
                     continue;
                 }
-                visited[n] = true;
-                dist[n] = di + 1;
+                dist[n] = di;
                 queue.push_back(n);
             }
         }
         dist
     }
-
 }
 
 fn process(inp:String) -> (i32, i32)
@@ -73,7 +71,6 @@ fn process(inp:String) -> (i32, i32)
     let mut part2 = 0;
     let byt = inp.as_bytes();
     let mut width = 0;
-    let mut height = 0;
     let mut x = 0;
     let mut y = 0;
     let mut sx = 0;
@@ -98,7 +95,7 @@ fn process(inp:String) -> (i32, i32)
             x += 1;
         }
     }
-    if byt[byt.len()-1] == b'\n' { height = y;} else {height = y+1;}
+    let height = if byt[byt.len()-1] == b'\n' { y} else { y+1};
 
     let mut board = Board::new(width, height);
     (x,y) = (0,0);
