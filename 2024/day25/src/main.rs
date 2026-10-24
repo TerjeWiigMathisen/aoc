@@ -1,4 +1,4 @@
-// Fastest Acer 2840 ns
+// Fastest Acer 2142 ns
 
 use std::fs;
 use devtimer::DevTime;
