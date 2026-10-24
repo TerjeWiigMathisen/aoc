@@ -8,4 +8,3 @@ rustflags = ["-C", "target-cpu=native"]
 
 [dependencies]
 devtimer = "4.0.1"
-#devtimer = "4.0.1"

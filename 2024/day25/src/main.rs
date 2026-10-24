@@ -1,10 +1,10 @@
-// Fastest 5.8 us
+// Fastest Acer 2840 ns
 
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
-fn _process(inp:String) -> i32
+fn _process(inp:&str) -> i32
 {
     let mut locks:Vec<u32> = Vec::new();
     let mut keys:Vec<u32> = Vec::new();
@@ -44,7 +44,7 @@ fn _process(inp:String) -> i32
     part1
 }
 
-#[target_feature(enable = "avx")]
+#[target_feature(enable = "avx2")]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 unsafe fn _parse_kl_sse41(src: &[u8]) ->u32 {
     #[cfg(target_arch = "x86")]
@@ -71,15 +71,15 @@ fn parse_kl(inp:&[u8]) -> u32
     bits
 }
 
-pub fn _processu8(inp:String) -> i32
+pub fn _processu8(inp:&str) -> i32
 {
     let mut locks:Vec<u32> = Vec::new();
     let mut keys:Vec<u32> = Vec::new();
     let bytes = inp.as_bytes();
-    let mut bend = 6*6;
-    while bend < bytes.len() {
-        let bstart = bend - 32;
-        let bits = parse_kl(bytes[bstart..bend].as_ref());
+    let mut last_kl_line = 6*6;
+    while last_kl_line < bytes.len() {
+        let bstart = last_kl_line - 32;
+        let bits = parse_kl(bytes[bstart..last_kl_line].as_ref());
     
         if bits & 1 == 1 {
             locks.push(bits);
@@ -87,7 +87,7 @@ pub fn _processu8(inp:String) -> i32
         else {
             keys.push(bits);
         }
-        bend += 6*7+1;
+        last_kl_line += 6*7+1;
     }
 
     let mut part1 = 0;
@@ -103,17 +103,18 @@ pub fn _processu8(inp:String) -> i32
     part1
 }
 
-pub fn process_single(inp:String) -> i32
+pub fn process_single(inp:&str) -> i32
 {
     let bytes = inp.as_bytes();
     let mut keylocks:Vec<u32> = vec![0;(bytes.len()+36)/43];
     let mut ki = 0;
     let mut li = keylocks.len();
-    let mut bend = 6*6;
-    while bend < bytes.len() {
-        let bstart = bend - 32;
+    let mut last_kl_line = 6*6;
+    let mut bits;
+    while last_kl_line < bytes.len() {
+        let bstart = last_kl_line - 32;
     
-        let bits = parse_kl(bytes[bstart..bend].as_ref());
+        bits = parse_kl(bytes[bstart..last_kl_line].as_ref());
         if bits & 1 == 1 {
             li -= 1;
             keylocks[li] = bits;
@@ -122,7 +123,7 @@ pub fn process_single(inp:String) -> i32
             keylocks[ki] = bits;
             ki += 1;
         }
-        bend += 6*7+1;
+        last_kl_line += 6*7+1;
     }
     assert!(ki == li);
 
@@ -140,18 +141,18 @@ pub fn process_single(inp:String) -> i32
     part1
 }
 
-pub fn process_four(inp:String) -> i32
+pub fn process_four(inp:&str) -> i32
 {
     let bytes = inp.as_bytes();
     let locks_plus_keys = (bytes.len()+36)/43 + 7 & !7;
     let mut keylocks:Vec<u32> = vec![u32::MAX;locks_plus_keys];
     let mut ki = 0;
     let mut li = keylocks.len();
-    let mut bend = 6*6;
-    while bend < bytes.len() {
-        let bstart = bend - 32;
+    let mut last_kl_line = 6*6;
+    while last_kl_line < bytes.len() {
+        let bstart = last_kl_line - 32;
     
-        let bits = parse_kl(bytes[bstart..bend].as_ref());
+        let bits = parse_kl(bytes[bstart..last_kl_line].as_ref());
         if bits & 1 == 1 {
             li -= 1;
             keylocks[li] = bits;
@@ -160,7 +161,7 @@ pub fn process_four(inp:String) -> i32
             keylocks[ki] = bits;
             ki += 1;
         }
-        bend += 6*7+1;
+        last_kl_line += 6*7+1;
     }
     while (li & 3) != 0 {
         //ki += 1;
@@ -193,18 +194,18 @@ pub fn process_four(inp:String) -> i32
     part1
 }
 
-pub fn process_eight(inp:String) -> i32
+pub fn process_eight(inp:&str) -> i32
 {
     let bytes = inp.as_bytes();
-    let locks_plus_keys = (bytes.len()+36)/43 + 15 & !15;
+    let locks_plus_keys = ((bytes.len()+36)/43 + 15) & !15;
     let mut keylocks:Vec<u32> = vec![u32::MAX;locks_plus_keys];
     let mut ki = 0;
     let mut li = keylocks.len();
-    let mut bend = 6*6;
-    while bend < bytes.len() {
-        let bstart = bend - 32;
+    let mut last_kl_line = 6*6;
+    while last_kl_line < bytes.len() {
+        let bstart = last_kl_line - 32;
     
-        let bits = parse_kl(bytes[bstart..bend].as_ref());
+        let bits = parse_kl(bytes[bstart..last_kl_line].as_ref());
         if bits & 1 == 1 {
             li -= 1;
             keylocks[li] = bits;
@@ -213,14 +214,14 @@ pub fn process_eight(inp:String) -> i32
             keylocks[ki] = bits;
             ki += 1;
         }
-        bend += 6*7+1;
+        last_kl_line += 6*7+1;
     }
-    while (li & 3) != 0 {
+    while ((keylocks.len()-li) & 7) != 0 {
         //ki += 1;
         li -= 1;
     }
     //assert!(ki == li);
-    //assert!((li & 15) == 0);
+    //assert!((li & 7) == 0);
 
     let mut part1 = 0;
     let mut part2 = 0;
@@ -231,7 +232,7 @@ pub fn process_eight(inp:String) -> i32
     let mut part7 = 0;
     let mut part8 = 0;
     let mut l = li;
-    while l < 502 {
+    while l < keylocks.len() {
         let lock1 = keylocks[l];
         let lock2 = keylocks[l+1];
         let lock3 = keylocks[l+2];
@@ -259,11 +260,11 @@ pub fn process_eight(inp:String) -> i32
     part1
 }
 
-pub fn process_1000(inp:String) -> i32
+pub fn process_1000(inp:&str) -> i32
 {
     let mut p = 0;
     for _ in 0..1000 {
-        p =process_eight(inp.clone());
+        p =process_eight(inp);
     }
     p
 }
@@ -275,10 +276,10 @@ pub fn main() {
     let mut devtime = DevTime::new_simple();
 
     println!("Running 1000 iterations inside each timing test");
-    let bench_result = run_benchmark(100, |_| { process_1000(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(100, |_| { process_1000(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let part1 = process_four(input.clone());
+    let part1 = process_eight(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
