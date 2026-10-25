@@ -1,3 +1,5 @@
+// Surface 8941 us
+
 use std::collections::VecDeque;
 //use std::collections::HashMap;
 //use std::io;
@@ -10,15 +12,15 @@ use devtimer::run_benchmark;
 
 struct Board {
     board: Vec<u8>,
-    width: i32,
-    height: i32,
-    stride: i32,
-    xguard:i32,
-    yguard:i32,
+    width: usize,
+    height: usize,
+    stride: usize,
+    xguard:usize,
+    yguard:usize,
 }
 
 impl Board {
-    fn new(width:i32 , height:i32) -> Self {
+    fn new(width:usize , height:usize) -> Self {
         let xguard = 19;
         let yguard = 19;
         let stride = width + xguard;
@@ -26,7 +28,7 @@ impl Board {
         Self { board, width, height, stride, xguard, yguard }
     }
 
-    fn xy2pos(&self, x: i32, y: i32) -> usize {
+    fn xy2pos(&self, x: usize, y: usize) -> usize {
         ((y+self.yguard) * self.stride + x + self.xguard) as usize
     }
 
@@ -34,31 +36,29 @@ impl Board {
     //    self.board[self.xy2pos(x, y)]
     //}
 
-    fn set(&mut self, x: i32, y: i32, val: u8) {
+    fn set(&mut self, x: usize, y: usize, val: u8) {
         let p = self.xy2pos(x, y);
         self.board[p] = val;
     }
 
-    fn bfs(&self, sx:i32,sy:i32,ex:i32,ey:i32) -> Vec<u16> {
+    fn bfs(&self, sx:usize,sy:usize,ex:usize,ey:usize) -> Vec<u16> {
         let mut queue = VecDeque::new();
-        let mut visited = vec![false; (self.stride * (self.height +self. yguard + self.yguard)) as usize];
         let mut dist:Vec<u16> = vec![u16::MAX; (self.stride * (self.height + self.yguard + self.yguard)) as usize];
         let start = self.xy2pos(sx, sy);
         let end = self.xy2pos(ex, ey);
         dist[start] = 1;
         queue.push_back(start);
-        visited[start] = true;
+//        visited[start] = true;
         while !queue.is_empty() {
             let p = queue.pop_front().unwrap();
-            let di = dist[p];
+            let di = dist[p] + 1;
             if p == end { continue;}
-            for np in [p as i32 - self.stride, p as i32 - 1, p as i32 + 1, p as i32 + self.stride].iter() {
+            for np in [p as usize - self.stride, p as usize - 1, p as usize + 1, p as usize + self.stride].iter() {
                 let n = *np as usize;
-                if visited[n] || self.board[n] == b'#' {
+                if dist[n] <= di || self.board[n] == b'#' {
                     continue;
                 }
-                visited[n] = true;
-                dist[n] = di + 1;
+                dist[n] = di;
                 queue.push_back(n);
             }
         }
@@ -67,7 +67,7 @@ impl Board {
 
 }
 
-fn process(inp:String) -> (i32, i32)
+fn process(inp:&str) -> (i32, i32)
 {
     let mut part1 = 0;
     let mut part2 = 0;
@@ -83,10 +83,21 @@ fn process(inp:String) -> (i32, i32)
     for i in 0..byt.len() {
         if byt[i] == b'\n' {
             width = x;
+            height = (byt.len()+2) / (width+1);
+            break;
+        }
+        x += 1;
+    }
+
+    let mut board = Board::new(width, height);
+    (x,y) = (0,0);
+    for i in 0..byt.len() {
+        if byt[i] == b'\n' {
             y += 1;
             x = 0;
         }
         else {
+            board.set(x, y, byt[i]);
             if byt[i] == b'S' {
                 sx = x;
                 sy = y;
@@ -98,20 +109,6 @@ fn process(inp:String) -> (i32, i32)
             x += 1;
         }
     }
-    if byt[byt.len()-1] == b'\n' { height = y;} else {height = y+1;}
-
-    let mut board = Board::new(width, height);
-    (x,y) = (0,0);
-    for i in 0..byt.len() {
-        if byt[i] == b'\n' {
-            y += 1;
-            x = 0;
-        }
-        else {
-            board.set(x, y, byt[i]);
-            x += 1;
-        }
-    }
     let forw = board.bfs(sx, sy, ex, ey);
     let back = board.bfs(ex, ey, sx, sy);
 
@@ -120,8 +117,8 @@ fn process(inp:String) -> (i32, i32)
 
     let distance = forw[board.xy2pos(ex, ey)] as i32;
 
-    for y in 0..height {
-        for x in 0..width {
+    for y in 0..height as i32 {
+        for x in 0..width as i32 {
             let p = board.xy2pos(x, y);
             let f = forw[p] as i32;
             if f != u16::MAX as i32 {
@@ -130,7 +127,7 @@ fn process(inp:String) -> (i32, i32)
                     let xlen = 2 - dy.abs();
                     let mut dx:i32 = -xlen;
                     while dx <= xlen {
-                        let xp = board.xy2pos(x + dx, y + dy);
+                        let xp = board.xy2pos((x + dx) as usize, (y + dy) as usize);
                         let dist = f + back[xp] as i32 + dy.abs() + dx.abs() - 1;
                         let save = distance - dist;
                         if save >= 100 {
@@ -145,8 +142,8 @@ fn process(inp:String) -> (i32, i32)
     }
     //println!("Part1 = {}", part1);
 
-    for y in 0..height {
-        for x in 0..width {
+    for y in 0..height as i32 {
+        for x in 0..width as i32 {
             let p = board.xy2pos(x, y);
             let f = forw[p] as i32;
             if f != u16::MAX as i32 {
@@ -155,7 +152,7 @@ fn process(inp:String) -> (i32, i32)
                     let xlen = 20 - dy.abs();
                     let mut dx:i32 = -xlen;
                     while dx <= xlen {
-                        let xp = board.xy2pos(x + dx, y + dy);
+                        let xp = board.xy2pos((x + dx) as usize, (y + dy) as usize);
                         let dist = f + back[xp] as i32 + dy.abs() + dx.abs() - 1;
                         let save = distance - dist;
                         if save >= 100 {
@@ -181,10 +178,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
