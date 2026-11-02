@@ -1,6 +1,7 @@
 // Fastest run 25.7 us
 // HP sort 14 us
 // HP u8 parser 9.6 us
+// Acer 9.7 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
