@@ -1,5 +1,5 @@
 // Fastest run 26.4 us HP
-//
+// Acer 37.4
 
 use std::fs;
 use devtimer::DevTime;
