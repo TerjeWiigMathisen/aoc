@@ -1,4 +1,5 @@
-// Fastest run 19573700 ns
+// Fastest run Acer 19573700 ns
+//             HP   20075800 ns
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -160,7 +161,7 @@ struct Vert {
     index:usize,
 }
 
-fn processdist(inp:String) -> (i64, i64)
+fn processdist(inp:&str) -> (i64, i64)
 {
     let mut part1:i64 = 0;
     let mut part2:i64 = 0;
@@ -184,7 +185,7 @@ fn processdist(inp:String) -> (i64, i64)
     v.sort();
     let mut distances:Vec<Distance> = Vec::with_capacity(6000);
 
-    const LIMIT:i64 = 40000;
+    const LIMIT:i64 = 50000;
 
     for i in 0..v.len()-1 {
         let a = v[i].index;
@@ -227,7 +228,7 @@ fn processdist(inp:String) -> (i64, i64)
     (part1, part2)
 }
 
-fn process(inp:String) -> (i64, i64)
+fn process(inp:&str) -> (i64, i64)
 {
     //let mut part1:i64 = 0;
     let mut part2:i64 = 0;
@@ -252,10 +253,10 @@ fn process(inp:String) -> (i64, i64)
         }
     }
     distances.sort();
-    println!("{} distances, range: {} to {}", distances.len(), 
-        f64::sqrt(distances[0].dist2 as f64), f64::sqrt(distances[distances.len()-1].dist2 as f64));
-    println!("dist(1000) = {}", f64::sqrt(distances[1000].dist2 as f64));
-    println!("dist(5000) = {}", f64::sqrt(distances[5000].dist2 as f64));
+    // println!("{} distances, range: {} to {}", distances.len(), 
+    //     f64::sqrt(distances[0].dist2 as f64), f64::sqrt(distances[distances.len()-1].dist2 as f64));
+    // println!("dist(1000) = {}", f64::sqrt(distances[1000].dist2 as f64));
+    // println!("dist(5000) = {}", f64::sqrt(distances[5000].dist2 as f64));
 
     // part1
     let part1cnt = if junctions.len() > 100 { 1000 } else { 10 };
@@ -288,9 +289,9 @@ fn process(inp:String) -> (i64, i64)
         let d = distances[i];
         let clen = circs.merge(d.id, d.next);
         if clen+1 >= junctions.len() as u16 {
-            println!("Minimum distance: {}", f64::sqrt(distances[0].dist2 as f64));
-            println!("Single network after {i} links, distance {}", f64::sqrt(d.dist2 as f64));
-            println!("Maximum distance: {}", f64::sqrt(distances[distances.len()-1].dist2 as f64));
+            // println!("Minimum distance: {}", f64::sqrt(distances[0].dist2 as f64));
+            // println!("Single network after {i} links, distance {}", f64::sqrt(d.dist2 as f64));
+            // println!("Maximum distance: {}", f64::sqrt(distances[distances.len()-1].dist2 as f64));
             part2 = junctions[d.id as usize].x * junctions[d.next as usize].x;
             break;
         }
@@ -311,12 +312,13 @@ fn main() {
 //    let (p1, p2) = processdist(input.clone());
 //    println!("interleave: {}, {}", p1, p2 as f64);
 
-//    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(100, |_| { process(&input); }); bench_result.print_stats();
 
     let mut devtime = DevTime::new_simple();
-    process(input.clone());
+    process(&input);
     devtime.start();
-    let (part1, part2) = processdist(input.clone());
+//    let (part1, part2) = processdist(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
