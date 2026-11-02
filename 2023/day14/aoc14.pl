@@ -266,7 +266,7 @@ sub part2
 	}
 	return weigh(@inp);
 }
-
+ 
 $part1 = part1(@inp);
 $part2 = part2(@inp);
 	

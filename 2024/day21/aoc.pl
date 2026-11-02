@@ -1,4 +1,7 @@
 #!perl -w
+
+# 2.6 ms on Surface
+
 use strict;
 use Time::HiRes qw (time);
 use English;
