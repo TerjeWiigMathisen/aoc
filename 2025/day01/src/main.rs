@@ -1,6 +1,7 @@
 // Fastest run 55.1 us
 // Modulo ops with u32
 // Surface 8.6 us
+// HP 3.9 us
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
