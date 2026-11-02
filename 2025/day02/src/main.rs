@@ -2,17 +2,12 @@
 // HP sort 14 us
 // HP u8 parser 9.6 us
 // Acer 9.7 us
+// Surface 16.3 us
 
-//use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
 //use std::env;
 use std::fs;
-//use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
-//use substring::Substring;
-//use rustc_hash::FxHashMap;
 
 fn process(inp:&str) -> (usize, usize)
 {
@@ -21,8 +16,8 @@ fn process(inp:&str) -> (usize, usize)
 
     let tens = [10,10,100,1000,10000,100000,1000000,10000000,100000000];
 
-    let mut seen2:Vec<usize> = Vec::with_capacity(1000);
-    let mut seen1:Vec<usize> = Vec::with_capacity(1000);
+    let mut seen2:Vec<usize> = Vec::with_capacity(400);
+    let mut seen1:Vec<usize> = Vec::with_capacity(100);
     let mut prefix:[usize; 20] = [1; 20];
 
     let mut i = 0;
@@ -64,9 +59,9 @@ fn process(inp:&str) -> (usize, usize)
                 //println!("{}-{}",preu,inv);
                 if invalid > lu {break;} // Outside top end of range
                 if fu <= invalid { // Inside range!
-                    seen2.push(invalid as usize);
+                    seen2.push(invalid);
                     if div == 2 { // part1
-                        seen1.push(invalid as usize);
+                        seen1.push(invalid);
                     }
                     //println!("{}",inv);
                 }
