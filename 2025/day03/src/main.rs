@@ -1,15 +1,9 @@
-// Fastest run 45.3 us
+// Fastest run 26.4 us HP
+//
 
-//use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
-//use std::env;
 use std::fs;
-//use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
-//use substring::Substring;
-//use rustc_hash::FxHashMap;
 
 fn _recursive_jolt(first:usize, digits:usize, n:Vec<u8>, res:&mut Vec<u8>) -> u64
 {
@@ -73,13 +67,6 @@ fn _jolt(first:usize, digits:usize, n:Vec<u8>, res:&mut Vec<u8>) -> u64
     0
 }
 
-#[cold]
-fn update(np:u64, pos:&mut usize, p:usize) -> u64
-{
-    *pos = p;
-    np
-}
-
 fn joltu64(digits:usize, n:&[u8]) -> u64
 {
 	let mut digits = digits;
@@ -88,17 +75,16 @@ fn joltu64(digits:usize, n:&[u8]) -> u64
     let nlen = n.len();
     loop {
         digits -= 1;
-        let mut max:u64 = 0;
+        let mut max:u64 = n[first] as u64;
         let mut pos:usize = first;
-        for p in first..nlen-digits {
+        for p in first+1..nlen-digits {
             let np = n[p] as u64;
             if np > max {
-                        // max = n[p] as u64;
-                        // pos = p;
-                max = update(np, &mut pos, p);
-                // if max == b'0' as u64 {
-                //     break;
-                // }
+                max = n[p] as u64;
+                pos = p;
+                if max == b'9' as u64 {
+                    break;
+                }
             }
         }
         res = res*10 + max - b'0' as u64;
@@ -201,7 +187,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process64(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(10000, |_| { process64(&input); }); bench_result.print_stats();
 
     devtime.start();
     let (part1, part2) = process64(&input);
