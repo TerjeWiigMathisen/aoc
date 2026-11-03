@@ -1,4 +1,4 @@
-// Fastest run Surface 527 us
+// Fastest run Surface 522 us
 // Dirty list 990 us
 
 use std::fs;
@@ -94,6 +94,45 @@ fn removed(stride:usize, start:usize, end:usize, buffer:&mut Vec<u8>)-> (usize, 
 }
 
 fn process(inp:&str) -> (usize, usize)
+{
+    let linelen = inp.find('\n').unwrap();
+    let stride = linelen+1;
+    let mut start = stride+1;
+    let bytes = inp.as_bytes();
+    let blen = bytes.len();
+    let mut end = start + blen;
+    let mut buffer:Vec<u8> = vec![0;stride*2+blen+2];
+    let mut i = start;
+    let mut dirty:Vec<u16> = Vec::with_capacity(4000);
+    for j in 0..blen {
+        let b = bytes[j];
+//        if b == b'\n' { x = 0; y += 1;}
+        if b == b'@' {
+            buffer[i-stride-1] += 2;
+            buffer[i-stride] += 2;
+            buffer[i-stride+1] += 2;
+            buffer[i-1] += 2;
+            buffer[i] += 1;
+            buffer[i+1] += 2;
+            buffer[i+stride-1] += 2;
+            buffer[i+stride] += 2;
+            buffer[i+stride+1] += 2;
+        }
+        i += 1;
+    }
+    let (part1, s, e) = removed3(stride, start, end, &mut buffer);
+    let mut part2 = part1;
+    (start, end) = (s,e);
+    loop {
+        let (rem, s, e) = removed3(stride, start, end, &mut buffer);
+        (start, end) = (s,e);
+        part2 += rem;
+        if rem == 0 { break; }
+    }
+    (part1, part2)
+}
+
+fn process_dirty(inp:&str) -> (usize, usize)
 {
     let linelen = inp.find('\n').unwrap();
     let stride = linelen+1;
