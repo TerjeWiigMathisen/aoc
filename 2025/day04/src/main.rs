@@ -1,89 +1,103 @@
-// Fastest run 1458800 ns
+// Fastest run Surface 527 us
 
-//use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
-//use std::env;
 use std::fs;
-//use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
-//use substring::Substring;
-//use rustc_hash::FxHashMap;
 
-fn removed(stride:usize,buffer:&mut Vec<u8>)-> usize
+fn removed3(stride:usize, start:usize, end:usize, buffer:&mut Vec<u8>)-> (usize, usize, usize)
 {
-    let mut remlist:Vec<usize> = Vec::new();
-    let si = stride as i32;
-    for p in stride+1..buffer.len()-stride-1 {
-        if buffer[p] != b'@' { continue; }
-        let mut neighbors = 0;
-        for o in [-si-1, -si, -si+1, -1, 1, si-1, si, si+1] {
-            if buffer[(p as i32 + o) as usize] == b'@' { 
-                neighbors += 1; 
-                //if neighbors > 3 { break; }
-            }
+    let mut remove:Vec<u16> = Vec::with_capacity(1500);
+    for i in start..end {
+        let b = buffer[i];
+        if (b & 1) != 0 && b < 8 { 
+            remove.push(i as u16);
         }
-        if neighbors <= 3 { remlist.push(p); }
     }
-    let ret = remlist.len();
-    for p in remlist {
-        buffer[p] = b'X';
+    let remcnt = remove.len();
+    if remcnt == 0 { return (0,0,0); }
+
+    for j in 0..remcnt {
+        let i = remove[j] as usize;
+        buffer[i-stride-1] -= 2;
+        buffer[i-stride] -= 2;
+        buffer[i-stride+1] -= 2;
+        buffer[i-1] -= 2;
+        buffer[i] -= 1;
+        buffer[i+1] -= 2;
+        buffer[i+stride-1] -= 2;
+        buffer[i+stride] -= 2;
+        buffer[i+stride+1] -= 2;
     }
-    ret
+    (remcnt, remove[0] as usize - stride - 1, remove[remcnt-1] as usize + stride + 1)
 }
 
-fn removed3(stride:usize,buffer:&mut Vec<u8>)-> usize
+fn removed(stride:usize, start:usize, end:usize, buffer:&mut Vec<u8>)-> (usize, usize, usize)
 {
-    let mut above:Vec<u8> = vec![0;stride];
-    let mut curr:Vec<u8> = vec![0;stride];
-    let mut below:Vec<u8> = vec![0;stride];
-    let mut start  = stride+1;
-    let end = buffer.len()-stride-1;
-    let lt:&[u8] = &buffer[start-1..start+stride-2];
-    let cr:&[u8] = &buffer[start..start+stride-1].clone();
-    let rt:&[u8] = &buffer[start+1..start+stride].clone();
-    for i in 0..stride-1 {
-        curr[i] = (lt[i] == b'@') as u8 + (cr[i] == b'@') as u8 + (rt[i] == b'@') as u8;
-    }
-    let mut remcnt = 0;
-    while start < end {
-        let lt:&[u8] = &buffer[start+stride-1..start+stride+stride-2];
-        let cr:&[u8] = &buffer[start+stride..start+stride+stride-1];
-        let rt:&[u8] = &buffer[start+stride+1..start+stride+stride];
-        for i in 0..stride-1 {
-            below[i] = (lt[i] == b'@') as u8 + (cr[i] == b'@') as u8 + (rt[i] == b'@') as u8;
-            if buffer[start+i] == b'@' {
-                if above[i]+curr[i]+below[i] <= 4 {
-                    buffer[start+i] = b'X';
-                    remcnt += 1;
-                } 
-            }
+    let mut remove:Vec<u16> = Vec::with_capacity(1500);
+    for i in start..end {
+        let b = buffer[i];
+        if (b & 1) != 0 && b < 8 { 
+            remove.push(i as u16);
         }
-        above = curr.clone();
-        curr = below.clone();
-        start += stride;
     }
-    remcnt
+    let remcnt = remove.len();
+    if remcnt == 0 { return (0,0,0); }
+
+    for j in 0..remcnt {
+        let i = remove[j] as usize;
+
+        let addr = i-stride-1;
+        let b4 = buffer[addr..addr+4].try_into().unwrap();
+        let u = u32::from_le_bytes(b4) - 0x20202;
+        buffer[addr..addr+4].copy_from_slice(&u.to_le_bytes());
+
+        let addr = i-1;
+        let b4 = buffer[addr..addr+4].try_into().unwrap();
+        let u = u32::from_le_bytes(b4) - 0x20102;
+        buffer[addr..addr+4].copy_from_slice(&u.to_le_bytes());
+
+        let addr = i+stride-1;
+        let b4 = buffer[addr..addr+4].try_into().unwrap();
+        let u = u32::from_le_bytes(b4) - 0x20202;
+        buffer[addr..addr+4].copy_from_slice(&u.to_le_bytes());
+    }
+    (remcnt, remove[0] as usize - stride - 1, remove[remcnt-1] as usize + stride + 1)
 }
 
-fn process(inp:String) -> (i32, i32)
+fn process(inp:&str) -> (usize, usize)
 {
     let linelen = inp.find('\n').unwrap();
     let stride = linelen+1;
+    let mut start = stride+1;
     let bytes = inp.as_bytes();
-    let mut buffer:Vec<u8> = Vec::with_capacity(stride*2+bytes.len()+2);
-    let padding:Vec<u8> = vec![b'\n';stride+1];
-    buffer.append(&mut padding.clone());
-    buffer.append(&mut bytes.to_vec());
-    buffer.append(&mut padding.clone());
-
-    let part1 = removed3(stride, &mut buffer) as i32;
+    let blen = bytes.len();
+    let mut buffer:Vec<u8> = vec![0;stride*2+blen+2];
+    let mut i = start;
+    for j in 0..blen {
+        let b = bytes[j];
+//        if b == b'\n' { x = 0; y += 1;}
+        if b == b'@' {
+            buffer[i-stride-1] += 2;
+            buffer[i-stride] += 2;
+            buffer[i-stride+1] += 2;
+            buffer[i-1] += 2;
+            buffer[i] += 1;
+            buffer[i+1] += 2;
+            buffer[i+stride-1] += 2;
+            buffer[i+stride] += 2;
+            buffer[i+stride+1] += 2;
+        }
+        i += 1;
+    }
+    let part1;
+    let mut end = start + blen;
+    (part1, start, end) = removed(stride, start, end, &mut buffer);
     let mut part2 = part1;
+    let mut rem;
     loop {
-        let rem = removed3(stride, &mut buffer) as i32;
-        if rem == 0 { break; }
+        (rem, start, end) = removed(stride, start, end, &mut buffer);
         part2 += rem;
+        if rem == 0 { break; }
     }
     (part1, part2)
 }
@@ -98,10 +112,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
