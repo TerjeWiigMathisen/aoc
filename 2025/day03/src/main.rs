@@ -1,4 +1,4 @@
-// Fastest run 26.4 us HP
+// Fastest run 26.4 us HP (tailscan 41.2)
 // Acer 37.4
 // Surface 80.3
 
@@ -24,6 +24,7 @@ fn joltu64(digits:usize, n:&[u8]) -> u64
         let mut max:u64 = 0;
         let mut pos:usize = first;
         for p in first..nlen-digits {
+            if max >= ntail[p] as u64 { break; }
             let np = n[p] as u64;
             if np > max {
                 max = n[p] as u64;
