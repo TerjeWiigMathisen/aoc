@@ -12,8 +12,8 @@ fn joltu64(digits:usize, n:&[u8]) -> u64
     let mut first = 0;
     let mut res = 0;
     let nlen = n.len();
-    let mut ntail::<Vec<u8> = vec![0;nlen];
-    let mut m = n[nlen-1];
+    let mut m = 0;
+    let mut ntail:Vec<u8> = vec![0;nlen];
     for i in 1..nlen {
         let idx = nlen-i;
         if n[idx] > m {m = n[idx];}
@@ -21,9 +21,9 @@ fn joltu64(digits:usize, n:&[u8]) -> u64
     }
     loop {
         digits -= 1;
-        let mut max:u64 = n[first] as u64;
+        let mut max:u64 = 0;
         let mut pos:usize = first;
-        for p in first+1..nlen-digits {
+        for p in first..nlen-digits {
             let np = n[p] as u64;
             if np > max {
                 max = n[p] as u64;
