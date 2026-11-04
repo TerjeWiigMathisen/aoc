@@ -1,4 +1,5 @@
 // Fastest run 34200 ns on Surface 7 Pro Intel(R) Core(TM) i5-1035G4 CPU @ 1.10GHz
+// HP 14037 ns
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -58,9 +59,6 @@ fn process(inp:&str) -> (u64, u64)
         }
     }
     // The last line always ends with a newline, so we don't need to check for b > 0 here.
-    // if b > 0 {
-    //     ingredients.push(b);
-    // }
     range.sort_unstable(); // Sort by fra,til
     ingredients.sort_unstable();
 
@@ -98,6 +96,14 @@ fn process(inp:&str) -> (u64, u64)
     (part1, part2)
 }
 
+fn p1k(inp:&str) -> (u64, u64)
+{
+    for _ in 0..1000 {
+        process(inp);
+    }
+    (0,0)
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let mut fname = "input.txt".to_string();
@@ -108,7 +114,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { p1k(&input); }); bench_result.print_stats();
 
     devtime.start();
     let (part1, part2) = process(&input);
