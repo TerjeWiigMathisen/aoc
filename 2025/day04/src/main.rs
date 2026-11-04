@@ -8,7 +8,7 @@ use std::collections::VecDeque;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
-fn removed3(start:usize, end:usize, buffer:&mut Vec<u8>, remove:&mut VecDeque<u16>)-> usize
+fn part1count(start:usize, end:usize, buffer:&mut Vec<u8>, remove:&mut VecDeque<u16>)-> usize
 {
     for i in start..end {
         let b = buffer[i];
@@ -20,7 +20,7 @@ fn removed3(start:usize, end:usize, buffer:&mut Vec<u8>, remove:&mut VecDeque<u1
     remcnt
 }
 
-fn removeloop(stride:usize, buffer:&mut Vec<u8>, remove:&mut VecDeque<u16>)-> usize
+fn part2loop(stride:usize, buffer:&mut Vec<u8>, remove:&mut VecDeque<u16>)-> usize
 {
     let mut remcnt = 0;
     while let Some(i) = remove.pop_front() {
@@ -50,21 +50,16 @@ fn process(inp:&str) -> (usize, usize)
     for j in 0..blen {
         let b = bytes[j];
         if b == b'@' {
-            buffer[i-stride-1] += 2;
-            buffer[i-stride] += 2;
-            buffer[i-stride+1] += 2;
-            buffer[i-1] += 2;
+            for k in [i-stride-1, i-stride, i-stride+1, i-1, i+1, i+stride-1, i+stride, i+stride+1] {
+                buffer[k] += 2;
+            }
             buffer[i] += 1;
-            buffer[i+1] += 2;
-            buffer[i+stride-1] += 2;
-            buffer[i+stride] += 2;
-            buffer[i+stride+1] += 2;
         }
         i += 1;
     }
     let mut remove:VecDeque<u16> = VecDeque::with_capacity(4000);
-    let part1 = removed3(start, end, &mut buffer, &mut remove);
-    let part2 = removeloop(stride, &mut buffer, &mut remove);
+    let part1 = part1count(start, end, &mut buffer, &mut remove);
+    let part2 = part2loop(stride, &mut buffer, &mut remove);
     (part1, part2)
 }
 
