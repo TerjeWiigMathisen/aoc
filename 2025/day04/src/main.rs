@@ -1,7 +1,7 @@
 // Fastest run Surface 522 us
 // Dirty list 990 us
 
-// HP 71.7
+// HP 53.9
 
 use std::fs;
 use std::collections::VecDeque;
@@ -57,7 +57,7 @@ fn process(inp:&str) -> (usize, usize)
         }
         i += 1;
     }
-    let mut remove:VecDeque<u16> = VecDeque::with_capacity(4000);
+    let mut remove:VecDeque<u16> = VecDeque::with_capacity(blen);
     let part1 = part1count(start, end, &mut buffer, &mut remove);
     let part2 = part2loop(stride, &mut buffer, &mut remove);
     (part1, part2)
@@ -73,7 +73,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(10000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
     let (part1, part2) = process(&input);
