@@ -11,7 +11,7 @@ use devtimer::run_benchmark;
 //use substring::Substring;
 //use rustc_hash::FxHashMap;
 
-fn process(inp:String) -> (i64, i64)
+fn process(inp:&str) -> (i64, i64)
 {
     let lines = inp.lines().collect::<Vec<&str>>();
     let rows = lines.len();
@@ -112,10 +112,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");

@@ -1,5 +1,5 @@
 // Fastest run 34200 ns on Surface 7 Pro Intel(R) Core(TM) i5-1035G4 CPU @ 1.10GHz
-// HP 13740 ns
+// HP 14037 ns
 
 use std::fs;
 use devtimer::DevTime;
@@ -53,6 +53,7 @@ fn process(inp:&str) -> (u64, u64)
     }
     // The last line always ends with a newline, so we don't need to check for b > 0 here.
     range.sort_unstable(); // Sort by fra,til
+    ingredients.sort_unstable();
 
     //println!("Collected {} ranges and {} ingredients", range.len(), ingredients.len());
     // parsing done, now pack the ranges
@@ -76,16 +77,13 @@ fn process(inp:&str) -> (u64, u64)
     range.truncate(out);
     //println!("Compacted into {} ranges", range.len());
 
-    //ingredients.sort_unstable();
+    let mut r = 0;
     for ing in ingredients {
-        let res = range.binary_search_by(|range| {
-            if ing < range.fra { std::cmp::Ordering::Greater }
-            else if ing >= range.til { std::cmp::Ordering::Less }
-            else { std::cmp::Ordering::Equal }
-        });
-        match res {
-            Ok(_) => part1 += 1,
-            Err(_) => {},
+        while ing >= range[r].til {
+            r += 1;
+        }
+        if ing >= range[r].fra {
+            part1 += 1;
         }
     }
     (part1, part2)
