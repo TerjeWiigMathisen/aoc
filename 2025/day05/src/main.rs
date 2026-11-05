@@ -1,5 +1,5 @@
 // Fastest run 34200 ns on Surface 7 Pro Intel(R) Core(TM) i5-1035G4 CPU @ 1.10GHz
-// HP 13740 ns
+// HP 13740 ns (13369 ns with ednl's input file)
 
 use std::fs;
 use devtimer::DevTime;
