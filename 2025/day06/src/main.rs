@@ -1,17 +1,11 @@
-// Fastest run 220.7 us
+// Fastest run 220.7 us Acer
+// 204.1 HP
 
-//use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
-//use std::env;
 use std::fs;
-//use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
-//use substring::Substring;
-//use rustc_hash::FxHashMap;
 
-fn process(inp:String) -> (i64, i64)
+fn process(inp:&str) -> (i64, i64)
 {
     let lines = inp.lines().collect::<Vec<&str>>();
     let rows = lines.len();
@@ -112,10 +106,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
