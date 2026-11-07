@@ -5,4 +5,3 @@ edition = "2024"
 
 [dependencies]
 devtimer = "4.0.1"
-rustc-hash = "2.1.1"
