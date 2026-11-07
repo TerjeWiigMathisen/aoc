@@ -185,7 +185,7 @@ fn processdist(inp:&str) -> (i64, i64)
     v.sort();
     let mut distances:Vec<Distance> = Vec::with_capacity(6000);
 
-    const LIMIT:i64 = 50000;
+    const LIMIT:i64 = 100000;
 
     for i in 0..v.len()-1 {
         let a = v[i].index;
