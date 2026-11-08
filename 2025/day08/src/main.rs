@@ -1,5 +1,6 @@
 // Fastest run Acer 19573700 ns
-//             HP   20075800 ns
+//             HP   20076 us
+// BMI 3D      HP   15451
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
@@ -185,7 +186,7 @@ fn processdist(inp:&str) -> (i64, i64)
     v.sort();
     let mut distances:Vec<Distance> = Vec::with_capacity(6000);
 
-    const LIMIT:i64 = 100000;
+    const LIMIT:i64 = 150000;
 
     for i in 0..v.len()-1 {
         let a = v[i].index;
@@ -317,8 +318,8 @@ fn main() {
     let mut devtime = DevTime::new_simple();
     process(&input);
     devtime.start();
-//    let (part1, part2) = processdist(input.clone());
-    let (part1, part2) = process(&input);
+    let (part1, part2) = processdist(&input);
+//    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
