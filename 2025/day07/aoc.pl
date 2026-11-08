@@ -1,4 +1,6 @@
 #!perl -w
+# 6.73 ms on HP
+
 use strict;
 use Time::HiRes qw (time);
 use English;

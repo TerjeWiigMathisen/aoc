@@ -1,62 +1,35 @@
-// Fastest run 248.1 us
+// Fastest run 248.1 us Acer
+// 14.7 us HP
 
-//use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
-//use std::env;
 use std::fs;
-//use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
-//use substring::Substring;
-use rustc_hash::FxHashMap;
 
-fn ways(line:usize, pos:usize, lines:&Vec<&str>, cache:&mut FxHashMap<u64,u64>) -> u64
+fn ways(line:usize, pos:usize, lines:&Vec<&str>, cache:&mut Vec<u64>, part1: &mut u64) -> u64
 {
-    let key = line as u64 | ((pos as u64) << 32);
-    if cache.contains_key(&key) { return *cache.get(&key).unwrap(); }
-    if line >= lines.len() { return 1;}
+    if line+line >= lines.len() { return 1;}
+    let key = line*150+pos;
+    if cache[key] != 0 { return cache[key]; }
 
-    if lines[line].as_bytes()[pos] == b'^' {
-        let w = ways(line+1,pos-1, lines, cache) + ways(line+1,pos+1, lines, cache);
-        cache.insert(key, w);
+    let bytes = lines[line+line].as_bytes();
+    if bytes[pos] == b'^' {
+        let w = ways(line+1,pos-1, lines, cache, part1) + ways(line+1,pos+1, lines, cache, part1);
+        cache[key] = w;
+        *part1 += 1;
         return w;
     }
-    let w = ways(line+1,pos, lines, cache);
-    cache.insert(key, w);
+    let w = ways(line+1,pos, lines, cache, part1);
+    cache[key] = w;
     w
 }
 
-fn process(inp:String) -> (u64, u64)
+fn process(inp:&str) -> (u64, u64)
 {
     let lines = inp.lines().collect::<Vec<&str>>();
     let start = lines[0].find('S').unwrap();
-    let mut tach:FxHashMap<u8,u8> = FxHashMap::default();
     let mut part1 = 0;
-    //let mut part2 = 0;
-    tach.insert(start as u8, 0);
-    for line in inp.lines().skip(1) {
-        let mut splits = 0;
-        let mut ntach:FxHashMap<u8,u8> = FxHashMap::default();
-        let tkeys = tach.keys().collect::<Vec<&u8>>();
-        for tkey in tkeys {
-            let tk = *tkey as usize;
-            if line.as_bytes()[tk] == b'^' {
-                let (p,n) = (tk-1,tk+1);
-                ntach.entry(p as u8).and_modify(|e| *e += 1).or_insert(1);
-                ntach.entry(n as u8).and_modify(|e| *e += 1).or_insert(1);
-                splits += 1;
-            }
-            else {
-                ntach.entry(tk as u8).and_modify(|e| *e += 1).or_insert(1);
-            }
-        }
-        tach = ntach;
-        part1 += splits;
-
-    }
-    let mut cache:FxHashMap<u64,u64> = FxHashMap::default();
-    let part2 = ways(1, start, &lines, &mut cache);
+    let mut cache:Vec<u64> = vec![0;150*75];
+    let part2 = ways(1, start, &lines, &mut cache, &mut part1);
     (part1, part2)
 }
 
@@ -70,10 +43,10 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { process(input.clone()); }); bench_result.print_stats();
+    let bench_result = run_benchmark(10000, |_| { process(&input); }); bench_result.print_stats();
 
     devtime.start();
-    let (part1, part2) = process(input.clone());
+    let (part1, part2) = process(&input);
     devtime.stop();
 
     println!("Part1 = {part1}");
