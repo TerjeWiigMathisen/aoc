@@ -1,4 +1,4 @@
-// Fastest run 165 us
+// Fastest run 
 
 //use std::collections::VecDeque;
 //use std::collections::HashMap;
