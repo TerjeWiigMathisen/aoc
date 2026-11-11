@@ -144,7 +144,6 @@ fn process(inp:&str) -> (u64, u64)
 
     cache = vec![u64::MAX; graph.nodes.len()];
     let dac_fft = graph.find(dac, fft, &mut cache); // find paths from DAC to FFT
-//    println!("dac_fft = {}", dac_fft);
     let part2;
     if dac_fft > 0 {
         cache = vec![u64::MAX; graph.nodes.len()];
