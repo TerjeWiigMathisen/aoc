@@ -11,10 +11,10 @@ use devtimer::run_benchmark;
 //use substring::Substring;
 use rustc_hash::FxHashMap;
 
-fn process(inp:String) -> (i32, i32)
+fn process(inp:&str) -> (i32, i32)
 {
     let mut part1 = 0;
-    let mut part2 = 0;
+    let input = inp.as_bytes();
     (part1, part2)
 }
 
