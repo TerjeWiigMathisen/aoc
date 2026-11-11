@@ -1,4 +1,5 @@
 // Fastest run 2844 ns HP
+//             2465 ns Acer
 
 use std::fs;
 use devtimer::DevTime;
