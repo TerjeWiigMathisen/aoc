@@ -1,6 +1,7 @@
 // Fastest run 2844 ns HP
 //             2465 ns Acer
 // HP with slice 71 ns, 2.2 us single run
+// Acer 1.7 us single run
 
 use std::fs;
 use devtimer::DevTime;
