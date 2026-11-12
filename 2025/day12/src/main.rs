@@ -7,6 +7,7 @@ use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
+#[inline(never)]
 pub fn process(inp:&str) -> u32
 {
     let mut part1 = 0;
@@ -20,8 +21,6 @@ pub fn process(inp:&str) -> u32
         let x = (input[0] - b'0') * 10 + (input[1] - b'0');
         let y = (input[3] - b'0') * 10 + (input[4] - b'0');
         let size = x as u32 * y as u32;
-//        println!("x = {}, y = {}, size = {}", x, y, size);
-//        assert!(size == 41 * 48);
         let tens = input[7] - b'0' + input[10] - b'0' + input[13] - b'0' + input[16] - b'0' + input[19] - b'0' + input[22] - b'0';
         let ones = input[8] - b'0' + input[11] - b'0' + input[14] - b'0' + input[17] - b'0' + input[20] - b'0' + input[23] - b'0';
         let totalblocks = tens as u32 * 10 + ones as u32;
@@ -31,12 +30,13 @@ pub fn process(inp:&str) -> u32
     part1
 }
 
-fn p1k(inp:&str) -> u32
+pub fn p1k(inp:&str) -> u32
 {
+    let mut part1 = 0;
     for _ in 0..1000 {
-        process(inp);
+        part1 += process(inp);
     }
-    0
+    part1
 }
 
 fn main() {
@@ -46,7 +46,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(1000, |_| { process(&input); }); bench_result.print_stats();
+    let bench_result = run_benchmark(1000, |_| { p1k(&input); }); bench_result.print_stats();
 
     devtime.start();
     let part1 = process(&input);
