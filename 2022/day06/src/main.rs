@@ -8,35 +8,29 @@ use devtimer::run_benchmark;
 fn process(inp:&String)-> (usize, usize)
 {
     let input = inp.as_bytes();
-    let mut lastseen:[u16;32] = [0;32];
+    let mut lastseen:[u16;256] = [0;256];
     let mut last_duplicate = 0;
-    let p1;
     let mut i = 0;
-    loop {  // The input is good, so we can just loop until we find the answer
+    while i-last_duplicate < 4 {  // The input is good, so we can just loop until we find the answer
+        let b = input[i] as usize;
         i += 1;
-        let b = (input[i-1] & 31) as usize;
         let ls = lastseen[b] as usize;
         lastseen[b] = i as u16;
         if ls > last_duplicate {
             last_duplicate = ls;
         }
-        if i-last_duplicate >= 4 {
-            p1 = i;
-            break;
-        }
     }
-    loop {  // The input is good, so we can just loop until we find the answer
+    let p1 = i;
+    while i-last_duplicate < 14 {  // The input is good, so we can just loop until we find the answer
+        let b = input[i] as usize;
         i += 1;
-        let b = (input[i-1] & 31) as usize;
         let ls = lastseen[b] as usize;
         lastseen[b] = i as u16;
         if ls > last_duplicate {
             last_duplicate = ls;
         }
-        if i-last_duplicate >= 14 {
-            return (p1,i);
-        }
     }
+    (p1, i)
 }
 
 fn process1k(inp:&String)-> (usize, usize)
