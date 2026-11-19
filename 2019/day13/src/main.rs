@@ -1,5 +1,7 @@
+// Fastest: 6469600 ns Surface
+
 use std::collections::VecDeque;
-use std::collections::HashMap;
+//use std::collections::HashMap;
 //use std::io;
 //use std::env;
 use std::fs;
@@ -145,29 +147,13 @@ impl Cpu {
     }
 }
 
-fn show(grid:&HashMap<String,u8>)
+fn show(grid:&Vec<Vec<u8>>)
 {
-    let mut xmin = i32::MAX;
-    let mut ymin = i32::MAX;
-    let mut xmax = i32::MIN;
-    let mut ymax = i32::MIN;
-    let keys:Vec<&String> = grid.keys().collect();
-    for k in keys {
-        let xy:Vec<i32> = k.split(",").map(|m| m.parse::<i32>().unwrap()).collect();
-        if xy[0] < xmin {xmin = xy[0];}
-        if xy[0] > xmax {xmax = xy[0];}
-        if xy[1] < ymin {ymin = xy[1];}
-        if xy[1] > ymax {ymax = xy[1];}
-    }
-    println!("({xmin},{ymin}) -> ({xmax},{ymax})");
+    println!("(0,0) -> ({},{})", grid[0].len()-1, grid.len()-1);
     let blocks = [' ','#','-','=','O'];
-    for y in ymin..=ymax {
-        for x in xmin..=xmax {
-            let key = format!("{x},{y}");
-            let mut b = 0;
-            if grid.contains_key(&key) {
-                b = *grid.get(&key).unwrap();
-            }
+    for y in 0..grid.len() {
+        for x in 0..grid[y].len() {
+            let mut b = grid[y][x];
             print!("{}", blocks[b as usize]);
         }
         println!();
@@ -179,20 +165,20 @@ fn process(inp:&str) -> i64
     let mut cpu = Cpu{ip:0,opcodes:vec![], inputs:vec![].into(), outputs:vec![], relative_base:0};
     cpu.opcodes = inp.split(",").map(|s| s.parse::<i64>().unwrap()).collect();
 
-    let mut grid:HashMap<String,u8> = HashMap::new();
+    let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
     cpu.run();
 //    println!("{:?}\n{}", cpu.outputs, cpu.outputs.len());
     for o in (0..cpu.outputs.len()).step_by(3) {
         let (x, y, b) = (cpu.outputs[o],cpu.outputs[o+1],cpu.outputs[o+2]);
-        let key = format!("{x},{y}");
-        grid.insert(key, b as u8);
+        grid[y as usize][x as usize] = b as u8;
     }
+//    show(&grid);
     let mut blocks = 0;
-    let values:Vec<u8> = grid.values().map(|b| {*b}).collect();
-    for v in values {
-        if v == 2 {blocks += 1;}
+    for y in 0..grid.len() {
+        for x in 0..grid[y].len() {
+            if grid[y][x] == 2 { blocks += 1;}
+        }
     }
-    //show(&grid);
 
     blocks
 }
@@ -203,7 +189,7 @@ fn process2(inp:&str)->i64
     cpu.opcodes = inp.split(",").map(|s| s.parse::<i64>().unwrap()).collect();
     cpu.opcodes[0] = 2;
 
-    let mut grid:HashMap<String,u8> = HashMap::new();
+    let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
     let mut score = 0;
 //    let mut root = Root::initializer().size(40,20).init();
 //    cpu.inputs = vec![0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1].into();
@@ -225,8 +211,9 @@ fn process2(inp:&str)->i64
                 score = b;
                 continue;
             }
-            let key = format!("{x},{y}");
-            grid.insert(key, b as u8);
+            grid[y as usize][x as usize] = b as u8;
+//            let key = format!("{x},{y}");
+//            grid.insert(key, b as u8);
 //           root.set_char(x as i32, y as i32, blocks[b as usize]);
             if b == 3 { // paddle
                 px = x;
@@ -267,7 +254,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(25, |_| { 
+    let bench_result = run_benchmark(100, |_| { 
         process(&input);
         process2(&input); 
     }); bench_result.print_stats();
