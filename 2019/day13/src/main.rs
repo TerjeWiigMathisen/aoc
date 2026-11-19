@@ -1,51 +1,43 @@
-// Fastest: 6469600 ns Surface
+// Fastest: 3845600 ns Surface
 
 use std::collections::VecDeque;
-//use std::collections::HashMap;
-//use std::io;
-//use std::env;
 use std::fs;
-//use aoc_parse::{parser, prelude::*};
 use devtimer::DevTime;
 use devtimer::run_benchmark;
-//use substring::Substring;
-//use tcod::Console;
-//use tcod::console::Root;
-//use win32console::console::WinConsole;
-
 
 #[derive(Clone,Debug)]
 struct Cpu {
     ip:usize,
-    opcodes:Vec<i64>,
-    inputs:VecDeque<i64>,
-    outputs:Vec<i64>,
-    relative_base:i64,
+    opcodes:Vec<i32>,
+    inputs:VecDeque<i32>,
+    outputs:Vec<i32>,
+    relative_base:i32,
 }
 
 impl Cpu {
-    fn lea(&mut self, s1:i64, mode:i64)->i64
+    fn lea(&mut self, s1:i32, mode:i32)->i32
     {
         if mode == 1 {return s1;}
         let addr = if mode == 0 {s1} else {s1+self.relative_base};
         addr
     }
-    fn load(&mut self, s1:i64, mode:i64)->i64
+    fn load(&mut self, s1:i32, mode:i32)->i32
     {
         if mode == 1 {return s1;}
         let addr = if mode == 0 {s1} else {s1+self.relative_base};
-        while addr >= self.opcodes.len() as i64 {
+        while addr >= self.opcodes.len() as i32 {
             self.opcodes.push(0);
         }
         self.opcodes[addr as usize]
     }
-    fn unpack(&self, opcmode:i64) -> (i64, i64, i64, i64)
+    fn unpack(&self, opcmode:i32) -> (i32, i32, i32, i32)
     {
+        let opcmode = opcmode as u32;
         let (opc, m1, m2, m3) = 
             (opcmode % 100, (opcmode / 100) % 10, (opcmode / 1000) % 10, opcmode / 10000);
-        (opc, m1, m2, m3)
+        (opc as i32, m1 as i32, m2 as i32, m3 as i32)
     }
-    fn _mem(&self, ip:usize, mode:i64)->String
+    fn _mem(&self, ip:usize, mode:i32)->String
     {
         let addr = self.opcodes[ip];
         if mode == 0 {return format!("[{addr}]")};
@@ -92,10 +84,10 @@ impl Cpu {
         }
 
     }
-    fn run(&mut self)->i64
+    fn run(&mut self)->i32
     {
         let mut ip = self.ip;
-        let mut ret = i64::MIN;
+        let mut ret = i32::MIN;
         loop {
             while ip > self.opcodes.len()+3 {self.opcodes.push(0);}
 //            self.disasm(ip,1);
@@ -106,7 +98,7 @@ impl Cpu {
             if opc == 99 {break; }
 
             let s1 = self.opcodes[ip+1];
-            if opc == 3 {
+            if opc == 3 {  // load
                 if self.inputs.len() == 0 {break};
                 let addr = self.lea(s1,mode1);
                 self.opcodes[addr as usize] = self.inputs.pop_front().unwrap(); 
@@ -131,14 +123,14 @@ impl Cpu {
             let src2 = self.load(s2, mode2);
 //            let dst = if mode3 == 0 {self.opcodes[d as usize]}else{d};
             let dst = self.lea(d,mode3);
-            while self.opcodes.len() as i64 <= dst { self.opcodes.push(0);}
+            while self.opcodes.len() as i32 <= dst { self.opcodes.push(0);}
             match opc {
                 1 => {self.opcodes[dst as usize] = src1 + src2; ip += 4; },
                 2 => {self.opcodes[dst as usize] = src1 * src2; ip += 4; },    
                 5 => ip = if src1 != 0 {src2 as usize}else{ip + 3},
                 6 => ip = if src1 == 0 {src2 as usize}else{ip + 3},
-                7 => {self.opcodes[dst as usize] = (src1 < src2) as i64; ip += 4},
-                8 => {self.opcodes[dst as usize] = (src1 == src2) as i64; ip += 4},
+                7 => {self.opcodes[dst as usize] = (src1 < src2) as i32; ip += 4},
+                8 => {self.opcodes[dst as usize] = (src1 == src2) as i32; ip += 4},
                 _ => panic!("Invalid opcode!"),
             }
         }
@@ -147,7 +139,7 @@ impl Cpu {
     }
 }
 
-fn show(grid:&Vec<Vec<u8>>)
+fn _show(grid:&Vec<Vec<u8>>)
 {
     println!("(0,0) -> ({},{})", grid[0].len()-1, grid.len()-1);
     let blocks = [' ','#','-','=','O'];
@@ -160,10 +152,10 @@ fn show(grid:&Vec<Vec<u8>>)
     }
 }
 
-fn process(inp:&str) -> i64
+fn process(inp:&str) -> i32
 {
     let mut cpu = Cpu{ip:0,opcodes:vec![], inputs:vec![].into(), outputs:vec![], relative_base:0};
-    cpu.opcodes = inp.split(",").map(|s| s.parse::<i64>().unwrap()).collect();
+    cpu.opcodes = inp.split(",").map(|s| s.parse::<i32>().unwrap()).collect();
 
     let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
     cpu.run();
@@ -183,16 +175,14 @@ fn process(inp:&str) -> i64
     blocks
 }
 
-fn process2(inp:&str)->i64
+fn process2(inp:&str)->i32
 {
     let mut cpu = Cpu{ip:0,opcodes:vec![], inputs:vec![].into(), outputs:vec![], relative_base:0};
-    cpu.opcodes = inp.split(",").map(|s| s.parse::<i64>().unwrap()).collect();
+    cpu.opcodes = inp.split(",").map(|s| s.parse::<i32>().unwrap()).collect();
     cpu.opcodes[0] = 2;
 
     let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
     let mut score = 0;
-//    let mut root = Root::initializer().size(40,20).init();
-//    cpu.inputs = vec![0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1].into();
     let blocks = [' ','#','-','=','O'];
     let mut bx = 0;
     let mut by = 0;
@@ -212,9 +202,6 @@ fn process2(inp:&str)->i64
                 continue;
             }
             grid[y as usize][x as usize] = b as u8;
-//            let key = format!("{x},{y}");
-//            grid.insert(key, b as u8);
-//           root.set_char(x as i32, y as i32, blocks[b as usize]);
             if b == 3 { // paddle
                 px = x;
             }
@@ -238,16 +225,6 @@ fn process2(inp:&str)->i64
 }
 
 fn main() {
-/*
-    process("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99".to_owned());
-    process("1102,34915192,34915192,7,4,7,99,0".to_owned());
-    process("104,1125899906842624,99".to_owned());
-//    assert!(process("3,3,1107,-1,8,3,4,3,99".to_owned(),vec![7]) == 1);
-
-//    let bench_result = run_benchmark(10, |_| {bench_permute();}); bench_result.print_stats();
-
-    panic!("Stop now");
-*/
     let fname = "input.txt"; // instead of args[1]
     let mut input = fs::read_to_string(fname).expect("Error readin input file");
     if input.as_bytes()[input.as_bytes().len()-1] == '\n' as u8 {input.pop();}
