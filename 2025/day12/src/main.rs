@@ -1,20 +1,29 @@
 // Fastest run 2844 ns HP
 //             2465 ns Acer
-//             5532 ns Surface
+// HP with slice 71 ns, 2.2 us single run
+// Acer 1.7 us single run
 
 use std::fs;
 use devtimer::DevTime;
 use devtimer::run_benchmark;
 
+#[inline(never)]
 pub fn process(inp:&str) -> u32
 {
     let mut part1 = 0;
     let _input = inp.as_bytes();
+    let inpu = inp.as_bytes();
     let mut i = 0;
     while _input[i+2] != b'x' { i += 1; } // skip header block with the shapes, all fit in 3x3
+    while inpu[i+2] != b'x' { i += 1; } // skip header block with the shapes, all fit in 3x3
 
     while i+24 < _input.len() {
         let input:[u8;24] = _input[i..i+24].try_into().unwrap();
+        let x = (input[0] - b'0') * 10 + (input[1] - b'0');
+        let y = (input[3] - b'0') * 10 + (input[4] - b'0');
+    while i+24 < inpu.len() {
+        let input:[u8;24] = inpu[i..i+24].try_into().unwrap();
+//        println!("Line: {}", std::str::from_utf8(&input[i..i+24]).unwrap());
         let x = (input[0] - b'0') * 10 + (input[1] - b'0');
         let y = (input[3] - b'0') * 10 + (input[4] - b'0');
         let size = x as u32 * y as u32;
@@ -27,12 +36,13 @@ pub fn process(inp:&str) -> u32
     part1
 }
 
-fn p1k(inp:&str) -> u32
+pub fn p1k(inp:&str) -> u32
 {
+    let mut part1 = 0;
     for _ in 0..1000 {
-        process(inp);
+        part1 += process(inp);
     }
-    0
+    part1
 }
 
 fn main() {
