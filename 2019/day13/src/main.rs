@@ -1,4 +1,4 @@
-// Fastest: 3845600 ns Surface
+// Surface Fastest: 366978400 ns
 
 use std::collections::VecDeque;
 use std::fs;
@@ -17,6 +17,7 @@ struct Cpu {
 impl Cpu {
     fn lea(&mut self, s1:i32, mode:i32)->i32
     {
+        let mode = mode as u32;
         if mode == 1 {return s1;}
         let addr = if mode == 0 {s1} else {s1+self.relative_base};
         addr
@@ -35,6 +36,7 @@ impl Cpu {
         let opcmode = opcmode as u32;
         let (opc, m1, m2, m3) = 
             (opcmode % 100, (opcmode / 100) % 10, (opcmode / 1000) % 10, opcmode / 10000);
+
         (opc as i32, m1 as i32, m2 as i32, m3 as i32)
     }
     fn _mem(&self, ip:usize, mode:i32)->String
@@ -89,11 +91,10 @@ impl Cpu {
         let mut ip = self.ip;
         let mut ret = i32::MIN;
         loop {
-            while ip > self.opcodes.len()+3 {self.opcodes.push(0);}
+//            while ip > self.opcodes.len()+3 {self.opcodes.push(0);}
 //            self.disasm(ip,1);
 
-            let (opc, mode1, mode2, mode3) = self.unpack(self.opcodes[ip]);
-                    
+            let (opc, mode1, mode2, mode3) = self.unpack(self.opcodes[ip]);                  
 
             if opc == 99 {break; }
 
@@ -145,7 +146,7 @@ fn _show(grid:&Vec<Vec<u8>>)
     let blocks = [' ','#','-','=','O'];
     for y in 0..grid.len() {
         for x in 0..grid[y].len() {
-            let mut b = grid[y][x];
+            let b = grid[y][x];
             print!("{}", blocks[b as usize]);
         }
         println!();
@@ -181,13 +182,8 @@ fn process2(inp:&str)->i32
     cpu.opcodes = inp.split(",").map(|s| s.parse::<i32>().unwrap()).collect();
     cpu.opcodes[0] = 2;
 
-    let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
+//    let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
     let mut score = 0;
-    let blocks = [' ','#','-','=','O'];
-    let mut bx = 0;
-    let mut by = 0;
-    let mut bdx = 0;
-    let mut bdy = 0;
     let mut px = 0;
     loop {
         cpu.run();
@@ -201,16 +197,12 @@ fn process2(inp:&str)->i32
                 score = b;
                 continue;
             }
-            grid[y as usize][x as usize] = b as u8;
+//            grid[y as usize][x as usize] = b as u8;
             if b == 3 { // paddle
                 px = x;
             }
             else if b == 4 {
-                bdx = x - bx;
-                bdy = y - by;
-                bx = x;
-                by = y;
-                let s = (bx-px).signum();
+                let s = (x-px).signum();
                 if cpu.inputs.len() == 0 {
                     cpu.inputs.push_back(s);
                 }
@@ -231,7 +223,7 @@ fn main() {
 
     let mut devtime = DevTime::new_simple();
 
-    let bench_result = run_benchmark(100, |_| { 
+    let bench_result = run_benchmark(1000, |_| { 
         process(&input);
         process2(&input); 
     }); bench_result.print_stats();
