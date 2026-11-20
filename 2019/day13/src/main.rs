@@ -1,5 +1,6 @@
 // Surface Fastest: 366978400 ns
 // HP Fastest: 2185000 ns
+// Acer Fastest: 1809500 ns
 
 use std::collections::VecDeque;
 use std::fs;
