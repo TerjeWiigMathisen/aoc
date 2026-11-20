@@ -24,11 +24,10 @@ impl Cpu {
     }
     fn load(&mut self, s1:i32, mode:i32)->i32
     {
+        let mode = mode as u32;
         if mode == 1 {return s1;}
         let addr = if mode == 0 {s1} else {s1+self.relative_base};
-        while addr >= self.opcodes.len() as i32 {
-            self.opcodes.push(0);
-        }
+//        while addr >= self.opcodes.len() as i32 { self.opcodes.push(0); }
         self.opcodes[addr as usize]
     }
     fn unpack(&self, opcmode:i32) -> (i32, i32, i32, i32)
@@ -124,7 +123,7 @@ impl Cpu {
             let src2 = self.load(s2, mode2);
 //            let dst = if mode3 == 0 {self.opcodes[d as usize]}else{d};
             let dst = self.lea(d,mode3);
-            while self.opcodes.len() as i32 <= dst { self.opcodes.push(0);}
+//            while self.opcodes.len() as i32 <= dst { self.opcodes.push(0);}
             match opc {
                 1 => {self.opcodes[dst as usize] = src1 + src2; ip += 4; },
                 2 => {self.opcodes[dst as usize] = src1 * src2; ip += 4; },    
@@ -157,6 +156,7 @@ fn process(inp:&str) -> i32
 {
     let mut cpu = Cpu{ip:0,opcodes:vec![], inputs:vec![].into(), outputs:vec![], relative_base:0};
     cpu.opcodes = inp.split(",").map(|s| s.parse::<i32>().unwrap()).collect();
+    cpu.opcodes.resize(23000,0);
 
     let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
     cpu.run();
@@ -181,6 +181,7 @@ fn process2(inp:&str)->i32
     let mut cpu = Cpu{ip:0,opcodes:vec![], inputs:vec![].into(), outputs:vec![], relative_base:0};
     cpu.opcodes = inp.split(",").map(|s| s.parse::<i32>().unwrap()).collect();
     cpu.opcodes[0] = 2;
+    cpu.opcodes.resize(23000,0);
 
 //    let mut grid:Vec<Vec<u8>> = vec![vec![0;37];20];
     let mut score = 0;
