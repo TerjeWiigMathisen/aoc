@@ -5,6 +5,9 @@ edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+debug = true # or "line-tables-only" for smaller binaries
+
 [dependencies]
 # aoc-parse = "0.2.17"
 devtimer = "4.0.1"
