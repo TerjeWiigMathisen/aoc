@@ -1,5 +1,6 @@
 // Surface Fastest: 366978400 ns
-// HP Fastest: 2185000 ns
+// HP Fastest: 1630600 ns
+// HP with samply: Fastest: 1668700 ns
 // Acer Fastest: 1809500 ns
 
 use std::collections::VecDeque;
